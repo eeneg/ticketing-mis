@@ -16,7 +16,7 @@ The system allows users to submit tickets for these services and track their sta
 ### Prerequisites
 - PHP >= 8.3
 - WSL for [Windows](https://learn.microsoft.com/en-us/windows/wsl/install)
-- Docker 
+- Docker
 - Git
 - Laravel Sail [Shell Alias](https://laravel.com/docs/11.x/sail#configuring-a-shell-alias)
 
@@ -26,24 +26,24 @@ The system allows users to submit tickets for these services and track their sta
    git clone https://github.com/eeneg/pswdo-mis.git ticket
    cd ticket
    ```
-   
+
 2. **Install Dependencies**
     ```bash
-    composer install --ignore-platform-req
+    composer install --ignore-platform-reqs
     ```
-    
+
 2. **Copy Environment File**
    ```bash
    cp .env.example .env
    ```
-   
+
 3. **Generate Application Key**
    ```
    sail artisan key:generate
    ```
-   
+
 4. **Start the Containers**
-   
+
    Ensure no conflicting ports are running.
    ```
    sail up -d
