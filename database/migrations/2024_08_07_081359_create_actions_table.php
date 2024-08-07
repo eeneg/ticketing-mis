@@ -11,14 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('actions', function (Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->string('number');
-            $table->string('email')->unique();
-            $table->string('position');
-            $table->string('role');
-            $table->string('avatar');
-            $table->ulid('office_id');
+            $table->ulid('request_id');
+            $table->ulid('user_id');
+            $table->string('status');
+            $table->text('remarks');
+            $table->datetime('time');
+            // $table->ulidMorphs('time');
             $table->timestamps();
         });
     }
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('actions');
     }
 };
