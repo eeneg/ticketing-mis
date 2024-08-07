@@ -11,6 +11,46 @@ This repository contains a ticketing system designed to handle a variety of requ
 
 The system allows users to submit tickets for these services and track their status through a user-friendly interface. Administrators can manage and resolve tickets, ensuring efficient handling of all types of requests.
 
+## Installation
+
+### Prerequisites
+- PHP >= 8.3
+- WSL for [Windows](https://learn.microsoft.com/en-us/windows/wsl/install)
+- Docker 
+- Git
+- Laravel Sail [Shell Alias](https://laravel.com/docs/11.x/sail#configuring-a-shell-alias)
+
+### Configuration
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/eeneg/pswdo-mis.git ticket
+   cd ticket
+   ```
+   
+2. **Install Dependencies**
+    ```bash
+    composer install --ignore-platform-req
+    ```
+    
+2. **Copy Environment File**
+   ```bash
+   cp .env.example .env
+   ```
+   
+3. **Generate Application Key**
+   ```
+   sail artisan key:generate
+   ```
+   
+4. **Start the Containers**
+   
+   Ensure no conflicting ports are running.
+   ```
+   sail up -d
+   ```
+   Visit `http://localhost` to access the application.
+
+
 ## ER Diagram
 ```mermaid
 erDiagram
