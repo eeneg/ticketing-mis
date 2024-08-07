@@ -39,7 +39,7 @@ The system allows users to submit tickets for these services and track their sta
 
 3. **Generate Application Key**
    ```
-   sail artisan key:generate
+   php artisan key:generate
    ```
 
 4. **Start the Containers**
