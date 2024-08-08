@@ -2,17 +2,18 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\OfficeResource\Pages;
-use App\Models\Office;
+use App\Filament\Resources\CategoryResource\Pages;
+use App\Filament\Resources\CategoryResource\RelationManagers\SubcategoriesRelationManager;
+use App\Models\Category;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 
-class OfficeResource extends Resource
+class CategoryResource extends Resource
 {
-    protected static ?string $model = Office::class;
+    protected static ?string $model = Category::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -20,10 +21,13 @@ class OfficeResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name'),
-                Forms\Components\TextInput::make('address'),
-                Forms\Components\TextInput::make('building'),
-                Forms\Components\TextInput::make('room'),
+                Forms\Components\TextInput::make('name')
+                    ->required(),
+                Forms\Components\Select::make('office_id')
+                    ->relationship('office', 'name')
+                    ->native(false)
+                    ->required(),
+
             ]);
     }
 
@@ -31,17 +35,11 @@ class OfficeResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
-                    ->label('Name'),
-                Tables\Columns\TextColumn::make('address')
-                    ->label('Address'),
-                Tables\Columns\TextColumn::make('building')
-                    ->label('Building'),
-                Tables\Columns\TextColumn::make('room')
-                    ->label('Room #'),
+                Tables\Columns\TextColumn::make('name'),
+                Tables\Columns\TextColumn::make('office.name'),
             ])
             ->filters([
-
+                //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -56,16 +54,16 @@ class OfficeResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            SubcategoriesRelationManager::class,
         ];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListOffices::route('/'),
-            'create' => Pages\CreateOffice::route('/create'),
-            'edit' => Pages\EditOffice::route('/{record}/edit'),
+            'index' => Pages\ListCategories::route('/'),
+            'create' => Pages\CreateCategory::route('/create'),
+            'edit' => Pages\EditCategory::route('/{record}/edit'),
         ];
     }
 }
