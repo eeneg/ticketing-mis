@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('position')->nullable();
             $table->string('role')->nullable();
-            $table->string('phone')->nullable();
+            $table->string('number')->nullable();
             $table->string('avatar')->nullable();
             $table->foreignUlid('office_id')->nullable();
             $table->rememberToken();
