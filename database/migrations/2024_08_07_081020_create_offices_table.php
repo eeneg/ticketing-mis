@@ -14,10 +14,14 @@ return new class extends Migration
         Schema::create('offices', function (Blueprint $table) {
             $table->ulid('id')->primary();
             $table->string('name');
-            $table->string('address');
-            $table->string('room_number');
-            $table->string('building');
+            $table->string('address')->nullable();
+            $table->string('room')->nullable();
+            $table->string('building')->nullable();
             $table->timestamps();
+        });
+
+        Schema::table('users', function (Blueprint $table) {
+            $table->ulid('office_id')->nullable()->constrained()->change();
         });
     }
 
@@ -27,5 +31,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('offices');
+
+        Schema::table('users', function (Blueprint $table) {
+            $table->ulid('office_id')->nullable()->change();
+        });
     }
 };

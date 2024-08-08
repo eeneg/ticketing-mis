@@ -138,7 +138,7 @@ Assignee {
 
 Attachment {
     ulid id pk
-    string path
+    string file
     string attachable_type
     ulid attachable_id fk
 }

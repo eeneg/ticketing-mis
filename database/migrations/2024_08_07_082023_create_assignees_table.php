@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Request;
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,11 +15,11 @@ return new class extends Migration
     {
         Schema::create('assignees', function (Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->ulid('request_id');
-            $table->ulid('user_id');
+            $table->foreignIdFor(Request::class);
+            $table->foreignIdFor(User::class);
             $table->ulid('assigner_id');
             $table->string('response');
-            $table->string('responded_at');
+            $table->datetime('responded_at')->nullable();
             $table->timestamps();
         });
     }

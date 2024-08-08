@@ -17,8 +17,8 @@ return new class extends Migration
             $table->foreignUlid('subcategory_id')->constrained()->cascadeOnUpdate()->nullOnDelete();
             $table->foreignUlid('requestor_id')->constrained('users')->cascadeOnUpdate()->nullOnDelete();
             $table->text('remarks')->nullable();
-            $table->smallInt('priority')->nullable();
-            $table->smallInt('difficulty')->nullable();
+            $table->smallInteger('priority')->nullable();
+            $table->smallInteger('difficulty')->nullable();
             $table->date('target_date')->nullable();
             $table->time('target_time')->nullable();
             $table->datetime('availability_from')->nullable();

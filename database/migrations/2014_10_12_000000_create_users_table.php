@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->primary('id')->ulid();
+            $table->ulid('id')->primary();
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('role')->nullable();
             $table->string('number')->nullable();
             $table->string('avatar')->nullable();
-            $table->foreignUlid('office_id')->nullable();
+            $table->ulid('office_id')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
