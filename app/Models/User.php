@@ -44,4 +44,26 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function office()
+    {
+        return $this->belongsTo(Office::class);
+    }
+
+    public function requests()
+    {
+        return $this->hasMany(Request::class);
+    }
+
+    public function actions()
+    {
+        return $this->hasMany(Action::class);
+    }
+
+    public function assignments()
+    {
+        return $this->belongsToMany(Request::class, 'assignee')
+            ->using(Assignee::class)
+            ->withPivot(['response', 'responded_at']);
+    }
 }
