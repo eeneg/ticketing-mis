@@ -2,16 +2,14 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\UserRole;
 use App\Filament\Resources\UserResource\Pages;
-use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class UserResource extends Resource
 {
@@ -23,17 +21,41 @@ class UserResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name'),
-                Forms\Components\TextInput::make('role'),
-                Forms\Components\TextInput::make('number')
-                    ->type('number')
-                    ->numeric(),
-                Forms\Components\TextInput::make('email'),
+
                 Forms\Components\FileUpload::make('avatar')
-                    ->image(),
+                    ->image()
+                    ->avatar()
+                    ->directory('avatars'),
+                Forms\Components\TextInput::make('name')
+                    ->required(),
+                Forms\Components\Select::make('role')
+                    ->options(UserRole::class)
+                    ->native(false),
+                Forms\Components\Select::make('office_id')
+                    ->relationship('office', 'name')
+                    ->native(false),
+                Forms\Components\TextInput::make('number')
+                    ->prefix('+63')
+                    ->rule(fn () => function ($a, $v, $f) {
+                        if (
+                            ! preg_match('/^9\d{9}$/', $v)
+                        ) {
+                            $f('Incorrect number format');
+                        }
 
-
-
+                    })
+                    ->rule('numeric'),
+                Forms\Components\TextInput::make('email')
+                    ->rule(fn () => function ($a, $v, $f) {
+                        if (! preg_match('/^.*@.*$/', $v)) {
+                            $f('Invalid Email Format!');
+                        }
+                    }),
+                Forms\Components\TextInput::make('password')
+                    ->required(fn ($operation) => $operation === 'create')
+                    ->password()
+                    ->revealable()
+                    ->dehydrated(fn (?string $state) => ! is_null($state)),
             ]);
     }
 
@@ -42,7 +64,7 @@ class UserResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\ImageColumn::make('avatar')
-                    ->square()
+                    ->circular()
                     ->label('Avatar'),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
@@ -52,7 +74,7 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('number')
                     ->label('Phone Number'),
                 Tables\Columns\TextColumn::make('email')
-                    ->label('Email')
+                    ->label('Email'),
             ])
             ->filters([
                 //
