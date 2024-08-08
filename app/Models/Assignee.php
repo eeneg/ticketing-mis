@@ -4,13 +4,28 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class Assignee extends Model
+class Assignee extends Pivot
 {
     use HasFactory, HasUlids;
 
     protected $fillable = [
         'request_id', 'user_id', 'assigner_id', 'response', 'reponded_at',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function request()
+    {
+        return $this->belongsToMany(Request::class);
+    }
+
+    public function assigner()
+    {
+        return $this->belongsTo(User::class, 'assigner_id');
+    }
 }

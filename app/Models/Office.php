@@ -13,4 +13,14 @@ class Office extends Model
     protected $fillable = [
         'name', 'address', 'building', 'room',
     ];
+
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
+
+    public function categories()
+    {
+        return $this->hasMany(Category::class);
+    }
 }
