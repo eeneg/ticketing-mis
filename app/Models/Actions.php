@@ -9,7 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 class Actions extends Model
 {
     use HasFactory, HasUlids;
-    protected $fillable =[
-        'request_id', 'user_id', 'status', 'remarks', 'time'
+
+    protected $fillable = [
+        'request_id', 'user_id', 'status', 'remarks', 'time',
     ];
 }

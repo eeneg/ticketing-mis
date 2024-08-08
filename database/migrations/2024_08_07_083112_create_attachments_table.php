@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('attachments', function (Blueprint $table) {
             $table->ulid('id')->primary();
             $table->string('path');
-            $table->ulidMorphs('attachments');
+            $table->ulidMorphs('attachable');
             $table->timestamps();
         });
     }

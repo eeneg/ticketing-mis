@@ -14,8 +14,7 @@ return new class extends Migration
         Schema::create('tags', function (Blueprint $table) {
             $table->ulid('id')->primary();
             $table->string('name');
-            $table->string('taggable_type');
-            $table->ulid('taggable_id');
+            $table->ulidMorphs('taggable');
             $table->timestamps();
         });
     }

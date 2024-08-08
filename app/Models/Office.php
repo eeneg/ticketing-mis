@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Office extends Model
 {
     use HasFactory, HasUlids;
-    protected $fillable =[
-        'name', 'address', 'building', 'room'
+
+    protected $fillable = [
+        'name', 'address', 'building', 'room',
     ];
 }

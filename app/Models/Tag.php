@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Tag extends Model
 {
     use HasFactory, HasUlids;
-    protected $fillable =[
-        'name', 'taggable_type', 'taggable_id'
+
+    protected $fillable = [
+        'name', 'taggable_type', 'taggable_id',
     ];
 }

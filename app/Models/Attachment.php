@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Attachment extends Model
 {
     use HasFactory, HasUlids;
-    protected $fillable =[
+
+    protected $fillable = [
         'path', 'attachable_type', 'attachable_id',
     ];
 }
