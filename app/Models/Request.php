@@ -12,7 +12,7 @@ class Request extends Model
     use HasFactory, HasUlids;
 
     protected $fillable = [
-        'category_id', 'subcategory_id', 'remarks', 'priority', 'difficulty', 'target_date', 'target_time', 'availability_from', 'availability_to',
+        'category_id', 'office_id', 'subcategory_id', 'requestor_id', 'remarks', 'priority', 'difficulty', 'target_date', 'target_time', 'availability_from', 'availability_to',
     ];
 
     public function assignees()
@@ -26,11 +26,6 @@ class Request extends Model
     }
 
     public function category()
-    {
-        return $this->belongsTo(Category::class);
-    }
-
-    public function subcategory()
     {
         return $this->belongsTo(Category::class);
     }
@@ -50,5 +45,15 @@ class Request extends Model
         return $this->belongsToMany(User::class, 'user')
             ->using(User::class)
             ->withPivot(['response', 'responded_at']);
+    }
+
+    public function office()
+    {
+        return $this->belongsTo(Office::class);
+    }
+
+    public function subcategory()
+    {
+        return $this->belongsTo(Subcategory::class);
     }
 }

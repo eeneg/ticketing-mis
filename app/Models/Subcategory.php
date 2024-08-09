@@ -24,4 +24,9 @@ class Subcategory extends Model
     {
         return $this->morthToMany(Tag::class, 'taggable');
     }
+
+    public function requests()
+    {
+        return $this->hasMany(Request::class);
+    }
 }
