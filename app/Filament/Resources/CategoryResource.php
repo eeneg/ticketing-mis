@@ -25,9 +25,7 @@ class CategoryResource extends Resource
                     ->required(),
                 Forms\Components\Select::make('office_id')
                     ->relationship('office', 'name')
-                    ->native(false)
-                    ->required(),
-
+                    ->native(false),
             ]);
     }
 
