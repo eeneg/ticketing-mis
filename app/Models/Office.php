@@ -23,4 +23,9 @@ class Office extends Model
     {
         return $this->hasMany(Category::class);
     }
+
+    public function requests()
+    {
+        return $this->hasMany(Request::class);
+    }
 }

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('requests', function (Blueprint $table) {
             $table->ulid('id')->primary();
+            $table->foreignUlid('office_id')->constrained()->cascadeOnUpdate()->nullOnDelete();
             $table->foreignUlid('category_id')->constrained()->cascadeOnUpdate()->nullOnDelete();
             $table->foreignUlid('subcategory_id')->constrained()->cascadeOnUpdate()->nullOnDelete();
             $table->foreignUlid('requestor_id')->constrained('users')->cascadeOnUpdate()->nullOnDelete();
