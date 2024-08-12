@@ -27,6 +27,10 @@ class CategoryResource extends Resource
                     ->relationship('office', 'name')
                     ->native(false)
                     ->required(),
+                Forms\Components\Repeater::make('tag')
+                    ->simple(
+                        Forms\Components\TextInput::make('name')
+                    ),
 
             ]);
     }

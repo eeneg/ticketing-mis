@@ -7,7 +7,9 @@ use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\MaxWidth;
 use Filament\Tables;
 use Filament\Tables\Table;
 
@@ -21,7 +23,6 @@ class UserResource extends Resource
     {
         return $form
             ->schema([
-
                 Forms\Components\FileUpload::make('avatar')
                     ->image()
                     ->avatar()
@@ -35,24 +36,20 @@ class UserResource extends Resource
                     ->relationship('office', 'name')
                     ->native(false),
                 Forms\Components\TextInput::make('number')
+                    ->placeholder('9071947813')
+                    ->mask('999 999 9999')
                     ->prefix('+63')
                     ->rule(fn () => function ($a, $v, $f) {
                         if (
-                            ! preg_match('/^9\d{9}$/', $v)
+                            ! preg_match('/^9.*/', $v)
                         ) {
                             $f('Incorrect number format');
                         }
-
-                    })
-                    ->rule('numeric'),
-                Forms\Components\TextInput::make('email')
-                    ->rule(fn () => function ($a, $v, $f) {
-                        if (! preg_match('/^.*@.*$/', $v)) {
-                            $f('Invalid Email Format!');
-                        }
                     }),
+                Forms\Components\TextInput::make('email')
+                    ->email(),
                 Forms\Components\TextInput::make('password')
-                    ->required(fn ($operation) => $operation === 'create')
+                    ->visible(fn ($operation) => $operation === 'create')
                     ->password()
                     ->revealable()
                     ->dehydrated(fn (?string $state) => ! is_null($state)),
@@ -72,6 +69,7 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('role')
                     ->label('Role'),
                 Tables\Columns\TextColumn::make('number')
+                    ->prefix('0')
                     ->label('Phone Number'),
                 Tables\Columns\TextColumn::make('email')
                     ->label('Email'),
@@ -80,6 +78,34 @@ class UserResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\Action::make('change_password')
+                    ->icon('heroicon-s-lock-closed')
+                    ->color('danger')
+                    ->form([
+                        Forms\Components\TextInput::make('ed')
+                            ->password()
+                            ->minLength(8)
+                            ->maxLength(255)
+                            ->required()
+                            ->revealable(),
+                        Forms\Components\TextInput::make('confirm_password')
+                            ->password()
+                            ->minLength(8)
+                            ->maxLength(255)
+                            ->required()
+                            ->same('password')
+                            ->revealable(),
+
+                    ])
+                    ->modalWidth(MaxWidth::Large)
+                    ->closeModalByClickingAway(false)
+                    ->action(function (array $data, User $record) {
+                        $record->update($data);
+                        Notification::make()
+                            ->title('Change Password Successfully')
+                            ->success()
+                            ->send();
+                    }),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([

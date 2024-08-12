@@ -19,6 +19,10 @@ class SubcategoriesRelationManager extends RelationManager
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
+                Forms\Components\Repeater::make('tag')
+                    ->simple(
+                        Forms\Components\TextInput::make('name')
+                    ),
             ]);
     }
 
