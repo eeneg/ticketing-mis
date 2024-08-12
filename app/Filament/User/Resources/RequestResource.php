@@ -10,11 +10,12 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
-use Filament\Tables\Actions\Action;
+
 class RequestResource extends Resource
 {
     protected static ?string $model = Request::class;
@@ -89,7 +90,7 @@ class RequestResource extends Resource
                 $query->where('requestor_id', $userId);
             })
             ->columns([
-                      Tables\Columns\TextColumn::make('office.name')->label('Office'),
+                Tables\Columns\TextColumn::make('office.name')->label('Office'),
                 Tables\Columns\TextColumn::make('category.name')->label('Category'),
                 Tables\Columns\TextColumn::make('subcategory.name')->label('Subcategory'),
                 Tables\Columns\TextColumn::make('requestor.name')->label('Requestor'),
@@ -105,11 +106,11 @@ class RequestResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make()
-                ->color('success'),
+                    ->color('success'),
                 Action::make('CloseTicket')
-                ->url('')
-                ->openUrlInNewTab()
-                ->color('danger'),
+                    ->url('')
+                    ->openUrlInNewTab()
+                    ->color('danger'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
