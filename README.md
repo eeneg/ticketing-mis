@@ -83,6 +83,7 @@ Office {
     string address
     string building
     string room
+    string logo
 }
 
 Category {
@@ -124,7 +125,7 @@ Action {
     ulid user_id fk
     string status
     text remarks
-    datettime time
+    datetime time
 }
 
 Assignee {
@@ -133,7 +134,7 @@ Assignee {
     ulid user_id fk
     ulid assigner_id fk
     string response
-    string responded_at
+    datetime responded_at
 }
 
 Attachment {
