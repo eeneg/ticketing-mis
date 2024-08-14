@@ -18,9 +18,10 @@ return new class extends Migration
             $table->foreignIdFor(Request::class);
             $table->foreignIdFor(User::class);
             $table->ulid('assigner_id');
-            $table->string('response');
+            $table->string('response')->default('pending')->nullable();
             $table->datetime('responded_at')->nullable();
             $table->timestamps();
+            $table->unique(['request_id', 'user_id']);
         });
     }
 

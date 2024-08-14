@@ -17,7 +17,7 @@ return new class extends Migration
             $table->ulid('id')->primary();
             $table->foreignIdFor(Request::class);
             $table->foreignIdFor(User::class);
-            $table->string('status');
+            $table->string('status')->nullable();
             $table->text('remarks')->nullable();
             $table->datetime('time');
             $table->timestamps();
