@@ -23,7 +23,7 @@ The system allows users to submit tickets for these services and track their sta
 ### Configuration
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/eeneg/pswdo-mis.git ticket
+   git clone https://github.com/eeneg/ticketing-mis.git ticket
    cd ticket
    ```
 
