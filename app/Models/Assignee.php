@@ -10,6 +10,8 @@ class Assignee extends Pivot
 {
     use HasFactory, HasUlids;
 
+    protected $table = 'assignees';
+
     protected $fillable = [
         'request_id', 'user_id', 'assigner_id', 'response', 'reponded_at',
     ];
