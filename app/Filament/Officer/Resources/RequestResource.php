@@ -31,7 +31,6 @@ class RequestResource extends Resource
             ->schema([
                 //
             ]);
-
     }
 
     public static function table(Table $table): Table
@@ -80,8 +79,6 @@ class RequestResource extends Resource
                     ])
                     ->color('success'),
 
-                Tables\Actions\EditAction::make()
-                    ->color('info'),
                 ActionGroup::make([
                     Action::make('Accept')
                         ->icon('heroicon-o-check-circle')
@@ -106,30 +103,24 @@ class RequestResource extends Resource
                                 ->multiple(),
                         ])
                         ->closeModalByClickingAway(false)
-                                //     ->action(function ($record, $data) {
-                    //         $action = ActionModel::where('request_id', $record->id)
-                    //             ->where('user_id', Auth::id())
-                    //             ->update(['remarks' => $data['remarks'], 'status' => 'Responded']);
-
-                    //     })
                         ->action(function ($data, $record) {
-                            // $validator = Validator::make($data, [
-                            //     'user_ids.*' => [
-                            //         Rule::unique('assignees', 'user_id')
-                            //             ->where(function ($query) use ($record) {
-                            //                 return $query->where('request_id', $record->id);
-                            //             }),
-                            //     ],
-                            // ]);
+                            $validator = Validator::make($data, [
+                                'user_ids.*' => [
+                                    Rule::unique('assignees', 'user_id')
+                                        ->where(function ($query) use ($record) {
+                                            return $query->where('request_id', $record->id);
+                                        }),
+                                ],
+                            ]);
 
-                            // if ($validator->fails()) {
-                            //     Notification::make()
-                            //         ->title('Error Duplicate Entry')
-                            //         ->danger()
-                            //         ->send();
+                            if ($validator->fails()) {
+                                Notification::make()
+                                    ->title('Error Duplicate Entry')
+                                    ->danger()
+                                    ->send();
 
-                            //     return;
-                            // }
+                                return;
+                            }
 
                             $userIds = $data['user_ids'] ?? [];
 
@@ -143,7 +134,6 @@ class RequestResource extends Resource
                                     ];
                                 })
                             );
-                            // dd($record);
                             Notification::make()
                                 ->title('Request Assigned Successfully')
                                 ->success()
@@ -151,7 +141,6 @@ class RequestResource extends Resource
                             $action = ActionModel::where('request_id', $record->id)
                                 ->where('user_id', Auth::id())
                                 ->update(['remarks' => $data['remarks'], 'status' => 'Assigned']);
-                            // $record->update(['remarks' => $data['remarks']]);
                             $record->update(['priority' => $data['priority'], 'status' => 'Assigned']);
                         }),
                     Action::make('Reject')
@@ -190,8 +179,6 @@ class RequestResource extends Resource
     {
         return [
             'index' => Pages\ListRequests::route('/'),
-            'create' => Pages\CreateRequest::route('/create'),
-            'edit' => Pages\EditRequest::route('/{record}/edit'),
         ];
     }
 }
