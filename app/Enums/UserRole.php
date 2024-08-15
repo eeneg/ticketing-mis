@@ -2,7 +2,9 @@
 
 namespace App\Enums;
 
-enum UserRole: string
+use Filament\Support\Contracts\HasLabel;
+
+enum UserRole: string implements HasLabel
 {
     case ADMIN = 'admin';
     case USER = 'user';
@@ -14,3 +16,4 @@ enum UserRole: string
         return ucfirst($this->value);
     }
 }
+

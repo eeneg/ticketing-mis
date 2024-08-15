@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\UserAssignmentResponse;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\Pivot;
@@ -12,8 +13,13 @@ class Assignee extends Pivot
 
     protected $table = 'assignees';
 
+    protected $casts = [
+        'response' => UserAssignmentResponse::class,
+        'responded_at' => 'datetime'
+    ];
+
     protected $fillable = [
-        'request_id', 'user_id', 'assigner_id', 'response', 'reponded_at',
+        'request_id', 'user_id', 'assigner_id', 'response', 'responded_at',
     ];
 
     public function user()
