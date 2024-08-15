@@ -104,23 +104,23 @@ class RequestResource extends Resource
                         ])
                         ->closeModalByClickingAway(false)
                         ->action(function ($data, $record) {
-                            $validator = Validator::make($data, [
-                                'user_ids.*' => [
-                                    Rule::unique('assignees', 'user_id')
-                                        ->where(function ($query) use ($record) {
-                                            return $query->where('request_id', $record->id);
-                                        }),
-                                ],
-                            ]);
+                            // $validator = Validator::make($data, [
+                            //     'user_ids.*' => [
+                            //         Rule::unique('assignees', 'user_id')
+                            //             ->where(function ($query) use ($record) {
+                            //                 return $query->where('request_id', $record->id);
+                            //             }),
+                            //     ],
+                            // ]);
 
-                            if ($validator->fails()) {
-                                Notification::make()
-                                    ->title('Error Duplicate Entry')
-                                    ->danger()
-                                    ->send();
+                            // if ($validator->fails()) {
+                            //     Notification::make()
+                            //         ->title('Error Duplicate Entry')
+                            //         ->danger()
+                            //         ->send();
 
-                                return;
-                            }
+                            //     return;
+                            // }
 
                             $userIds = $data['user_ids'] ?? [];
 

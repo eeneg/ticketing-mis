@@ -20,8 +20,7 @@ class Request extends Model
     public function currentUserAssignee()
     {
         return $this->hasOne(Assignee::class)
-            ->latestOfMany()
-            ->where('user_id', auth()->id());
+            ->ofMany(['id' => 'max'], fn ($query) => $query->where('assignees.user_id', auth()->id()));
     }
 
     public function assignees()
