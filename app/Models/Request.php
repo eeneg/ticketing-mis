@@ -29,9 +29,7 @@ class Request extends Model
     public function action()
     {
         return $this->hasOne(Action::class)
-            ->latestOfMany()
-            ->where('user_id', auth()->id()
-            );
+            ->latestOfMany();
     }
 
     public function actions()

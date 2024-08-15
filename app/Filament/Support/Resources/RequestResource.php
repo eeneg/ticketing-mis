@@ -45,7 +45,7 @@ class RequestResource extends Resource
                     ->label('Response')
                     ->prefix('• '),
                 Tables\Columns\TextColumn::make('requestor.name'),
-                Tables\Columns\TextColumn::make('actions.status')
+                Tables\Columns\TextColumn::make('action.status')
                     ->label('Status'),
             ])
             ->filters([
@@ -55,6 +55,9 @@ class RequestResource extends Resource
                 Tables\Actions\Action::make('update')
                     ->color('info')
                     ->button()
+                    ->disabled(function ($record){
+                        return $record->currentUserAssignee->response->name=='PENDING';
+                    })
                     ->form([
                         Select::make('status')
                             ->options(RequestStatus::class)
@@ -63,11 +66,9 @@ class RequestResource extends Resource
                     ])
 
                     ->action(function (array $data, $record) {
-
-                        $record->action()->updateOrCreate([
+                        $record->action()->create([
                             'user_id' => Auth::id(),
                             'actions.request_id' => $record->id,
-                        ], [
                             'status' => $data['status'],
                             'time' => now(),
                             'remarks' => $data['remarks'],
@@ -76,7 +77,6 @@ class RequestResource extends Resource
                             ->title('Submitted Successfully!')
                             ->success()
                             ->send();
-
                     }),
                 Tables\Actions\ViewAction::make()
                     ->modalCancelAction(false)
@@ -88,8 +88,8 @@ class RequestResource extends Resource
                                 Select::make('name')
                                     ->relationship('requestor', 'name')
                                     ->label('Requestor Name'),
-                                Select::make('number')
-                                    ->relationship('requestor', 'number'),
+                                // Select::make('number')
+                                //     ->relationship('requestor', 'number'),
                             ]),
                         Grid::make()
                             ->columns(3)
