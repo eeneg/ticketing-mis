@@ -2,12 +2,10 @@
 
 namespace App\Models;
 
-use App\Enums\UserAssignmentResponse;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use PhpParser\Node\Expr\Cast;
 
 class Request extends Model
 {
@@ -32,8 +30,8 @@ class Request extends Model
     {
         return $this->hasOne(Action::class)
             ->latestOfMany()
-            ->where('user_id',auth()->id()
-        );
+            ->where('user_id', auth()->id()
+            );
     }
 
     public function actions()

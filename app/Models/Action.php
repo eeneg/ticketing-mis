@@ -13,7 +13,7 @@ class Action extends Model
     use HasFactory, HasUlids;
 
     protected $casts = [
-        'response'=>RequestStatus::class,
+        'response' => RequestStatus::class,
     ];
 
     protected $fillable = [

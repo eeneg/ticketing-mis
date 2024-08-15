@@ -15,7 +15,7 @@ class Assignee extends Pivot
 
     protected $casts = [
         'response' => UserAssignmentResponse::class,
-        'responded_at' => 'datetime'
+        'responded_at' => 'datetime',
     ];
 
     protected $fillable = [

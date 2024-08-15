@@ -17,11 +17,11 @@ enum RequestStatus: string implements HasLabel
 
     public function getColor(): ?string
     {
-        return match($this) {
+        return match ($this) {
             self::HOLD => 'success',
             self::DONE => 'danger',
             self::CANCEL => 'warning',
-            default=> 'gray'
+            default => 'gray'
         };
     }
 }

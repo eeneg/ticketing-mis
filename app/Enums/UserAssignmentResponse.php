@@ -5,7 +5,7 @@ namespace App\Enums;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
 
-enum UserAssignmentResponse: string implements HasLabel, HasColor
+enum UserAssignmentResponse: string implements HasColor, HasLabel
 {
     case ACCEPTED = 'accepted';
     case REJECTED = 'rejected';
@@ -18,12 +18,11 @@ enum UserAssignmentResponse: string implements HasLabel, HasColor
 
     public function getColor(): ?string
     {
-        return match($this) {
+        return match ($this) {
             self::ACCEPTED => 'success',
             self::REJECTED => 'danger',
             self::PENDING => 'warning',
-            default=> 'gray'
+            default => 'gray'
         };
     }
 }
-

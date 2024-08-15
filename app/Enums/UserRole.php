@@ -16,4 +16,3 @@ enum UserRole: string implements HasLabel
         return ucfirst($this->value);
     }
 }
-
