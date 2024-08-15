@@ -237,7 +237,6 @@ class RequestResource extends Resource
     {
         return [
             'index' => Pages\ListRequests::route('/'),
-            'create' => Pages\CreateRequest::route('/create'),
         ];
     }
 }
