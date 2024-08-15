@@ -23,7 +23,7 @@ The system allows users to submit tickets for these services and track their sta
 ### Configuration
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/eeneg/pswdo-mis.git ticket
+   git clone https://github.com/eeneg/ticketing-mis.git ticket
    cd ticket
    ```
 
@@ -83,6 +83,7 @@ Office {
     string address
     string building
     string room
+    string logo
 }
 
 Category {
@@ -124,7 +125,7 @@ Action {
     ulid user_id fk
     string status
     text remarks
-    datettime time
+    datetime time
 }
 
 Assignee {
@@ -133,7 +134,7 @@ Assignee {
     ulid user_id fk
     ulid assigner_id fk
     string response
-    string responded_at
+    datetime responded_at
 }
 
 Attachment {

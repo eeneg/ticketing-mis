@@ -15,9 +15,21 @@ class Request extends Model
         'category_id', 'office_id', 'subcategory_id', 'requestor_id', 'remarks', 'priority', 'difficulty', 'target_date', 'target_time', 'availability_from', 'availability_to',
     ];
 
+    public function currentUserAssignee()
+    {
+        return $this->hasOne(Assignee::class)
+            ->ofMany(['id' => 'max'], fn ($query) => $query->where('assignees.user_id', auth()->id()));
+    }
+
     public function assignees()
     {
         return $this->hasMany(Assignee::class);
+    }
+
+    public function action()
+    {
+        return $this->hasOne(Action::class)
+            ->latestOfMany();
     }
 
     public function actions()
