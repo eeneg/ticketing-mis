@@ -1,9 +1,8 @@
 <?php
 
-namespace App\Filament\Resources\RequestResource\Pages;
+namespace App\Filament\Admin\Resources\RequestResource\Pages;
 
-use App\Filament\Resources\RequestResource;
-use Filament\Actions;
+use App\Filament\Admin\Resources\RequestResource;
 use Filament\Resources\Pages\ListRecords;
 
 class ListRequests extends ListRecords
@@ -13,7 +12,6 @@ class ListRequests extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
         ];
     }
 }

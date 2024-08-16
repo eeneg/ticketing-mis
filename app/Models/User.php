@@ -4,13 +4,17 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Enums\UserRole;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     use HasApiTokens, HasFactory, HasUlids, Notifiable;
 
@@ -46,6 +50,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'role' => UserRole::class,
     ];
 
     public function office()
@@ -68,5 +73,19 @@ class User extends Authenticatable
         return $this->belongsToMany(Request::class, 'assignee')
             ->using(Assignee::class)
             ->withPivot(['response', 'responded_at']);
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        if ($panel->getID() == UserRole::USER->value) {
+            return true;
+        }
+
+        if (Auth::user()->role->value != $panel->getID()) {
+            return false;
+        }
+
+        return true;
+
     }
 }
