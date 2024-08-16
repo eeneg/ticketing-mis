@@ -23,7 +23,6 @@ class OfficerPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->login()
             ->id('officer')
             ->path('officer')
             ->colors([

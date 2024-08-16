@@ -23,8 +23,6 @@ class SupportPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->login()
-            ->default()
             ->profile()
             ->id('support')
             ->path('support')
