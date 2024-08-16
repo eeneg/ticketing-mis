@@ -18,24 +18,13 @@ class LoginResponse implements Responsable
     {
         $this->user = $request->user();
 
+
         $route = match ($this->user->role) {
             UserRole::ADMIN => 'filament.admin.pages.dashboard',
             UserRole::USER => 'filament.user.resources.requests.index',
             UserRole::OFFICER => 'filament.officer.resources.requests.index',
             UserRole::SUPPORT => 'filament.support.resources.requests.index',
-            default=> null
         };
-
-        if($route==null)
-        {
-            Notification::make()
-                ->title('You have no roles!')
-                ->warning()
-                ->send();
-                Auth::logout();
-
-                $route='filament.user.auth.login';
-        }
 
         return redirect()->route($route);
     }
