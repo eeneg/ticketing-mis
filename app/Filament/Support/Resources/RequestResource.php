@@ -55,8 +55,8 @@ class RequestResource extends Resource
                 Tables\Actions\Action::make('update')
                     ->color('info')
                     ->button()
-                    ->disabled(function ($record){
-                        return $record->currentUserAssignee->response->name=='PENDING';
+                    ->disabled(function ($record) {
+                        return $record->currentUserAssignee->response->name == 'PENDING';
                     })
                     ->form([
                         Select::make('status')

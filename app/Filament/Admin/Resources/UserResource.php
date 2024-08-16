@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Admin\Resources;
 
 use App\Enums\UserRole;
-use App\Filament\Resources\UserResource\Pages;
+use App\Filament\Admin\Resources\UserResource\Pages;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -82,7 +82,7 @@ class UserResource extends Resource
                     ->icon('heroicon-s-lock-closed')
                     ->color('danger')
                     ->form([
-                        Forms\Components\TextInput::make('ed')
+                        Forms\Components\TextInput::make('password')
                             ->password()
                             ->minLength(8)
                             ->maxLength(255)
