@@ -16,6 +16,8 @@ use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
@@ -154,7 +156,6 @@ class RequestResource extends Resource
                                         })
                                         ->action(function ($record) {
                                             if ($record->currentUserAssignee->responded_at?->addMinutes(15)->lt(now())) {
-                                                $this->close();
                                                 Notification::make()
                                                     ->title('No activity for 15 minutes')
                                                     ->Warning()
@@ -212,7 +213,20 @@ class RequestResource extends Resource
                                     ->alignCenter(),
                             ]),
                     ]),
+                ActionGroup::make([
+                    ViewAction::make('viewactions')
+                        ->color('primary')
+                        ->icon('heroicon-s-folder')
+                        ->slideOver()
+                        ->action(fn (Request $record) => $record->viewactions())
+                        ->modalContent(function (Request $record) {
+                            $relatedRecords = $record->actions()->get();
 
+                            return view('filament.officer.resources.request-resource.pages.actions.viewactions', [
+                                'records' => $relatedRecords,
+                            ]);
+                        }),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

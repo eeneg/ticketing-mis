@@ -44,7 +44,7 @@ class LoginPage extends Login
         return app(LoginResponse::class);
     }
 
-    protected function  throwFailureValidationException(): never
+    protected function throwFailureValidationException(): never
     {
         throw ValidationException::withMessages([
             'data.email' => __('You have no assigned Roles!'),

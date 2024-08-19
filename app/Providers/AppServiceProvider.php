@@ -4,9 +4,9 @@ namespace App\Providers;
 
 use App\Http\Responses\LogoutResponse;
 use App\Models\Token;
-use Filament\Http\Responses\Auth\Contracts\LoginResponse;
 use Filament\Http\Responses\Auth\Contracts\LogoutResponse as ContractsLogoutResponse;
-use Illuminate\Support\Facades\App;
+use Filament\Support\Assets\Css;
+use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Sanctum\Sanctum;
 
@@ -26,7 +26,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Sanctum::usePersonalAccessTokenModel(Token::class);
-        App::bind(LoginResponse::class, \App\Http\Responses\LoginResponse::class);
+        Sanctum::usePersonalAccessTokenModel(Token::class);
+        FilamentAsset::register([
+            Css::make('app', __DIR__.'/../../resources/css/app.css'),
+        ]);
     }
 }
