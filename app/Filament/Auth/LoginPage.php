@@ -46,8 +46,16 @@ class LoginPage extends Login
 
     protected function throwFailureValidationException(): never
     {
-        throw ValidationException::withMessages([
-            'data.email' => __('You have no assigned Roles!'),
-        ]);
+        $user = Filament::auth()->user();
+
+        if (empty($user->role)) {
+            throw ValidationException::withMessages([
+                'data.email' => __('You have no assigned Roles!'),
+            ]);
+        }else{
+            throw ValidationException::withMessages([
+                'data.email' => __('filament-panels::pages/auth/login.messages.failed'),
+            ]);
+        }
     }
 }

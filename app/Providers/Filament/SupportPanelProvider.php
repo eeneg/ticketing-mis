@@ -5,6 +5,7 @@ namespace App\Providers\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\MenuItem;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -26,6 +27,7 @@ class SupportPanelProvider extends PanelProvider
             ->profile()
             ->id('support')
             ->path('support')
+            ->spa()
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -52,6 +54,16 @@ class SupportPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+            ])
+            ->userMenuItems([
+                MenuItem::make()
+                    ->label('Support')
+                    ->icon('heroicon-o-user')
+                    ->url(fn (): string => route('filament.support.resources.requests.index')),
+                MenuItem::make()
+                    ->label('User')
+                    ->icon('heroicon-o-user')
+                    ->url(fn (): string => route('filament.user.resources.requests.index'))
             ]);
     }
 }
