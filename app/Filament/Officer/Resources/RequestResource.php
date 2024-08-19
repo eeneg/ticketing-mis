@@ -7,6 +7,9 @@ use App\Models\Action as ActionModel;
 use App\Models\Request;
 use App\Models\User;
 use Filament\Forms;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
@@ -14,10 +17,9 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 
 class RequestResource extends Resource
 {
@@ -30,6 +32,7 @@ class RequestResource extends Resource
         return $form
             ->schema([
                 //
+                // TextInput::make('id'),
             ]);
     }
 
@@ -38,14 +41,16 @@ class RequestResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('office.name')->label('Office'),
-                Tables\Columns\TextColumn::make('actions.remarks')
+                // Tables\Columns\TextColumn::make('id')->label('Request ID'),
+                Tables\Columns\TextColumn::make('action.remarks')
                     ->label('Remarks')
                     ->html(),
-                Tables\Columns\TextColumn::make('actions.status')
+                Tables\Columns\TextColumn::make('action.status')
                     ->label('Status')
                     ->badge()
                     ->color(fn ($state): string => match ($state) {
                         'Deleted' => 'danger',
+                        'Reassigned' => 'info',
                         'Responded' => 'info',
                         'published' => 'success',
                         'Rejected' => 'danger',
@@ -74,11 +79,101 @@ class RequestResource extends Resource
                 Tables\Actions\ViewAction::make()
                     ->action(function ($data) {})
                     ->form([
-                        TextInput::make('dfdafdf')
-                            ->placeholder('Hello'),
+                        Grid::make('category')
+                            ->columns(4)
+                            ->schema([
+                                Select::make('cat')
+                                    ->columnSpan(2)
+                                    ->label('Category')
+                                    ->relationship('category', 'name'),
+                                Select::make('Subcat')
+                                    ->columnSpan(2)
+                                    ->label('SubCategory')
+                                    ->relationship('subcategory', 'name'),
+                                TextInput::make('remarks')
+                                    ->columnSpan(4),
+                                Select::make('Office')
+                                    ->columnSpan(2)
+                                    ->relationship('office', 'name'),
+                                Select::make('Office')
+                                    ->columnSpan(2)
+                                    ->relationship('office', 'building'),
+                                Select::make('ActionModel')
+                                    ->label('Status')
+                                    ->columnSpan(2)
+                                    ->relationship('action', 'status'),
+                                TextInput::make('priority')
+                                    ->columnSpan(2),
+                                TextInput::make('availability_from')
+                                    ->columnSpan(2),
+                                TextInput::make('availability_to')
+                                    ->columnSpan(2),
+                            ]),
+
                     ])
                     ->color('success'),
 
+                // ActionGroup::make([
+                //     Action::make('Reassign')
+                //         ->color('primary')
+                //         ->icon('heroicon-s-pencil-square')
+                //         ->form([
+                //             Forms\Components\Select::make('priority')
+                //                 ->label('New Priority')
+                //                 ->options([
+                //                     '1' => '1',
+                //                     '2' => '2',
+                //                     '3' => '3',
+                //                     '4' => '4',
+                //                     '5' => '5',
+                //                 ])
+                //                 ->required(),
+                //             RichEditor::make('remarks')
+                //                 ->label('New Remarks')
+                //                 ->required(),
+                //             Forms\Components\Select::make('user_ids')
+                //                 ->label('Assignees')
+                //                 ->default('Hello')
+                //                 ->options(User::query()->where('role', 'support')->pluck('name', 'id'))
+                //                 ->multiple(),
+                //         ])
+                //         ->action(function ($data, $record) {
+
+                //             $userIds = $data['user_ids'] ?? [];
+
+                //             $record->assignees()->createMany(
+                //                 collect($userIds)->map(function ($id) use ($record) {
+                //                     return [
+                //                         'assigner_id' => Auth::id(),
+                //                         'request_id' => $record->id,
+                //                         'user_id' => $id,
+                //                         'response' => 'pending',
+                //                     ];
+                //                 })
+                //             );
+                //             dd(Auth::id('name'));
+                //             $record->action()->create([
+
+                //                 'request_id' => $record->id,
+                //                 'user_id' => Auth::id(),
+                //                 'status' => 'Reassigned',
+                //                 'remarks' => $record['remarks'],
+                //                 'time' => now(),
+                //             ]);
+                //             Notification::make()
+                //                 ->title('Request Reassigned Successfully')
+                //                 ->success()
+                //                 ->send();
+                //             $action = ActionModel::where('request_id', $record->id)
+                //                 ->where('user_id', Auth::id())
+                //                 ->update(['remarks' => $data['remarks'], 'status' => 'Reassigned']);
+                //             $record->update(['priority' => $data['priority'], 'status' => 'Reassigned']);
+                //         }),
+                //     Action::make('Delete')
+                //         ->icon('heroicon-o-trash')
+                //         ->requiresConfirmation()
+                //         ->color('danger'),
+                // ]),
                 ActionGroup::make([
                     Action::make('Accept')
                         ->icon('heroicon-o-check-circle')
@@ -104,23 +199,6 @@ class RequestResource extends Resource
                         ])
                         ->closeModalByClickingAway(false)
                         ->action(function ($data, $record) {
-                            // $validator = Validator::make($data, [
-                            //     'user_ids.*' => [
-                            //         Rule::unique('assignees', 'user_id')
-                            //             ->where(function ($query) use ($record) {
-                            //                 return $query->where('request_id', $record->id);
-                            //             }),
-                            //     ],
-                            // ]);
-
-                            // if ($validator->fails()) {
-                            //     Notification::make()
-                            //         ->title('Error Duplicate Entry')
-                            //         ->danger()
-                            //         ->send();
-
-                            //     return;
-                            // }
 
                             $userIds = $data['user_ids'] ?? [];
 
@@ -134,6 +212,13 @@ class RequestResource extends Resource
                                     ];
                                 })
                             );
+                            $record->action()->create([
+                                'request_id' => $record->id,
+                                'user_id' => $record->id,
+                                'status' => 'Assigned',
+                                'remarks' => $record['remarks'],
+                                'time' => now(),
+                            ]);
                             Notification::make()
                                 ->title('Request Assigned Successfully')
                                 ->success()
@@ -143,14 +228,34 @@ class RequestResource extends Resource
                                 ->update(['remarks' => $data['remarks'], 'status' => 'Assigned']);
                             $record->update(['priority' => $data['priority'], 'status' => 'Assigned']);
                         }),
+
+                    ViewAction::make('viewactions')
+                        ->color('primary')
+                        ->label('View Logs')
+                        ->action(fn (Request $record) => $record->viewactions())
+                        ->icon('heroicon-s-folder')
+                        ->slideOver()
+                        ->modalContent(function (Request $record) {
+                            $relatedRecords = $record->actions()->get();
+
+                            return view('filament.officer.resources.request-resource.pages.actions.viewactions', [
+                                'records' => $relatedRecords,
+                            ]);
+                        }),
+
                     Action::make('Reject')
                         ->icon('heroicon-o-trash')
                         ->requiresConfirmation()
                         ->color('danger')
                         ->action(function ($record) {
-                            $action = ActionModel::where('request_id', $record->id)
-                                ->where('user_id', Auth::id())
-                                ->update(['status' => 'Rejected']);
+                            $record->action()->create([
+                                'request_id' => $record->id,
+                                'user_id' => Auth::id(),
+                                'status' => 'Rejected',
+                                'remarks' => $record['remarks'],
+                                'time' => now(),
+                            ]);
+
                         }),
 
                 ]),
