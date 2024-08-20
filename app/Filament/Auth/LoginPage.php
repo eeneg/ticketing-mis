@@ -5,6 +5,8 @@ namespace App\Filament\Auth;
 use App\Http\Responses\LoginResponse;
 use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\Component;
+use Filament\Forms\Components\TextInput;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Pages\Auth\Login;
 use Illuminate\Validation\ValidationException;
@@ -46,16 +48,19 @@ class LoginPage extends Login
 
     protected function throwFailureValidationException(): never
     {
-        $user = Filament::auth()->user();
-
-        if (empty($user->role)) {
-            throw ValidationException::withMessages([
-                'data.email' => __('You have no assigned Roles!'),
-            ]);
-        } else {
-            throw ValidationException::withMessages([
-                'data.email' => __('filament-panels::pages/auth/login.messages.failed'),
-            ]);
-        }
+        throw ValidationException::withMessages([
+            'data.email' => __('filament-panels::pages/auth/login.messages.failed'),
+        ]);
+    }
+  
+    protected function getEmailFormComponent(): Component
+    {
+        return TextInput::make('email')
+            ->label(__('filament-panels::pages/auth/login.form.email.label'))
+            ->autocomplete()
+            ->autofocus()
+            ->extraInputAttributes(['tabindex' => 1])
+            ->rule('required')
+            ->markAsRequired();
     }
 }
