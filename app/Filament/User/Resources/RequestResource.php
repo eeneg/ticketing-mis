@@ -11,7 +11,8 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
-use Filament\Tables\Filters\Filter;
+use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
@@ -95,23 +96,34 @@ class RequestResource extends Resource
                 Tables\Columns\TextColumn::make('category.name')->label('Category'),
                 Tables\Columns\TextColumn::make('subcategory.name')->label('Subcategory'),
                 Tables\Columns\TextColumn::make('requestor.name')->label('Requestor'),
-                // Tables\Columns\TextColumn::make('availability_from')->label('Available From'),
-                // Tables\Columns\TextColumn::make('availability_to')->label('Available To'),
-                // Tables\Columns\TextColumn::make('priority'),
-                // Tables\Columns\TextColumn::make('target_date')->label('Target Date'),
-                // Tables\Columns\TextColumn::make('target_time')->label('Target Time'),
+
             ])
             ->filters([
-                // If you want a specific filter, define it here
+                //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make()
                     ->color('success'),
-                Action::make('CloseTicket')
-                    ->url('')
-                    ->openUrlInNewTab()
-                    ->color('danger'),
+                ActionGroup::make([
+                    Action::make('CloseTicket')
+                        ->url('')
+                        ->openUrlInNewTab()
+                        ->color('danger'),
+                    ViewAction::make('viewactions')
+                        ->color('primary')
+                        ->icon('heroicon-s-folder')
+                        ->slideOver()
+                        ->action(fn (Request $record) => $record->viewactions())
+                        ->modalContent(function (Request $record) {
+                            $relatedRecords = $record->actions()->get();
+
+                            return view('filament.officer.resources.request-resource.pages.actions.viewactions', [
+                                'records' => $relatedRecords,
+                            ]);
+                        }),
+                ]),
+
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
