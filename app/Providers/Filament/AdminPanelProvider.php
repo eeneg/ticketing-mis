@@ -2,7 +2,7 @@
 
 namespace App\Providers\Filament;
 
-use App\Http\Middleware\Authenticate;
+use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Navigation\MenuItem;
@@ -63,7 +63,7 @@ class AdminPanelProvider extends PanelProvider
                 MenuItem::make()
                     ->label('User')
                     ->icon('heroicon-o-user')
-                    ->url(fn (): string => route('filament.user.resources.requests.index'))
+                    ->url(fn (): string => route('filament.user.resources.requests.index')),
             ]);
 
     }

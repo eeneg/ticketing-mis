@@ -52,7 +52,7 @@ class LoginPage extends Login
             throw ValidationException::withMessages([
                 'data.email' => __('You have no assigned Roles!'),
             ]);
-        }else{
+        } else {
             throw ValidationException::withMessages([
                 'data.email' => __('filament-panels::pages/auth/login.messages.failed'),
             ]);
