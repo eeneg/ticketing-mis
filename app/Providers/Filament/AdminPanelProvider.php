@@ -2,8 +2,7 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\User\Resources\RequestResource;
-use Filament\Http\Middleware\Authenticate;
+use App\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Navigation\MenuItem;
