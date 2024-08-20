@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Enums\RequestStatus;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\Auth;
 
 class Request extends Model
 {
@@ -18,7 +20,7 @@ class Request extends Model
     public function currentUserAssignee()
     {
         return $this->hasOne(Assignee::class)
-            ->ofMany(['id' => 'max'], fn ($query) => $query->where('assignees.user_id', auth()->id()));
+            ->ofMany(['id' => 'max'], fn ($query) => $query->where('assignees.user_id', Auth::id()));
     }
 
     public function assignees()
@@ -29,7 +31,16 @@ class Request extends Model
     public function action()
     {
         return $this->hasOne(Action::class)
-            ->latestOfMany();
+            ->ofMany(['id' => 'max'], function ($query) {
+                $query->whereIn('status', [
+                    RequestStatus::APPROVED,
+                    RequestStatus::DECLINED,
+                    RequestStatus::COMPLETED,
+                    RequestStatus::CANCELLED,
+                    RequestStatus::STARTED,
+                    RequestStatus::SUSPENDED,
+                ]);
+            });
     }
 
     public function actions()
