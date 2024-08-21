@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('offices', function (Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->string('name');
-            $table->string('acronym')->nullable();
+            $table->string('name')->unique();
+            $table->string('acronym')->unique()->nullable();
             $table->string('address')->nullable();
             $table->string('room')->nullable();
             $table->string('logo')->nullable();
