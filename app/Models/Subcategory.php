@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Subcategory extends Model
 {
@@ -20,9 +20,9 @@ class Subcategory extends Model
         return $this->belongsTo(Category::class);
     }
 
-    public function tags(): MorphToMany
+    public function tags(): MorphMany
     {
-        return $this->morthToMany(Tag::class, 'taggable');
+        return $this->morphMany(Tag::class, 'taggable');
     }
 
     public function requests()

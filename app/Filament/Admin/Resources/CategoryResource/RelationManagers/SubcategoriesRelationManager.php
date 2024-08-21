@@ -18,11 +18,22 @@ class SubcategoriesRelationManager extends RelationManager
             ->schema([
                 Forms\Components\TextInput::make('name')
                     ->required()
+                    ->columnSpanFull()
                     ->maxLength(255),
-                Forms\Components\Repeater::make('tag')
-                    ->simple(
-                        Forms\Components\TextInput::make('name')
-                    ),
+                Forms\Components\Fieldset::make('Tags')
+                    ->schema([
+                        Forms\Components\Repeater::make('tag')
+                            ->relationship('tags')
+                            ->columnSpanFull()
+                            ->hiddenLabel()
+                            ->grid(3)
+                            ->simple(
+                                Forms\Components\TextInput::make('name')
+                                    ->distinct()
+                                    ->markAsRequired()
+                                    ->rule('required')
+                            ),
+                    ]),
             ]);
     }
 
@@ -32,15 +43,19 @@ class SubcategoriesRelationManager extends RelationManager
             ->recordTitleAttribute('name')
             ->columns([
                 Tables\Columns\TextColumn::make('name'),
+                Tables\Columns\TextColumn::make('tags.name')
+                    ->limit(20),
             ])
             ->filters([
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make()
+                    ->slideOver(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->slideOver(),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
