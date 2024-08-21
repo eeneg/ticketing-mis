@@ -13,7 +13,12 @@ class Office extends Model
     use HasFactory, HasUlids;
 
     protected $fillable = [
-        'name', 'acronym', 'address', 'building', 'room', 'logo',
+        'name',
+        'acronym',
+        'address',
+        'building',
+        'room',
+        'logo',
     ];
 
     public function users(): HasMany

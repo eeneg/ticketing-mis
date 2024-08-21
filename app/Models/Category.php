@@ -12,7 +12,8 @@ class Category extends Model
     use HasFactory, HasUlids;
 
     protected $fillable = [
-        'name', 'office_id',
+        'name',
+        'office_id',
     ];
 
     public function office()

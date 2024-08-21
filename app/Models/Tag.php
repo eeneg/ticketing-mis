@@ -13,7 +13,9 @@ class Tag extends Model
     use HasFactory, HasUlids;
 
     protected $fillable = [
-        'name', 'taggable_type', 'taggable_id',
+        'name',
+        'taggable_type',
+        'taggable_id',
     ];
 
     public function subcategory(): MorphToMany

@@ -17,8 +17,8 @@ return new class extends Migration
             $table->string('acronym')->unique()->nullable();
             $table->string('address')->nullable();
             $table->string('room')->nullable();
-            $table->string('logo')->nullable();
             $table->string('building')->nullable();
+            $table->string('logo')->nullable();
             $table->timestamps();
         });
 

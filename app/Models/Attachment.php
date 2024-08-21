@@ -13,7 +13,9 @@ class Attachment extends Model
     use HasFactory, HasUlids;
 
     protected $fillable = [
-        'file', 'attachable_type', 'attachable_id',
+        'file',
+        'attachable_type',
+        'attachable_id',
     ];
 
     public function request(): MorphToMany

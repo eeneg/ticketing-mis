@@ -12,12 +12,16 @@ class Action extends Model
 {
     use HasFactory, HasUlids;
 
-    protected $casts = [
-        'status' => RequestStatus::class,
+    protected $fillable = [
+        'request_id',
+        'user_id',
+        'status',
+        'remarks',
+        'time',
     ];
 
-    protected $fillable = [
-        'request_id', 'user_id', 'status', 'remarks', 'time',
+    protected $casts = [
+        'status' => RequestStatus::class,
     ];
 
     public function request()
