@@ -71,6 +71,7 @@ class RequestResource extends Resource
                 Tables\Columns\TextColumn::make('category.name')->label('Category'),
                 Tables\Columns\TextColumn::make('subcategory.name')->label('Subcategory'),
                 Tables\Columns\TextColumn::make('requestor.name')->label('Requestor'),
+                Tables\Columns\TextColumn::make('published_at')->label('Publish Date'),
             ])
             ->filters([
                 //
@@ -86,14 +87,16 @@ class RequestResource extends Resource
                         ->color('danger'),
                     ViewAction::make('viewactions')
                         ->color('primary')
+                        ->label('View Logs')
                         ->icon('heroicon-s-folder')
                         ->slideOver()
-                        ->action(fn (Request $record) => $record->viewactions())
                         ->modalContent(function (Request $record) {
-                            $relatedRecords = $record->actions()->get();
+                            $relatedRecords = $record->actions()->orderByRaw('time DESC')->get();
+                            $actionStatuses = $record->actions()->orderByRaw('time ASC')->pluck('status')->toArray();
 
                             return view('filament.officer.resources.request-resource.pages.actions.viewactions', [
                                 'records' => $relatedRecords,
+                                'statuses' => $actionStatuses,
                             ]);
                         }),
                 ]),

@@ -11,7 +11,6 @@ use Filament\Support\Assets\Css;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\VerticalAlignment;
 use Filament\Support\Facades\FilamentAsset;
-use Filament\Support\Facades\FilamentIcon;
 use Filament\Tables\Table;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Sanctum\Sanctum;
