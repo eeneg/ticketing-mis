@@ -62,7 +62,7 @@ class SupportPanelProvider extends PanelProvider
                 MenuItem::make()
                     ->label('User')
                     ->icon('heroicon-o-user')
-                    ->url(fn (): string => route('filament.user.resources.requests.index'))
+                    ->url(fn (): string => route('filament.user.resources.requests.index')),
             ]);
     }
 }
