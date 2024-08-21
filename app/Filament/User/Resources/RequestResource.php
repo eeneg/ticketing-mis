@@ -30,7 +30,7 @@ class RequestResource extends Resource
                     ->searchable()
                     ->preload()
                     ->reactive()
-                    ->afterStateUpdated(fn (callable $set) => $set('category_id', null)),
+                    ->afterStateUpdated(fn (callable $set) => $set('category_id', null) | $set('subcategory_id', null)),
                 Forms\Components\Select::make('category_id')
                     ->required()
                     ->relationship('category', 'name', fn (Builder $query, callable $get) => $query->where('office_id', $get('office_id')))
