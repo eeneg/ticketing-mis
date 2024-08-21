@@ -14,6 +14,8 @@ class RequestResource extends Resource
 {
     protected static ?string $model = Request::class;
 
+    protected static ?int $navigationSort = -100;
+
     public static function table(Table $table): Table
     {
         return $table
