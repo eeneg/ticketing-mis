@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
@@ -26,6 +27,12 @@ class Tag extends Model
     public function category(): MorphToMany
     {
         return $this->morphedByMany(Category::class, 'taggable');
+    }
+
+    public function requests(): BelongsToMany
+    {
+        return $this->belongsToMany(Request::class, 'labels')
+            ->using(Label::class);
     }
 
     public function taggable(): MorphTo

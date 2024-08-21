@@ -93,4 +93,10 @@ class Request extends Model
     {
         return $this->belongsTo(Subcategory::class);
     }
+
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(Tag::class, 'labels')
+            ->using(Label::class);
+    }
 }
