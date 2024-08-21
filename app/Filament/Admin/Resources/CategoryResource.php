@@ -19,17 +19,42 @@ class CategoryResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required(),
-                Forms\Components\Select::make('office_id')
-                    ->relationship('office', 'name')
-                    ->native(false)
-                    ->required(),
-                Forms\Components\Repeater::make('tag')
-                    ->simple(
+                Forms\Components\Section::make('Category')
+                    ->schema([
+                        Forms\Components\Select::make('office_id')
+                            ->relationship('office', 'name')
+                            ->native(false)
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->editOptionForm([
+                                Forms\Components\TextInput::make('name')
+                                    ->markAsRequired()
+                                    ->rule('required'),
+                                Forms\Components\TextInput::make('acronym'),
+                            ])
+                            ->createOptionForm([
+                                Forms\Components\TextInput::make('name')
+                                    ->markAsRequired()
+                                    ->rule('required'),
+                                Forms\Components\TextInput::make('acronym'),
+                            ]),
                         Forms\Components\TextInput::make('name')
-                    ),
-
+                            ->required(),
+                        Forms\Components\Fieldset::make('Tags')
+                            ->schema([
+                                Forms\Components\Repeater::make('tag')
+                                    ->relationship('tags')
+                                    ->columnSpanFull()
+                                    ->hiddenLabel()
+                                    ->grid(3)
+                                    ->simple(
+                                        Forms\Components\TextInput::make('name')
+                                            ->markAsRequired()
+                                            ->rule('required')
+                                    ),
+                            ]),
+                    ]),
             ]);
     }
 
@@ -37,20 +62,23 @@ class CategoryResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name'),
-                Tables\Columns\TextColumn::make('office.name'),
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('office.name')
+                    ->searchable(),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('office_id')
+                    ->relationship('office', 'name')
+                    ->label('Office')
+                    ->searchable()
+                    ->preload()
+                    ->multiple(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->recordUrl(null);
     }
 
     public static function getRelations(): array
