@@ -13,13 +13,17 @@ class Assignee extends Pivot
 
     protected $table = 'assignees';
 
+    protected $fillable = [
+        'request_id',
+        'user_id',
+        'assigner_id',
+        'response',
+        'responded_at',
+    ];
+
     protected $casts = [
         'response' => UserAssignmentResponse::class,
         'responded_at' => 'datetime',
-    ];
-
-    protected $fillable = [
-        'request_id', 'user_id', 'assigner_id', 'response', 'responded_at',
     ];
 
     public function user()

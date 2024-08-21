@@ -28,10 +28,10 @@ enum RequestStatus: string implements HasColor, HasDescription, HasLabel
         return match ($this) {
             self::APPROVED => 'green',
             self::DECLINED => 'red',
-            self::COMPLETED => 'green',
-            self::CANCELLED => 'orange',
+            self::COMPLETED => 'success',
+            self::CANCELLED => 'danger',
             self::STARTED => 'blue',
-            self::SUSPENDED => 'purple',
+            self::SUSPENDED => 'warning',
             default => 'gray'
         };
     }
@@ -59,7 +59,8 @@ enum RequestStatus: string implements HasColor, HasDescription, HasLabel
                     'scheduled' => 'Schedule',
                     default => $value->substr(0, -2)->headline(),
                 };
-            });
+            })
+            ->headline();
     }
 
     public function major()

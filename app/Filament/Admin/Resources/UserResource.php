@@ -9,7 +9,6 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
-use Filament\Support\Enums\MaxWidth;
 use Filament\Tables;
 use Filament\Tables\Table;
 
@@ -21,38 +20,60 @@ class UserResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\FileUpload::make('avatar')
-                    ->image()
-                    ->avatar()
-                    ->directory('avatars'),
-                Forms\Components\TextInput::make('name')
-                    ->required(),
-                Forms\Components\Select::make('role')
-                    ->options(UserRole::class)
-                    ->native(false),
-                Forms\Components\Select::make('office_id')
-                    ->relationship('office', 'name')
-                    ->required()
-                    ->native(false),
-                Forms\Components\TextInput::make('number')
-                    ->placeholder('9071947813')
-                    ->mask('999 999 9999')
-                    ->prefix('+63')
-                    ->rule(fn () => function ($a, $v, $f) {
-                        if (
-                            ! preg_match('/^9.*/', $v)
-                        ) {
-                            $f('Incorrect number format');
-                        }
-                    }),
-                Forms\Components\TextInput::make('email')
-                    ->email()
-                    ->required(),
-                Forms\Components\TextInput::make('password')
+                Forms\Components\Section::make('Profile')
+                    ->columns(3)
+                    ->schema([
+                        Forms\Components\FileUpload::make('avatar')
+                            ->avatar()
+                            ->directory('avatars'),
+                        Forms\Components\Group::make()
+                            ->columnSpan(2)
+                            ->schema([
+                                Forms\Components\TextInput::make('name')
+                                    ->markAsRequired()
+                                    ->rule('required')
+                                    ->maxLength(255),
+                                Forms\Components\Select::make('office_id')
+                                    ->relationship('office', 'name')
+                                    ->markAsRequired()
+                                    ->rule('required')
+                                    ->searchable()
+                                    ->preload(),
+                            ]),
+                        Forms\Components\TextInput::make('email')
+                            ->markAsRequired()
+                            ->rules(['required', 'email'])
+                            ->maxLength(255),
+                        Forms\Components\Select::make('role')
+                            ->options(UserRole::class)
+                            ->searchable(),
+                        Forms\Components\TextInput::make('number')
+                            ->placeholder('9xx xxx xxxx')
+                            ->mask('999 999 9999')
+                            ->prefix('+63 ')
+                            ->rule(fn () => function ($a, $v, $f) {
+                                if (! preg_match('/^9.*/', $v)) {
+                                    $f('Incorrect number format');
+                                }
+                            }),
+                    ]),
+                Forms\Components\Section::make('Password')
                     ->visible(fn ($operation) => $operation === 'create')
-                    ->password()
-                    ->revealable()
-                    ->dehydrated(fn (?string $state) => ! is_null($state)),
+                    ->columns(2)
+                    ->schema([
+                        Forms\Components\TextInput::make('password')
+                            ->password()
+                            ->revealable()
+                            ->dehydrated(fn (?string $state) => ! is_null($state))
+                            ->markAsRequired()
+                            ->rule('required'),
+                        Forms\Components\TextInput::make('confirm_password')
+                            ->password()
+                            ->markAsRequired()
+                            ->rule('required')
+                            ->same('password')
+                            ->revealable(),
+                    ]),
             ]);
     }
 
@@ -61,58 +82,58 @@ class UserResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\ImageColumn::make('avatar')
-                    ->circular()
-                    ->label('Avatar'),
+                    ->circular(),
                 Tables\Columns\TextColumn::make('name')
-                    ->searchable()
-                    ->label('Name'),
-                Tables\Columns\TextColumn::make('role')
-                    ->label('Role'),
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('role'),
                 Tables\Columns\TextColumn::make('number')
-                    ->prefix('0')
-                    ->label('Phone Number'),
+                    ->prefix('+63 '),
                 Tables\Columns\TextColumn::make('email')
-                    ->label('Email'),
+                    ->searchable(),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('role')
+                    ->options(UserRole::class)
+                    ->searchable()
+                    ->preload()
+                    ->multiple(),
+                Tables\Filters\SelectFilter::make('office')
+                    ->relationship('office', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->multiple(),
             ])
             ->actions([
                 Tables\Actions\Action::make('change_password')
+                    ->requiresConfirmation()
+                    ->modalDescription()
                     ->icon('heroicon-s-lock-closed')
                     ->color('danger')
                     ->form([
                         Forms\Components\TextInput::make('password')
                             ->password()
-                            ->minLength(8)
-                            ->maxLength(255)
-                            ->required()
+                            ->markAsRequired()
+                            ->rules('required')
                             ->revealable(),
                         Forms\Components\TextInput::make('confirm_password')
                             ->password()
-                            ->minLength(8)
-                            ->maxLength(255)
-                            ->required()
+                            ->markAsRequired()
+                            ->rules('required')
                             ->same('password')
                             ->revealable(),
-
                     ])
-                    ->modalWidth(MaxWidth::Large)
                     ->closeModalByClickingAway(false)
                     ->action(function (array $data, User $record) {
                         $record->update($data);
+
                         Notification::make()
-                            ->title('Change Password Successfully')
+                            ->title('Pasword updated successfully')
                             ->success()
                             ->send();
                     }),
                 Tables\Actions\EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->recordUrl(null);
     }
 
     public static function getRelations(): array

@@ -3,6 +3,8 @@
 namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\OfficeResource\Pages;
+use App\Filament\Admin\Resources\OfficeResource\RelationManagers\CategoriesRelationManager;
+use App\Filament\Admin\Resources\OfficeResource\RelationManagers\SubcategoriesRelationManager;
 use App\Models\Office;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -18,15 +20,31 @@ class OfficeResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\FileUpload::make('logo')
-                    ->image()
-                    ->avatar()
-                    ->label('Logo')
-                    ->directory('logos'),
-                Forms\Components\TextInput::make('name'),
-                Forms\Components\TextInput::make('address'),
-                Forms\Components\TextInput::make('building'),
-                Forms\Components\TextInput::make('room'),
+                Forms\Components\Section::make('Office')
+                    ->columns(3)
+                    ->schema([
+                        Forms\Components\FileUpload::make('logo')
+                            ->avatar()
+                            ->directory('logos'),
+                        Forms\Components\Group::make()
+                            ->columnSpan(2)
+                            ->schema([
+                                Forms\Components\TextInput::make('name')
+                                    ->unique(ignoreRecord: true)
+                                    ->markAsRequired()
+                                    ->rule('required')
+                                    ->maxLength(255),
+                                Forms\Components\TextInput::make('acronym')
+                                    ->unique(ignoreRecord: true)
+                                    ->maxLength(255),
+                            ]),
+                        Forms\Components\TextInput::make('address')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('building')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('room')
+                            ->maxLength(255),
+                    ])
             ]);
     }
 
@@ -38,31 +56,21 @@ class OfficeResource extends Resource
                     ->circular()
                     ->label('Logo'),
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Name'),
-                Tables\Columns\TextColumn::make('address')
-                    ->label('Address'),
-                Tables\Columns\TextColumn::make('building')
-                    ->label('Building'),
-                Tables\Columns\TextColumn::make('room')
-                    ->label('Room #'),
-            ])
-            ->filters([
-
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('acronym')
+                    ->searchable(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->recordUrl(false);
     }
 
     public static function getRelations(): array
     {
         return [
-            //
+            CategoriesRelationManager::class,
+            SubcategoriesRelationManager::class,
         ];
     }
 

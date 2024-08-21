@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Admin\Resources\CategoryResource\RelationManagers;
+namespace App\Filament\Admin\Resources\OfficeResource\RelationManagers;
 
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -15,10 +15,33 @@ class SubcategoriesRelationManager extends RelationManager
     public function form(Form $form): Form
     {
         return $form
+            ->columns(1)
             ->schema([
-                Forms\Components\TextInput::make('name')
+                Forms\Components\Select::make('category_id')
+                    ->relationship('category', 'name')
+                    ->native(false)
+                    ->searchable()
+                    ->preload()
                     ->required()
-                    ->columnSpanFull()
+                    ->editOptionAction(fn ($action) => $action->slideOver())
+                    ->editOptionForm([
+                        Forms\Components\TextInput::make('name')
+                            ->markAsRequired()
+                            ->rule('required')
+                            ->maxLength(255),
+                    ])
+                    ->createOptionAction(fn ($action) => $action->slideOver())
+                    ->createOptionForm([
+                        Forms\Components\Hidden::make('office_id')
+                            ->default($this->ownerRecord->getKey()),
+                        Forms\Components\TextInput::make('name')
+                            ->markAsRequired()
+                            ->rule('required')
+                            ->maxLength(255),
+                    ]),
+                Forms\Components\TextInput::make('name')
+                    ->markAsRequired()
+                    ->rule('required')
                     ->maxLength(255),
                 Forms\Components\Fieldset::make('Tags')
                     ->schema([
@@ -43,12 +66,17 @@ class SubcategoriesRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('name')
             ->columns([
-                Tables\Columns\TextColumn::make('name'),
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('tags.name')
                     ->limit(20),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('category')
+                    ->relationship('category', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->multiple(),
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()
