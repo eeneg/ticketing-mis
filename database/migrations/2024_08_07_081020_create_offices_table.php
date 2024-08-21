@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('offices', function (Blueprint $table) {
             $table->ulid('id')->primary();
             $table->string('name');
+            $table->string('acronym')->nullable();
             $table->string('address')->nullable();
             $table->string('room')->nullable();
-            $table->string('office_logo')->nullable();
+            $table->string('logo')->nullable();
             $table->string('building')->nullable();
             $table->timestamps();
         });

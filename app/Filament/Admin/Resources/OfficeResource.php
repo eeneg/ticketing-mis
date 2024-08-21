@@ -18,11 +18,11 @@ class OfficeResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\FileUpload::make('office_logo')
+                Forms\Components\FileUpload::make('logo')
                     ->image()
                     ->avatar()
                     ->label('Logo')
-                    ->directory('office_logos'),
+                    ->directory('logos'),
                 Forms\Components\TextInput::make('name'),
                 Forms\Components\TextInput::make('address'),
                 Forms\Components\TextInput::make('building'),
@@ -34,7 +34,7 @@ class OfficeResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('office_logo')
+                Tables\Columns\ImageColumn::make('logo')
                     ->circular()
                     ->label('Logo'),
                 Tables\Columns\TextColumn::make('name')

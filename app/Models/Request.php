@@ -14,7 +14,7 @@ class Request extends Model
     use HasFactory, HasUlids;
 
     protected $fillable = [
-        'category_id', 'office_id', 'subcategory_id', 'requestor_id', 'remarks', 'priority', 'difficulty', 'target_date', 'target_time', 'availability_from', 'availability_to',
+        'category_id', 'office_id', 'subcategory_id', 'requestor_id', 'remarks', 'priority', 'difficulty', 'target_date', 'target_time', 'availability_from', 'availability_to', 'published_at',
     ];
 
     public function currentUserAssignee()

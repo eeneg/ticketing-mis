@@ -24,6 +24,7 @@ return new class extends Migration
             $table->time('target_time')->nullable();
             $table->datetime('availability_from')->nullable();
             $table->datetime('availability_to')->nullable();
+            $table->datetime('published_at')->nullable();
             $table->timestamps();
         });
     }

@@ -52,7 +52,7 @@ class LoginPage extends Login
             'data.email' => __('filament-panels::pages/auth/login.messages.failed'),
         ]);
     }
-  
+
     protected function getEmailFormComponent(): Component
     {
         return TextInput::make('email')
