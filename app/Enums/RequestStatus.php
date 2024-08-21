@@ -53,7 +53,7 @@ enum RequestStatus: string implements HasColor, HasDescription, HasLabel
     {
         return str($this->value)
             ->when($present, function ($value) {
-                return match($value->toString()) {
+                return match ($value->toString()) {
                     'cancelled' => 'Cancel',
                     'declined' => 'Decline',
                     'scheduled' => 'Schedule',

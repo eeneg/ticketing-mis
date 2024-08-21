@@ -32,6 +32,7 @@ class UserResource extends Resource
                     ->native(false),
                 Forms\Components\Select::make('office_id')
                     ->relationship('office', 'name')
+                    ->required()
                     ->native(false),
                 Forms\Components\TextInput::make('number')
                     ->placeholder('9071947813')
@@ -45,7 +46,8 @@ class UserResource extends Resource
                         }
                     }),
                 Forms\Components\TextInput::make('email')
-                    ->email(),
+                    ->email()
+                    ->required(),
                 Forms\Components\TextInput::make('password')
                     ->visible(fn ($operation) => $operation === 'create')
                     ->password()

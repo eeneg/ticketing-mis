@@ -17,7 +17,7 @@ class LoginResponse implements Responsable
         $this->user = $request->user();
 
         $route = match ($this->user->role) {
-            UserRole::ADMIN => 'filament.admin.resources.categories.index',
+            UserRole::ADMIN => 'filament.admin.resources.requests.index',
             UserRole::USER => 'filament.user.resources.requests.index',
             UserRole::OFFICER => 'filament.officer.resources.requests.index',
             UserRole::SUPPORT => 'filament.support.resources.requests.index',

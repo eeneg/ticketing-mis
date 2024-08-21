@@ -147,25 +147,11 @@ class RequestResource extends Resource
                                 ['request_id', 'user_id'],
                                 ['user_id'],
                             );
-
-                            // $userIds = $data['user_ids'] ?? [];
-
-                            // $record->assignees()->createMany(
-                            //     collect($userIds)->map(function ($id) use ($record) {
-                            //         return [
-                            //             'assigner_id' => Auth::id(),
-                            //             'request_id' => $record->id,
-                            //             'user_id' => $id,
-                            //             'response' => 'pending',
-                            //         ];
-                            //     })
-                            // );
-                            // dd(Auth::id('name'));
                             $record->action()->create([
 
                                 'request_id' => $record->id,
                                 'user_id' => Auth::id(),
-                                'status' => 'Reassigned',
+                                'status' => 'Assigned',
                                 'remarks' => $record['remarks'],
                                 'time' => now(),
                             ]);
@@ -173,12 +159,15 @@ class RequestResource extends Resource
                                 ->title('Request Reassigned Successfully')
                                 ->success()
                                 ->send();
+                            $record->update(['priority' => $data['priority']]);
+                        })
+                        ->visible(function ($record) {
+                            $latestAction = $record->actions()->latest()->first();
+                            $latestActionStatus = $latestAction?->status;
 
-                        })->visible(function ($record) {
-                            $lastAction = $record->action()->latest()->first();
-
-                            return $lastAction && $lastAction->status == 'Assigned';
+                            return $latestActionStatus === 'Assigned';
                         }),
+
                     Action::make('Accept')
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
@@ -227,16 +216,14 @@ class RequestResource extends Resource
                                 ->title('Request Assigned Successfully')
                                 ->success()
                                 ->send();
+                            $record->update(['priority' => $data['priority']]);
 
                         })
                         ->visible(function ($record) {
-                            $lastAction = $record->action()->latest()->first();
-                            if ($lastAction && ($lastAction->status == 'Assigned' || $lastAction->status == 'Reassigned')) {
-                                return false;
-                            } else {
-                                return true;
-                            }
+                            $latestAction = $record->actions()->latest()->first();
+                            $latestActionStatus = $latestAction?->status;
 
+                            return $latestActionStatus == '';
                         }),
 
                     ViewAction::make('viewactions')
@@ -246,9 +233,11 @@ class RequestResource extends Resource
                         ->slideOver()
                         ->modalContent(function (Request $record) {
                             $relatedRecords = $record->actions()->orderByRaw('time DESC')->get();
+                            $actionStatuses = $record->actions()->orderByRaw('time ASC')->pluck('status')->toArray();
 
                             return view('filament.officer.resources.request-resource.pages.actions.viewactions', [
                                 'records' => $relatedRecords,
+                                'statuses' => $actionStatuses,
                             ]);
                         }),
 
@@ -267,12 +256,10 @@ class RequestResource extends Resource
 
                         })
                         ->visible(function ($record) {
-                            $lastAction = $record->action()->latest()->first();
-                            if ($lastAction && $lastAction->status !== '') {
-                                return false;
-                            }
+                            $latestAction = $record->actions()->latest()->first();
+                            $latestActionStatus = $latestAction?->status;
 
-                            return true;
+                            return $latestActionStatus == '';
                         }),
 
                 ]),
