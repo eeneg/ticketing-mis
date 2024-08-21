@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('address')->nullable();
             $table->string('room')->nullable();
+            $table->string('office_logo')->nullable();
             $table->string('building')->nullable();
             $table->timestamps();
         });
