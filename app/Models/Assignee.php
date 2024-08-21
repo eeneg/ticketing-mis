@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Enums\UserAssignmentResponse;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class Assignee extends Pivot
@@ -26,17 +28,17 @@ class Assignee extends Pivot
         'responded_at' => 'datetime',
     ];
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function request()
+    public function request(): BelongsToMany
     {
         return $this->belongsToMany(Request::class);
     }
 
-    public function assigner()
+    public function assigner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigner_id');
     }

@@ -9,6 +9,9 @@ use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
@@ -38,22 +41,22 @@ class User extends Authenticatable implements FilamentUser
         'role' => UserRole::class,
     ];
 
-    public function office()
+    public function office(): BelongsTo
     {
         return $this->belongsTo(Office::class);
     }
 
-    public function requests()
+    public function requests(): HasMany
     {
         return $this->hasMany(Request::class);
     }
 
-    public function actions()
+    public function actions(): HasMany
     {
         return $this->hasMany(Action::class);
     }
 
-    public function assignments()
+    public function assignments(): BelongsToMany
     {
         return $this->belongsToMany(Request::class, 'assignee')
             ->using(Assignee::class)
