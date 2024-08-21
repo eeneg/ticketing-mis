@@ -26,7 +26,19 @@ class CategoryResource extends Resource
                             ->native(false)
                             ->searchable()
                             ->preload()
-                            ->required(),
+                            ->required()
+                            ->editOptionForm([
+                                Forms\Components\TextInput::make('name')
+                                    ->markAsRequired()
+                                    ->rule('required'),
+                                Forms\Components\TextInput::make('acronym'),
+                            ])
+                            ->createOptionForm([
+                                Forms\Components\TextInput::make('name')
+                                    ->markAsRequired()
+                                    ->rule('required'),
+                                Forms\Components\TextInput::make('acronym'),
+                            ]),
                         Forms\Components\TextInput::make('name')
                             ->required(),
                         Forms\Components\Fieldset::make('Tags')
