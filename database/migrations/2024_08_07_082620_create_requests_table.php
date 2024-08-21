@@ -22,8 +22,8 @@ return new class extends Migration
             $table->smallInteger('difficulty')->nullable();
             $table->date('target_date')->nullable();
             $table->time('target_time')->nullable();
-            $table->datetime('availability_from')->nullable();
-            $table->datetime('availability_to')->nullable();
+            $table->date('availability_from')->nullable();
+            $table->date('availability_to')->nullable();
             $table->timestamps();
         });
     }

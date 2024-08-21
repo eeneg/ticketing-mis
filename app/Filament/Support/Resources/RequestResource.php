@@ -8,13 +8,16 @@ use App\Filament\Support\Resources\RequestResource\Pages;
 use App\Models\Request;
 use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Actions\Action;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\MaxWidth;
 use Filament\Tables;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\ViewAction;
@@ -41,11 +44,13 @@ class RequestResource extends Resource
                 $query->whereHas('currentUserAssignee');
             })
             ->columns([
-                Tables\Columns\TextColumn::make('currentUserAssignee.response')
-                    ->label('Response')
-                    ->prefix('• '),
                 Tables\Columns\TextColumn::make('requestor.name'),
+                Tables\Columns\TextColumn::make('requestor.office.name'),
+                Tables\Columns\TextColumn::make('currentUserAssignee.response')
+                    ->badge()
+                    ->label('Response'),
                 Tables\Columns\TextColumn::make('action.status')
+                    ->badge()
                     ->label('Status'),
             ])
             ->filters([
@@ -60,11 +65,14 @@ class RequestResource extends Resource
                     })
                     ->form([
                         Select::make('status')
-                            ->options(RequestStatus::class)
+                            ->options([
+                                RequestStatus::COMPLETED->value => RequestStatus::COMPLETED->getLabel(),
+                                RequestStatus::SUSPENDED->value => RequestStatus::SUSPENDED->getLabel(),
+                                RequestStatus::CANCELLED->value => RequestStatus::CANCELLED->getLabel()
+                            ])
                             ->native(false),
                         RichEditor::make('remarks'),
                     ])
-
                     ->action(function (array $data, $record) {
                         $record->action()->create([
                             'user_id' => Auth::id(),
@@ -88,8 +96,8 @@ class RequestResource extends Resource
                                 Select::make('name')
                                     ->relationship('requestor', 'name')
                                     ->label('Requestor Name'),
-                                // Select::make('number')
-                                //     ->relationship('requestor', 'number'),
+                                Select::make('number')
+                                    ->relationship('requestor', 'number'),
                             ]),
                         Grid::make()
                             ->columns(3)
@@ -112,7 +120,7 @@ class RequestResource extends Resource
                                     ->label('Category'),
                                 Select::make('sub-cat')
                                     ->relationship('subcategory', 'name')
-                                    ->label('Sub-Category'),
+                                    ->label('SubCategory'),
                             ]),
                         Grid::make()
                             ->columns(2)
@@ -149,7 +157,7 @@ class RequestResource extends Resource
                                         ->icon('heroicon-c-check-circle')
                                         ->color('success')
                                         ->close()
-                                        ->disabled(function ($record) {
+                                        ->hidden(function ($record) {
                                             return $record->currentUserAssignee->responded_at?->addMinutes(15)->lt(now());
                                         })
                                         ->action(function ($record) {
@@ -200,11 +208,10 @@ class RequestResource extends Resource
                                                 ->danger()
                                                 ->send();
                                         })
-                                        ->disabled(function ($record) {
+                                        ->hidden(function ($record) {
                                             if ($record->currentUserAssignee->responded_at == null) {
                                                 return;
                                             }
-
                                             return $record->currentUserAssignee->responded_at->addMinutes(15)->lt(now());
                                         }),
                                 ])
@@ -216,7 +223,6 @@ class RequestResource extends Resource
                         ->color('primary')
                         ->icon('heroicon-s-folder')
                         ->slideOver()
-                        ->action(fn (Request $record) => $record->viewactions())
                         ->modalContent(function (Request $record) {
                             $relatedRecords = $record->actions()->get();
 
@@ -224,6 +230,70 @@ class RequestResource extends Resource
                                 'records' => $relatedRecords,
                             ]);
                         }),
+                    Tables\Actions\Action::make('difficulty')
+                        ->label('Set Difficulty')
+                        ->icon('heroicon-s-adjustments-vertical')
+                        ->action(function ($record,$data) {
+                            $from = $record->difficulty;
+
+                            $record->update(['difficulty'=>$data['diff']]);
+
+                            $record->action()->create([
+                                'user_id' => Auth::id(),
+                                'actions.request_id' => $record->id,
+                                'status' => RequestStatus::ADJUSTED->value,
+                                'time' => now(),
+                                'remarks' => 'Difficulty' . ($from ? ' from ' . $from: '') .  ' to ' . $data['diff'],
+                            ]);
+                        })
+                        ->form([
+                            Select::make('diff')
+                                ->label('Difficulty Level')
+                                ->options([
+                                    '1'=>'1',
+                                    '2'=>'2',
+                                    '3'=>'3',
+                                    '4'=>'4',
+                                    '5'=>'5'
+                                ])
+                                ]),
+                        Tables\Actions\Action::make('target-date-time')
+                            ->icon('heroicon-s-clock')
+                            ->label('Set target Date and Time')
+                            ->modalWidth(MaxWidth::Large)
+                            ->form([
+                                DatePicker::make('target_date')
+                                    ->required()
+                                    ->minDate(fn($record) => $record->availability_from)
+                                    ->maxDate(fn($record) => $record->availability_to),
+                                TimePicker::make('target_time')
+                                    ->required()
+                                    ->seconds(false)
+                                    ->placeholder('12:00')
+                                    ->rule(fn () => function ($a, $v, $f) {
+                                        if($v < '08:00' || $v > '17:00'){
+                                            $f('Invalid time');
+                                        }
+                                    })
+                            ])
+                            ->action(function ($record,$data) {
+                                $from = $record->target_date .' '.  $record->target_time ;
+
+                                $record->update($data);
+
+                                $record->action()->create([
+                                    'user_id' => Auth::id(),
+                                    'actions.request_id' => $record->id,
+                                    'status' => RequestStatus::SCHEDULED->value,
+                                    'time' => now(),
+                                    'remarks' => 'Scheduled' . ($from ? ' from ' . $from: '') .  ' to ' . $data['target_date'].' '.$data['target_time'],
+                                ]);
+                                Notification::make()
+                                                ->title('Scheduled Successfully!')
+                                                ->success()
+                                                ->send();
+                            })
+
                 ]),
             ])
             ->bulkActions([
