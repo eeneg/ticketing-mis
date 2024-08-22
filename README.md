@@ -54,20 +54,22 @@ The system allows users to submit tickets for these services and track their sta
 ## ER Diagram
 ```mermaid
 erDiagram
-    User }|--|| Office: belongs
+    Request ||--|{ Attachment: contains
+    Request ||--|{ Mark: has
+    User ||--|{ Assignee: is
+    Request ||--|{ Action: has
+    Office ||--|{ User: has
     Category ||--|{ Subcategory: has
     Office ||--|{ Category: has
     Category ||--|{ Tag: has
     Subcategory ||--|{ Tag: has
-    User ||--|{ Assignee: has
+    Subcategory ||--|{ Request: has
+    Category ||--|{ Request: has
+    Assignee ||--|{ Request: has
     User ||--|{ Request: makes
-    Request ||--|{ Assignee: has
-    Request ||--|{ Label: has
-    Request ||--|{ Attachment: contains
-    Request ||--|{ Action: has
-    Action ||--|{ Attachment: contains
     User ||--|{ Action: responds
-    Tag ||--|{ Label: has
+    Action ||--|{ Attachment: contains
+    Mark }|--|| Tag: has
 
 User {
     ulid id pk
@@ -146,7 +148,7 @@ Attachment {
     ulid attachable_id fk
 }
 
-Label {
+Mark {
     ulid id pk
     ulid request_id fk
     ulid tag_id fk
