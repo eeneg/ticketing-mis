@@ -44,7 +44,7 @@ class OfficeResource extends Resource
                             ->maxLength(255),
                         Forms\Components\TextInput::make('room')
                             ->maxLength(255),
-                    ])
+                    ]),
             ]);
     }
 

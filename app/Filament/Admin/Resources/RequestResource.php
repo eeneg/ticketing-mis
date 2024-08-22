@@ -2,12 +2,12 @@
 
 namespace App\Filament\Admin\Resources;
 
+use App\Filament\Actions\Table\ViewActionsAction;
 use App\Filament\Admin\Resources\RequestResource\Pages;
 use App\Models\Request;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\ActionGroup;
-use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Table;
 
 class RequestResource extends Resource
@@ -36,18 +36,7 @@ class RequestResource extends Resource
             ])
             ->actions([
                 ActionGroup::make([
-                    ViewAction::make('viewactions')
-                        ->color('primary')
-                        ->icon('heroicon-s-folder')
-                        ->slideOver()
-                        ->action(fn (Request $record) => $record->viewactions())
-                        ->modalContent(function (Request $record) {
-                            $relatedRecords = $record->actions()->get();
-
-                            return view('filament.officer.resources.request-resource.pages.actions.viewactions', [
-                                'records' => $relatedRecords,
-                            ]);
-                        }),
+                    ViewActionsAction::make(),
                 ]),
             ])
             ->bulkActions([

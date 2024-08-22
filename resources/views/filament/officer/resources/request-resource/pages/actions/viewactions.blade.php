@@ -11,8 +11,8 @@
           @php
         $totalAssigned = count(array_filter($statuses, function($status) {
             return $status === 'Assigned';
-        }));
-    @endphp
+            }));
+        @endphp
 
     @foreach ($records as $record)
     <div class="flex flex-row">
