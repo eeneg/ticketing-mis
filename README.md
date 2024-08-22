@@ -62,10 +62,12 @@ erDiagram
     User ||--|{ Assignee: has
     User ||--|{ Request: makes
     Request ||--|{ Assignee: has
+    Request ||--|{ Label: has
     Request ||--|{ Attachment: contains
     Request ||--|{ Action: has
     Action ||--|{ Attachment: contains
     User ||--|{ Action: responds
+    Tag ||--|{ Label: has
 
 User {
     ulid id pk
@@ -142,4 +144,10 @@ Attachment {
     string file
     string attachable_type
     ulid attachable_id fk
+}
+
+Label {
+    ulid id pk
+    ulid request_id fk
+    ulid tag_id fk
 }

@@ -6,7 +6,10 @@ use App\Enums\RequestStatus;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Auth;
 
 class Request extends Model
@@ -28,18 +31,18 @@ class Request extends Model
         'published_at',
     ];
 
-    public function currentUserAssignee()
+    public function currentUserAssignee(): HasOne
     {
         return $this->hasOne(Assignee::class)
             ->ofMany(['id' => 'max'], fn ($query) => $query->where('assignees.user_id', Auth::id()));
     }
 
-    public function assignees()
+    public function assignees(): HasMany
     {
         return $this->hasMany(Assignee::class);
     }
 
-    public function action()
+    public function action(): HasOne
     {
         return $this->hasOne(Action::class)
             ->ofMany(['id' => 'max'], function ($query) {
@@ -54,17 +57,17 @@ class Request extends Model
             });
     }
 
-    public function actions()
+    public function actions(): HasMany
     {
         return $this->hasMany(Action::class);
     }
 
-    public function category()
+    public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
 
-    public function requestor()
+    public function requestor(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
@@ -74,20 +77,26 @@ class Request extends Model
         return $this->belongsToMany(Attachment::class);
     }
 
-    public function assignments()
+    public function assignments(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'user')
             ->using(User::class)
             ->withPivot(['response', 'responded_at']);
     }
 
-    public function office()
+    public function office(): BelongsTo
     {
         return $this->belongsTo(Office::class);
     }
 
-    public function subcategory()
+    public function subcategory(): BelongsTo
     {
         return $this->belongsTo(Subcategory::class);
+    }
+
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(Tag::class, 'labels')
+            ->using(Label::class);
     }
 }
