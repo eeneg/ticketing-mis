@@ -37,9 +37,22 @@ class RequestResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query->whereHas('actions', function (Builder $subQuery) {
-                $subQuery->where('status', RequestStatus::PUBLISHED);
-            }))
+            ->modifyQueryUsing(fn (Builder $query) => $query
+                ->whereHas('actions', function (Builder $subQuery) {
+                    $subQuery->where('status', RequestStatus::PUBLISHED);
+                    // ->where('status', RequestStatus::RETRACTED
+                    //     //     function (Builder $latestAction, $record) {
+                    //     //     // $latestAction = $record->actions()->latest()->first;
+                    //     //     // $latestActionCheck = $latestAction?->status;
+
+                    //     //     // if ($latestActionCheck != RequestStatus::RETRACTED) {
+                    //     //     //     return true;
+                    //     //     //     // render
+                    //     //     // }
+                    //     // }
+                    // );
+                })
+            )
 
             ->columns([
                 Tables\Columns\TextColumn::make('office.name')->label('Office'),

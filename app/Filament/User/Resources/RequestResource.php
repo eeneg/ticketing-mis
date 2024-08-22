@@ -58,6 +58,27 @@ class RequestResource extends Resource
                     ->placeholder('24:00')
                     ->displayFormat('Y-m-d')
                     ->seconds(false),
+                Forms\Components\FileUpload::make('attachment_id')
+                    ->columnSpan(2)
+                    ->multiple()
+                    ->directory('attachments')
+                    ->label('Attachments')
+                    ->preserveFilenames(),
+                // ->action(function ($record, $data) {
+                //     $files = $record['attachment_id'] ?? [];
+                //     $record->attachments()->createMany(
+                //         collect($files)->map(function ($attachment_id)use ($record) {
+                //             return [
+                //                 'file' => ,
+                //                 'attachable_type' => ,
+                //                 'attachable_id' => ,
+                //             ];
+                //         })
+                //     );
+                // },
+
+                // ),
+
                 Forms\Components\Hidden::make('requestor_id')
                     ->default(Auth::id()),
             ]);
@@ -74,6 +95,7 @@ class RequestResource extends Resource
                 Tables\Columns\TextColumn::make('category.name')
                     ->label('Category'),
                 Tables\Columns\TextColumn::make('actions.status')
+                    ->badge(RequestStatus::class)
                     ->label('Status'),
                 Tables\Columns\TextColumn::make('subcategory.name')
                     ->label('Subcategory'),
@@ -88,6 +110,7 @@ class RequestResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->visible(function ($record) {
+                        // dd($record);
                         $latestAction = $record->actions()->latest()->first();
                         $latestActionStatus = $latestAction?->status;
 
@@ -166,7 +189,6 @@ class RequestResource extends Resource
                     Action::make('CloseTicket')
                         ->icon('heroicon-s-lock-closed')
                         ->requiresConfirmation()
-                        ->openUrlInNewTab()
                         ->visible(false)
                         ->color('danger'),
                     ViewActionsAction::make(),

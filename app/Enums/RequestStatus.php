@@ -34,7 +34,7 @@ enum RequestStatus: string implements HasColor, HasDescription, HasLabel
             self::CANCELLED => 'danger',
             self::STARTED => 'blue',
             self::SUSPENDED => 'warning',
-            self::PUBLISHED => 'secondary',
+            self::PUBLISHED => 'success',
             self::RETRACTED => 'primary',
             default => 'gray'
         };

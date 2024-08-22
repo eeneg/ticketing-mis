@@ -29,6 +29,7 @@ class Request extends Model
         'availability_from',
         'availability_to',
         'published_at',
+        'attachment_id',
     ];
 
     public function currentUserAssignee(): HasOne

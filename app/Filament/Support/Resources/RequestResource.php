@@ -96,8 +96,8 @@ class RequestResource extends Resource
                                 Select::make('name')
                                     ->relationship('requestor', 'name')
                                     ->label('Requestor Name'),
-                                Select::make('number')
-                                    ->relationship('requestor', 'number'),
+                                // Select::make('number')
+                                //     ->relationship('requestor', 'number'),
                             ]),
                         Grid::make()
                             ->columns(3)
