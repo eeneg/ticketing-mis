@@ -10,6 +10,7 @@ use App\Models\Request;
 use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
@@ -62,6 +63,7 @@ class RequestResource extends Resource
                     ->button()
                     ->disabled(function ($record) {
                         return $record->currentUserAssignee->response->name == 'PENDING';
+
                     })
                     ->form([
                         Select::make('status')
@@ -72,14 +74,20 @@ class RequestResource extends Resource
                             ])
                             ->native(false),
                         RichEditor::make('remarks'),
+                        FileUpload::make('attachments')
+                            ->directory('attachments')
+                            ->multiple()
+                            ->panelLayout('grid'),
+
                     ])
-                    ->action(function (array $data, $record) {
+                    ->action(function (array $data, $record) { dd($record);
                         $record->action()->create([
                             'user_id' => Auth::id(),
                             'actions.request_id' => $record->id,
                             'status' => $data['status'],
                             'time' => now(),
                             'remarks' => $data['remarks'],
+
                         ]);
                         Notification::make()
                             ->title('Submitted Successfully!')
