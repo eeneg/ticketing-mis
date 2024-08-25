@@ -98,4 +98,16 @@ class EditRequest extends EditRecord
             ->success()
             ->send();
     }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        $data['requestor_id'] = Auth::id();
+
+        return $data;
+    }
+
+    protected function afterSave(): void
+    {
+        $this->record->sanitize();
+    }
 }

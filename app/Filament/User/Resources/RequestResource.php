@@ -5,6 +5,7 @@ namespace App\Filament\User\Resources;
 use App\Enums\RequestStatus;
 use App\Filament\Actions\Table\ViewActionsAction;
 use App\Filament\User\Resources\RequestResource\Pages;
+use App\Models\Attachment;
 use App\Models\Request;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -16,6 +17,7 @@ use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class RequestResource extends Resource
 {
@@ -32,85 +34,100 @@ class RequestResource extends Resource
                     ->searchable()
                     ->preload()
                     ->reactive()
-                    ->afterStateUpdated(fn (callable $set) => $set('category_id', null) | $set('subcategory_id', null)),
+                    ->afterStateUpdated(fn (callable $set) => $set('category_id', null) | $set('subcategory_id', null))
+                    ->required(),
                 Forms\Components\Select::make('category_id')
-                    ->required()
                     ->relationship('category', 'name', fn (Builder $query, callable $get) => $query->where('office_id', $get('office_id')))
                     ->reactive()
                     ->preload()
                     ->searchable()
-                    ->afterStateUpdated(fn (callable $set) => $set('subcategory_id', null)),
+                    ->afterStateUpdated(fn (callable $set) => $set('subcategory_id', null))
+                    ->required(),
                 Forms\Components\Select::make('subcategory_id')
                     ->label('Subcategory')
                     ->relationship('subcategory', 'name', fn (Builder $query, callable $get) => $query->where('category_id', $get('category_id')))
                     ->preload()
-                    ->searchable(),
+                    ->searchable()
+                    ->required(),
+                Forms\Components\TextInput::make('subject')
+                    ->columnSpan(2)
+                    ->markAsRequired()
+                    ->rule('required')
+                    ->maxLength(255),
                 Forms\Components\RichEditor::make('remarks')
                     ->columnSpan(2)
                     ->label('Remarks')
-                    ->placeholder('Describe the issue'),
-                Forms\Components\DateTimePicker::make('availability_from')
-                    ->placeholder('24:00')
-                    ->displayFormat('Y-m-d')
-                    ->seconds(false),
-                Forms\Components\DateTimePicker::make('availability_to')
+                    ->placeholder('Describe the issue')
+                    ->hidden(fn (string $operation, ?string $state) => $operation === 'view' && $state === null),
+                Forms\Components\DatePicker::make('availability_from')
+                    ->seconds(false)
+                    ->hidden(fn (string $operation, ?string $state) => $operation === 'view' && $state === null),
+                Forms\Components\DatePicker::make('availability_to')
                     ->after('availability_from')
-                    ->placeholder('24:00')
-                    ->displayFormat('Y-m-d')
-                    ->seconds(false),
-                Forms\Components\FileUpload::make('attachment_id')
-                    ->columnSpan(2)
-                    ->multiple()
-                    ->directory('attachments')
+                    ->seconds(false)
+                    ->hidden(fn (string $operation, ?string $state) => $operation === 'view' && $state === null),
+                Forms\Components\Repeater::make('attachments')
+                    ->relationship('attachment')
                     ->label('Attachments')
-                    ->preserveFilenames(),
-                // ->action(function ($record, $data) {
-                //     $files = $record['attachment_id'] ?? [];
-                //     $record->attachments()->createMany(
-                //         collect($files)->map(function ($attachment_id)use ($record) {
-                //             return [
-                //                 'file' => ,
-                //                 'attachable_type' => ,
-                //                 'attachable_id' => ,
-                //             ];
-                //         })
-                //     );
-                // },
-
-                // ),
-
-                Forms\Components\Hidden::make('requestor_id')
-                    ->default(Auth::id()),
+                    ->columnSpanFull()
+                    ->deletable(false)
+                    ->addable(false)
+                    ->hidden(fn (?Request $record, string $operation) => $operation === 'view' && $record?->attachment()->first()->empty)
+                    ->simple(
+                        Forms\Components\FileUpload::make('paths')
+                            ->placeholder(fn (string $operation) => match($operation) {
+                                'view' => 'Attached files can be downloaded by clicking the download icon at the left side of the filename',
+                                default => null,
+                            })
+                            ->getUploadedFileNameForStorageUsing(function (
+                                ?Attachment $record,
+                                TemporaryUploadedFile $file,
+                                string $operation,
+                            ) {
+                                return $operation === 'create'
+                                    ? str(str()->ulid())
+                                        ->lower()
+                                        ->append('.'.$file->getClientOriginalExtension())
+                                    : str(str()->ulid())
+                                        ->prepend("request-$record->attachable_id-")
+                                        ->lower()
+                                        ->append(".{$file->getClientOriginalExtension()}");
+                            })
+                            ->directory('attachments')
+                            ->storeFileNamesIn('files')
+                            ->multiple()
+                            ->maxFiles(5)
+                            ->downloadable()
+                            ->previewable(false)
+                            ->maxSize(1024*4)
+                            ->removeUploadedFileButtonPosition('right')
+                    ),
             ]);
     }
 
     public static function table(Table $table): Table
     {
-
         return $table
             ->modifyQueryUsing(fn (Builder $query) => $query->where('requestor_id', Auth::id()))
             ->columns([
-                Tables\Columns\TextColumn::make('office.name')
-                    ->label('Office'),
-                Tables\Columns\TextColumn::make('category.name')
-                    ->label('Category'),
-                Tables\Columns\TextColumn::make('actions.status')
-                    ->badge(RequestStatus::class)
-                    ->label('Status'),
-                Tables\Columns\TextColumn::make('subcategory.name')
-                    ->label('Subcategory'),
-                Tables\Columns\TextColumn::make('requestor.name')
-                    ->label('Requestor'),
-                Tables\Columns\TextColumn::make('published_at')
-                    ->label('Published Date'),
+                Tables\Columns\TextColumn::make('subject')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('office.acronym'),
+                Tables\Columns\TextColumn::make('category.subcategory')
+                    ->state(fn (Request $record) => $record->category->name),
+                Tables\Columns\TextColumn::make('action.status')
+                    ->label('Status')
+                    ->badge(),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('offices')
+                    ->relationship('office', 'acronym')
+                    ->searchable()
+                    ->preload(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->visible(function ($record) {
-                        // dd($record);
                         $latestAction = $record->actions()->latest()->first();
                         $latestActionStatus = $latestAction?->status;
 
@@ -195,11 +212,8 @@ class RequestResource extends Resource
                 ]),
 
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->recordUrl(null)
+            ->recordAction(null);
     }
 
     public static function getRelations(): array

@@ -13,9 +13,11 @@ return new class extends Migration
     {
         Schema::create('attachments', function (Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->string('file');
+            $table->json('files');
+            $table->json('paths');
             $table->ulidMorphs('attachable');
             $table->timestamps();
+            $table->unique(['attachable_id', 'attachable_type']);
         });
     }
 
