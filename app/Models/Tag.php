@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -38,5 +39,13 @@ class Tag extends Model
     public function taggable(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function name(): Attribute
+    {
+        return Attribute::make(
+            fn (string $name) => preg_replace('/\s+/', ' ', mb_strtolower(trim($name))),
+            fn (string $name) => preg_replace('/\s+/', ' ', mb_strtolower(trim($name))),
+        );
     }
 }

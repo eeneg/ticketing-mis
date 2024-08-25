@@ -32,7 +32,7 @@ class SubcategoriesRelationManager extends RelationManager
                                     ->distinct()
                                     ->markAsRequired()
                                     ->rule('required')
-                                    ->maxLength(255)
+                                    ->maxLength(15),
                             ),
                     ]),
             ]);
