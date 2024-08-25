@@ -15,6 +15,8 @@ enum RequestStatus: string implements HasColor, HasDescription, HasLabel
     case CANCELLED = 'cancelled';
     case STARTED = 'started';
     case SUSPENDED = 'suspended';
+    case PUBLISHED = 'published';
+    case RETRACTED = 'retracted';
 
     // MINOR -------- DO NOT INCLUDE IN FORMS
     case ASSIGNED = 'assigned'; // The request has been assigned to any assignees.
@@ -32,6 +34,8 @@ enum RequestStatus: string implements HasColor, HasDescription, HasLabel
             self::CANCELLED => 'danger',
             self::STARTED => 'blue',
             self::SUSPENDED => 'warning',
+            self::PUBLISHED => 'success',
+            self::RETRACTED => 'primary',
             default => 'gray'
         };
     }
@@ -45,6 +49,8 @@ enum RequestStatus: string implements HasColor, HasDescription, HasLabel
             self::CANCELLED => 'The request has been cancelled and will not be processed further.',
             self::STARTED => 'The request has been taken up and is in progress.',
             self::SUSPENDED => 'The request has been suspended and is awaiting further action.',
+            self::PUBLISHED => 'The request has been published by the user',
+            self::RETRACTED => 'The request has been retracted by the requestor and is waiting to be republished.',
             default => null
         };
     }
@@ -72,6 +78,8 @@ enum RequestStatus: string implements HasColor, HasDescription, HasLabel
             self::CANCELLED,
             self::STARTED,
             self::SUSPENDED,
+            self::PUBLISHED,
+            self::RETRACTED,
         ]);
     }
 
