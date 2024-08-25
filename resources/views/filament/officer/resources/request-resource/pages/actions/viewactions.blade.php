@@ -11,8 +11,8 @@
           @php
         $totalAssigned = count(array_filter($statuses, function($status) {
             return $status === 'Assigned';
-        }));
-    @endphp
+            }));
+        @endphp
 
     @foreach ($records as $record)
     <div class="flex flex-row">
@@ -51,13 +51,13 @@
                             {{ $record->status }}
 
                         @else
-                        Reassigned
-                            @php
-                                $iconChange = true;
-                            @endphp
+                            Reassigned
+                        @php
+                            $iconChange = true;
+                        @endphp
                         @endif
                     @else
-                        {{ $record->status }}
+                            {{ $record->status }}
                     @endif
                     &nbsp;
 

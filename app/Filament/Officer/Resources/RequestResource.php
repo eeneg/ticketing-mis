@@ -2,6 +2,8 @@
 
 namespace App\Filament\Officer\Resources;
 
+use App\Enums\RequestStatus;
+use App\Filament\Actions\Table\ViewActionsAction;
 use App\Filament\Officer\Resources\RequestResource\Pages;
 use App\Models\Request;
 use App\Models\User;
@@ -16,8 +18,8 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
-use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
 class RequestResource extends Resource
@@ -35,6 +37,23 @@ class RequestResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query) => $query
+                ->whereHas('actions', function (Builder $subQuery) {
+                    $subQuery->where('status', RequestStatus::PUBLISHED);
+                    // ->where('status', RequestStatus::RETRACTED
+                    //     //     function (Builder $latestAction, $record) {
+                    //     //     // $latestAction = $record->actions()->latest()->first;
+                    //     //     // $latestActionCheck = $latestAction?->status;
+
+                    //     //     // if ($latestActionCheck != RequestStatus::RETRACTED) {
+                    //     //     //     return true;
+                    //     //     //     // render
+                    //     //     // }
+                    //     // }
+                    // );
+                })
+            )
+
             ->columns([
                 Tables\Columns\TextColumn::make('office.name')->label('Office'),
                 Tables\Columns\TextColumn::make('action.remarks')
@@ -148,10 +167,9 @@ class RequestResource extends Resource
                                 ['user_id'],
                             );
                             $record->action()->create([
-
                                 'request_id' => $record->id,
                                 'user_id' => Auth::id(),
-                                'status' => 'Assigned',
+                                'status' => RequestStatus::ASSIGNED,
                                 'remarks' => $record['remarks'],
                                 'time' => now(),
                             ]);
@@ -165,9 +183,8 @@ class RequestResource extends Resource
                             $latestAction = $record->actions()->latest()->first();
                             $latestActionStatus = $latestAction?->status;
 
-                            return $latestActionStatus === 'Assigned';
+                            return $latestActionStatus == RequestStatus::ACCEPTED;
                         }),
-
                     Action::make('Accept')
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
@@ -208,7 +225,7 @@ class RequestResource extends Resource
                             $record->action()->create([
                                 'request_id' => $record->id,
                                 'user_id' => Auth::id(),
-                                'status' => 'Assigned',
+                                'status' => RequestStatus::ACCEPTED,
                                 'remarks' => $record['remarks'],
                                 'time' => now(),
                             ]);
@@ -223,23 +240,9 @@ class RequestResource extends Resource
                             $latestAction = $record->actions()->latest()->first();
                             $latestActionStatus = $latestAction?->status;
 
-                            return $latestActionStatus == '';
+                            return $latestActionStatus == RequestStatus::PUBLISHED;
                         }),
-
-                    ViewAction::make('viewactions')
-                        ->color('primary')
-                        ->label('View Logs')
-                        ->icon('heroicon-s-folder')
-                        ->slideOver()
-                        ->modalContent(function (Request $record) {
-                            $relatedRecords = $record->actions()->orderByRaw('time DESC')->get();
-                            $actionStatuses = $record->actions()->orderByRaw('time ASC')->pluck('status')->toArray();
-
-                            return view('filament.officer.resources.request-resource.pages.actions.viewactions', [
-                                'records' => $relatedRecords,
-                                'statuses' => $actionStatuses,
-                            ]);
-                        }),
+                    ViewActionsAction::make(),
 
                     Action::make('Reject')
                         ->icon('heroicon-o-trash')
@@ -249,7 +252,7 @@ class RequestResource extends Resource
                             $record->action()->create([
                                 'request_id' => $record->id,
                                 'user_id' => Auth::id(),
-                                'status' => 'Rejected',
+                                'status' => RequestStatus::REJECTED,
                                 'remarks' => $record['remarks'],
                                 'time' => now(),
                             ]);

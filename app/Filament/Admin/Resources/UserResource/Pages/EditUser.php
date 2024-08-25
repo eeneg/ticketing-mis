@@ -8,7 +8,6 @@ use Filament\Actions;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
-use Filament\Support\Enums\MaxWidth;
 
 class EditUser extends EditRecord
 {
