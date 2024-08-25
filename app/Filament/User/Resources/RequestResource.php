@@ -73,23 +73,21 @@ class RequestResource extends Resource
                     ->deletable(false)
                     ->addable(false)
                     ->hidden(fn (?Request $record, string $operation) => $operation === 'view' && $record?->attachment()->first()->empty)
-                    ->simple(
+                    ->hintIcon('heroicon-o-question-mark-circle')
+                    ->hintIconTooltip('Maximum file count of 5 items and file size of 4096 kilobytes.')
+                    ->simple(fn (?Request $record) =>
                         Forms\Components\FileUpload::make('paths')
                             ->placeholder(fn (string $operation) => match($operation) {
                                 'view' => 'Attached files can be downloaded by clicking the download icon at the left side of the filename',
                                 default => null,
                             })
-                            ->getUploadedFileNameForStorageUsing(function (
-                                ?Attachment $record,
-                                TemporaryUploadedFile $file,
-                                string $operation,
-                            ) {
+                            ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file, string $operation) use ($record) {
                                 return $operation === 'create'
                                     ? str(str()->ulid())
                                         ->lower()
                                         ->append('.'.$file->getClientOriginalExtension())
                                     : str(str()->ulid())
-                                        ->prepend("request-$record->attachable_id-")
+                                        ->prepend("request-{$record->id}-")
                                         ->lower()
                                         ->append(".{$file->getClientOriginalExtension()}");
                             })
@@ -101,7 +99,25 @@ class RequestResource extends Resource
                             ->previewable(false)
                             ->maxSize(1024*4)
                             ->removeUploadedFileButtonPosition('right')
-                    ),
+                    )
+                    ->rule(fn () => function ($attribute, $value, $fail) {
+                        $files = collect(current($value)['paths'])->map(function (TemporaryUploadedFile|string $file) use ($value) {
+                            return [
+                                'file' => $file instanceof TemporaryUploadedFile
+                                    ? $file->getClientOriginalName()
+                                    : current($value)['files'][$file],
+                                'hash' => $file instanceof TemporaryUploadedFile
+                                    ? hash_file('sha512', $file->getRealPath())
+                                    : hash_file('sha512', storage_path("app/public/$file")),
+                            ];
+                        });
+
+                        if (($duplicates = $files->duplicates('hash'))->isNotEmpty()) {
+                            $dupes = $files->filter(fn ($file) => $duplicates->contains($file['hash']))->unique();
+
+                            $fail('Please do not upload the same files (' . $dupes->map->file->join(', ') . ') multiple times.');
+                        }
+                    }),
             ]);
     }
 
