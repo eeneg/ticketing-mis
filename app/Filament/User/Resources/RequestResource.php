@@ -74,7 +74,7 @@ class RequestResource extends Resource
                     ->columnSpan(4)
                     ->schema([
                         Forms\Components\Section::make('Availability')
-                            ->description(fn (string $operation) => $operation !== 'view' ? 'Select the date range when you, as the requester, are available for the request to be addressed.' : null)
+                            ->description(fn (string $operation) => $operation !== 'view' ? 'Select the date range when you, as the requestor, are available for the request to be addressed. You may leave these fields blank if not necessary.' : null)
                             ->hidden(fn (string $operation, ?Request $record) => $operation === 'view' && $record?->availability_from === null && $record?->availability_to === null)
                             ->compact()
                             ->columns(2)
