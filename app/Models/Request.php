@@ -128,7 +128,8 @@ class Request extends Model
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class, 'marks')
-            ->using(Mark::class);
+            ->using(Mark::class)
+            ->orderBy('tags.id');
     }
 
     public function sanitize(): void
