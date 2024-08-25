@@ -50,7 +50,7 @@ class Attachment extends Model
     public function empty(): Attribute
     {
         return Attribute::make(function (): bool {
-            return $this->paths->isEmpty() || $this->paths->every(fn (string $file) => !file_exists(storage_path('public/' . $file)));
+            return $this->paths->isEmpty();
         })->shouldCache();
     }
 
