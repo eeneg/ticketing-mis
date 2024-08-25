@@ -129,7 +129,7 @@ class Request extends Model
     {
         return $this->belongsToMany(Tag::class, 'marks')
             ->using(Mark::class)
-            ->orderBy('tags.id');
+            ->orderBy('tags.name');
     }
 
     public function sanitize(): void
