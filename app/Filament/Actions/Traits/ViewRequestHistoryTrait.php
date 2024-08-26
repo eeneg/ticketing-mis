@@ -16,7 +16,7 @@ trait ViewRequestHistoryTrait
 
         $this->color('primary');
 
-        $this->icon('heroicon-o-presentation-chart-line');
+        $this->icon('gmdi-timeline-o');
 
         $this->slideOver();
 
