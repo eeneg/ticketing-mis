@@ -3,9 +3,9 @@
 namespace App\Filament\User\Resources;
 
 use App\Enums\RequestStatus;
-use App\Filament\Actions\Table\PublishRequestAction;
-use App\Filament\Actions\Table\RetractRequestAction;
-use App\Filament\Actions\Table\ViewRequestHistoryAction;
+use App\Filament\Actions\Tables\PublishRequestAction;
+use App\Filament\Actions\Tables\RetractRequestAction;
+use App\Filament\Actions\Tables\ViewRequestHistoryAction;
 use App\Filament\User\Resources\RequestResource\Pages;
 use App\Models\Category;
 use App\Models\Request;

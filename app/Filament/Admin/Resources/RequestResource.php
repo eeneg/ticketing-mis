@@ -2,7 +2,7 @@
 
 namespace App\Filament\Admin\Resources;
 
-use App\Filament\Actions\Table\ViewRequestHistoryAction;
+use App\Filament\Actions\Tables\ViewRequestHistoryAction;
 use App\Filament\Admin\Resources\RequestResource\Pages;
 use App\Models\Request;
 use Filament\Resources\Resource;

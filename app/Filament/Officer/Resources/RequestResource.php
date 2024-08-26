@@ -3,7 +3,7 @@
 namespace App\Filament\Officer\Resources;
 
 use App\Enums\RequestStatus;
-use App\Filament\Actions\Table\ViewRequestHistoryAction;
+use App\Filament\Actions\Tables\ViewRequestHistoryAction;
 use App\Filament\Officer\Resources\RequestResource\Pages;
 use App\Models\Category;
 use App\Models\Request;
