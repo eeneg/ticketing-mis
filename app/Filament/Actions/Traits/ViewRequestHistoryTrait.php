@@ -1,22 +1,22 @@
 <?php
 
-namespace App\Filament\Actions;
+namespace App\Filament\Actions\Traits;
 
 use App\Models\Request;
 
-trait ViewActionTrait
+trait ViewRequestHistoryTrait
 {
     protected function setUp(): void
     {
-        $this->name ??= 'view-actions';
+        parent::setUp();
+
+        $this->name ??= 'history';
 
         $this->modalSubmitAction(false);
 
         $this->color('primary');
 
-        $this->label('View Logs');
-
-        $this->icon('heroicon-s-folder');
+        $this->icon('heroicon-o-presentation-chart-line');
 
         $this->slideOver();
 

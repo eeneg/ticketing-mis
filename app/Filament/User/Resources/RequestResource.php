@@ -3,17 +3,17 @@
 namespace App\Filament\User\Resources;
 
 use App\Enums\RequestStatus;
-use App\Filament\Actions\Table\ViewActionsAction;
+use App\Filament\Actions\Table\PublishRequestAction;
+use App\Filament\Actions\Table\RetractRequestAction;
+use App\Filament\Actions\Table\ViewRequestHistoryAction;
 use App\Filament\User\Resources\RequestResource\Pages;
 use App\Models\Category;
 use App\Models\Request;
 use App\Models\Subcategory;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -232,91 +232,14 @@ class RequestResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                    ->visible(function ($record) {
-                        $latestAction = $record->actions()->latest()->first();
-                        $latestActionStatus = $latestAction?->status;
-
-                        return $latestActionStatus == '' ||
-                               $latestActionStatus == RequestStatus::RETRACTED;
-                    }),
+                    ->visible(fn (Request $record) => is_null($status = $record->action?->status) || $status === RequestStatus::RETRACTED),
                 Tables\Actions\ViewAction::make()
-                    ->color('success')
                     ->modalWidth('6xl'),
                 ActionGroup::make([
-                    Action::make('Publish')
-                        ->color('success')
-                        ->label(function ($record) {
-                            $isPublished = $record->actions()->latest()->first();
-                            $isPublishedAction = $isPublished?->status;
-                            if ($isPublishedAction == RequestStatus::RETRACTED) {
-                                return 'Republish';
-                            }
-
-                            return 'Publish';
-
-                        })
-                        ->icon('heroicon-c-newspaper')
-                        ->requiresConfirmation()
-                        ->action(function ($record) {
-                            $record->update([
-                                'office_id' => $record['office_id'],
-                                'category_id' => $record['category_id'],
-                                'subcategory_id' => $record['subcategory_id'],
-                                'remarks' => $record['remarks'],
-                                'availability_from' => $record['availability_From'],
-                                'availability_to' => $record['availability_to'],
-                                'published_at' => now(),
-                            ]);
-                            $record->actions()->create([
-                                'request_id' => $record->id,
-                                'user_id' => Auth::id(),
-                                'status' => RequestStatus::PUBLISHED,
-                                'remarks' => $record['remarks'],
-                                'time' => now(),
-                            ]);
-                            Notification::make()
-                                ->title('Request Published Successfully')
-                                ->success()
-                                ->send();
-
-                        })
-                        ->visible(function ($record) {
-                            $isPublished = $record->actions()->latest()->first();
-                            $isPublishedAction = $isPublished?->status;
-
-                            return $isPublishedAction == RequestStatus::RETRACTED ||
-                                   $isPublishedAction == '';
-                        }),
-                    Action::make('Retract')
-                        ->icon('heroicon-s-archive-box-x-mark')
-                        ->color('danger')
-                        ->action(function ($record) {
-                            $record->actions()->create([
-                                'request_id' => $record->id,
-                                'user_id' => Auth::id(),
-                                'status' => RequestStatus::RETRACTED,
-                                'time' => now(),
-                            ]);
-                        })
-                        ->visible(function ($record) {
-                            $isPublished = $record->actions()->latest()->first();
-                            $isPublishedAction = $isPublished?->status;
-
-                            return $isPublishedAction == RequestStatus::PUBLISHED;
-                            Notification::make()
-                                ->title('Request Retracted Successfully')
-                                ->success()
-                                ->send();
-                        }),
-
-                    Action::make('CloseTicket')
-                        ->icon('heroicon-s-lock-closed')
-                        ->requiresConfirmation()
-                        ->visible(false)
-                        ->color('danger'),
-                    ViewActionsAction::make(),
+                    PublishRequestAction::make(),
+                    RetractRequestAction::make(),
+                    ViewRequestHistoryAction::make(),
                 ]),
-
             ])
             ->recordUrl(null)
             ->recordAction(null);
