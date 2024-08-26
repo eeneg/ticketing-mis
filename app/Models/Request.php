@@ -35,7 +35,6 @@ class Request extends Model
         'target_time',
         'availability_from',
         'availability_to',
-        'published_at',
     ];
 
     public static function booted(): void
@@ -77,6 +76,8 @@ class Request extends Model
                     RequestStatus::CANCELLED,
                     RequestStatus::STARTED,
                     RequestStatus::SUSPENDED,
+                    RequestStatus::PUBLISHED,
+                    RequestStatus::RETRACTED,
                 ]);
             });
     }
