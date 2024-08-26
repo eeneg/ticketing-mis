@@ -5,9 +5,7 @@ namespace App\Filament\User\Resources;
 use App\Enums\RequestStatus;
 use App\Filament\Actions\Table\ViewActionsAction;
 use App\Filament\User\Resources\RequestResource\Pages;
-use App\Models\Attachment;
 use App\Models\Category;
-use App\Models\Office;
 use App\Models\Request;
 use App\Models\Subcategory;
 use Filament\Forms;
@@ -74,23 +72,20 @@ class RequestResource extends Resource
                     ->columnSpan(4)
                     ->schema([
                         Forms\Components\Section::make('Availability')
-                            ->description(fn (string $operation) => $operation !== 'view' ? 'Select the date range when you, as the requestor, are available for the request to be addressed. You may leave these fields blank if not necessary.' : null)
+                            ->description(fn (string $operation) => $operation !== 'view' ? 'Set your availability date for the request. Leave these fields blank if not necessary.' : null)
                             ->hidden(fn (string $operation, ?Request $record) => $operation === 'view' && $record?->availability_from === null && $record?->availability_to === null)
                             ->compact()
                             ->columns(2)
+                            ->collapsed(fn (string $operation) => $operation !== 'view' )
                             ->schema([
                                 Forms\Components\DatePicker::make('availability_from')
                                     ->label('From')
                                     ->seconds(false)
-                                    ->minDate(today())
-                                    ->maxDate(today()->startOfMonth()->addMonth()->endOfMonth())
                                     ->hidden(fn (string $operation, ?string $state) => $operation === 'view' && $state === null),
                                 Forms\Components\DatePicker::make('availability_to')
                                     ->label('Until')
                                     ->seconds(false)
                                     ->afterOrEqual('availability_from')
-                                    ->minDate(today())
-                                    ->maxDate(today()->startOfMonth()->addMonth()->endOfMonth())
                                     ->hidden(fn (string $operation, ?string $state) => $operation === 'view' && $state === null),
                             ]),
                         Forms\Components\Repeater::make('attachments')
@@ -103,6 +98,7 @@ class RequestResource extends Resource
                             ->hint(fn (string $operation) => $operation !== 'view' ? 'Help' : null)
                             ->hintIcon(fn (string $operation) => $operation !== 'view' ? 'heroicon-o-question-mark-circle' : null)
                             ->hintIconTooltip('Please upload a maximum file count of 5 items and file size of 4096 kilobytes.')
+                            ->helperText('If necessary, you may upload files that will help the assigned personnel better understand the issue.')
                             ->simple(fn (?Request $record) =>
                                 Forms\Components\FileUpload::make('paths')
                                     ->placeholder(fn (string $operation) => match($operation) {
@@ -167,9 +163,6 @@ class RequestResource extends Resource
 
                                             $query->where('taggable_id', $get('subcategory_id'));
                                         });
-                                    })
-                                    ->afterStateUpdated(function (Forms\Components\CheckboxList $component, Forms\Set $set, array $state) {
-                                        $set('tags', array_intersect(array_keys($component->getEnabledOptions()), $state));
                                     })
                                     ->searchable(),
                             ])
