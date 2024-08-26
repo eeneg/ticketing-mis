@@ -30,9 +30,49 @@ class RequestResource extends Resource
             ->columns(12)
             ->schema([
                 Forms\Components\Section::make()
+                    ->visible(fn (string $operation) => $operation !== 'view')
                     ->columnSpan(8)
                     ->columns(2)
                     ->compact()
+                    ->schema([
+                        Forms\Components\Select::make('office_id')
+                            ->relationship('office', 'name')
+                            ->columnSpan(2)
+                            ->searchable()
+                            ->preload()
+                            ->reactive()
+                            ->afterStateUpdated(fn (Forms\Set $set) => $set('category_id', null) | $set('subcategory_id', null))
+                            ->required(),
+                        Forms\Components\Select::make('category_id')
+                            ->relationship('category', 'name', fn (Builder $query, Forms\Get $get) => $query->where('office_id', $get('office_id')))
+                            ->reactive()
+                            ->preload()
+                            ->searchable()
+                            ->afterStateUpdated(fn (Forms\Set $set) => $set('subcategory_id', null))
+                            ->required(),
+                        Forms\Components\Select::make('subcategory_id')
+                            ->relationship('subcategory', 'name', fn (Builder $query, Forms\Get $get) => $query->where('category_id', $get('category_id')))
+                            ->reactive()
+                            ->preload()
+                            ->searchable()
+                            ->required(),
+                        Forms\Components\TextInput::make('subject')
+                            ->columnSpan(2)
+                            ->placeholder('Enter the subject of the request')
+                            ->markAsRequired()
+                            ->rule('required')
+                            ->maxLength(255),
+                        Forms\Components\RichEditor::make('remarks')
+                            ->columnSpan(2)
+                            ->label('Remarks')
+                            ->placeholder('Provide a detailed description of the issue to ensure that the assigned personnel have a comprehensive understanding of the problem, which will help them address it more effectively.')
+                            ->hidden(fn (string $operation, ?string $state) => $operation === 'view' && $state === null)
+                            ->required(),
+                    ]),
+                Forms\Components\Group::make()
+                    ->visible(fn (string $operation) => $operation === 'view')
+                    ->columnSpan(8)
+                    ->columns(2)
                     ->schema([
                         Forms\Components\Select::make('office_id')
                             ->relationship('office', 'name')
@@ -98,7 +138,7 @@ class RequestResource extends Resource
                             ->hint(fn (string $operation) => $operation !== 'view' ? 'Help' : null)
                             ->hintIcon(fn (string $operation) => $operation !== 'view' ? 'heroicon-o-question-mark-circle' : null)
                             ->hintIconTooltip('Please upload a maximum file count of 5 items and file size of 4096 kilobytes.')
-                            ->helperText('If necessary, you may upload files that will help the assigned personnel better understand the issue.')
+                            ->helperText(fn (string $operation) => $operation !== 'view' ? 'If necessary, you may upload files that will help the assigned personnel better understand the issue.' : null)
                             ->simple(fn (?Request $record) =>
                                 Forms\Components\FileUpload::make('paths')
                                     ->placeholder(fn (string $operation) => match($operation) {
