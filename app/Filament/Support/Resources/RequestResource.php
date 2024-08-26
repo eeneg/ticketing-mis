@@ -4,7 +4,6 @@ namespace App\Filament\Support\Resources;
 
 use App\Enums\RequestStatus;
 use App\Enums\UserAssignmentResponse;
-use App\Filament\Actions\Tables\ViewActionsAction;
 use App\Filament\Actions\Tables\ViewRequestHistoryAction;
 use App\Filament\Support\Resources\RequestResource\Pages;
 use App\Models\Request;
@@ -81,7 +80,7 @@ class RequestResource extends Resource
                             ->panelLayout('grid'),
 
                     ])
-                    ->action(function (array $data, $record) { dd($record);
+                    ->action(function (array $data, $record) {
                         $record->action()->create([
                             'user_id' => Auth::id(),
                             'actions.request_id' => $record->id,

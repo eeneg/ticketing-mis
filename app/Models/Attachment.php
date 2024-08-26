@@ -83,7 +83,7 @@ class Attachment extends Model
                     }
 
                     if (
-                        !str_starts_with($file, mb_strtolower(class_basename($this->attachable_type)) . "-$this->attachable_id")
+                        ! str_starts_with($file, mb_strtolower(class_basename($this->attachable_type))."-$this->attachable_id")
                     ) {
                         continue;
                     }

@@ -168,7 +168,7 @@ class Request extends Model
 
             if ($handle) {
                 while (($file = readdir($handle)) !== false) {
-                    if($file === '.' || $file === '..' ) {
+                    if ($file === '.' || $file === '..') {
                         continue;
                     }
 
@@ -195,7 +195,8 @@ class Request extends Model
         $localKey,
         $secondLocalKey
     ): HasManyThrough {
-        return new class( $query, $farParent, $throughParent, $firstKey, $secondKey, $localKey, $secondLocalKey) extends HasManyThrough {
+        return new class($query, $farParent, $throughParent, $firstKey, $secondKey, $localKey, $secondLocalKey) extends HasManyThrough
+        {
             public function addEagerConstraints(array $models)
             {
                 $whereIn = $this->whereInMethod($this->farParent, $this->localKey);
@@ -213,7 +214,7 @@ class Request extends Model
                         ->whereIn('attachable_id', $keys);
                 });
 
-                $keys = implode(', ', array_map(fn($id) => "'" . $id . "'", $keys));
+                $keys = implode(', ', array_map(fn ($id) => "'".$id."'", $keys));
 
                 $this->query->select('attachments.*');
 
@@ -233,7 +234,7 @@ class Request extends Model
 
                 $this->performJoin();
 
-                if (static::$constraints) {
+                if (self::$constraints) {
                     $this->query->where($this->getQualifiedFirstKeyName(), '=', $localValue);
 
                     $this->query->orWhere(function (Builder $query) {

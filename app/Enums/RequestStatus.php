@@ -61,7 +61,7 @@ enum RequestStatus: string implements HasColor, HasDescription, HasIcon, HasLabe
 
     public function getIcon(): ?string
     {
-        return match($this) {
+        return match ($this) {
             self::APPROVED => 'gmdi-verified-o',
             self::DECLINED => 'gmdi-block-o',
             self::COMPLETED => 'gmdi-task-alt-o',

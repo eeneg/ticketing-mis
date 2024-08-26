@@ -116,7 +116,7 @@ class RequestResource extends Resource
                             ->hidden(fn (string $operation, ?Request $record) => $operation === 'view' && $record?->availability_from === null && $record?->availability_to === null)
                             ->compact()
                             ->columns(2)
-                            ->collapsed(fn (string $operation) => $operation !== 'view' )
+                            ->collapsed(fn (string $operation) => $operation !== 'view')
                             ->schema([
                                 Forms\Components\DatePicker::make('availability_from')
                                     ->label('From')
@@ -139,30 +139,29 @@ class RequestResource extends Resource
                             ->hintIcon(fn (string $operation) => $operation !== 'view' ? 'heroicon-o-question-mark-circle' : null)
                             ->hintIconTooltip('Please upload a maximum file count of 5 items and file size of 4096 kilobytes.')
                             ->helperText(fn (string $operation) => $operation !== 'view' ? 'If necessary, you may upload files that will help the assigned personnel better understand the issue.' : null)
-                            ->simple(fn (?Request $record) =>
-                                Forms\Components\FileUpload::make('paths')
-                                    ->placeholder(fn (string $operation) => match($operation) {
-                                        'view' => 'Click the icon at the left side of the filename to download',
-                                        default => null,
-                                    })
-                                    ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file, string $operation) use ($record) {
-                                        return $operation === 'create'
-                                            ? str(str()->ulid())
-                                                ->lower()
-                                                ->append('.'.$file->getClientOriginalExtension())
-                                            : str(str()->ulid())
-                                                ->prepend("request-{$record->id}-")
-                                                ->lower()
-                                                ->append(".{$file->getClientOriginalExtension()}");
-                                    })
-                                    ->directory('attachments')
-                                    ->storeFileNamesIn('files')
-                                    ->multiple()
-                                    ->maxFiles(5)
-                                    ->downloadable()
-                                    ->previewable(false)
-                                    ->maxSize(1024*4)
-                                    ->removeUploadedFileButtonPosition('right')
+                            ->simple(fn (?Request $record) => Forms\Components\FileUpload::make('paths')
+                                ->placeholder(fn (string $operation) => match ($operation) {
+                                    'view' => 'Click the icon at the left side of the filename to download',
+                                    default => null,
+                                })
+                                ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file, string $operation) use ($record) {
+                                    return $operation === 'create'
+                                        ? str(str()->ulid())
+                                            ->lower()
+                                            ->append('.'.$file->getClientOriginalExtension())
+                                        : str(str()->ulid())
+                                            ->prepend("request-{$record->id}-")
+                                            ->lower()
+                                            ->append(".{$file->getClientOriginalExtension()}");
+                                })
+                                ->directory('attachments')
+                                ->storeFileNamesIn('files')
+                                ->multiple()
+                                ->maxFiles(5)
+                                ->downloadable()
+                                ->previewable(false)
+                                ->maxSize(1024 * 4)
+                                ->removeUploadedFileButtonPosition('right')
                             )
                             ->rule(fn () => function ($attribute, $value, $fail) {
                                 $files = collect(current($value)['paths'])->map(function (TemporaryUploadedFile|string $file) use ($value) {
@@ -179,7 +178,7 @@ class RequestResource extends Resource
                                 if (($duplicates = $files->duplicates('hash'))->isNotEmpty()) {
                                     $dupes = $files->filter(fn ($file) => $duplicates->contains($file['hash']))->unique();
 
-                                    $fail('Please do not upload the same files (' . $dupes->map->file->join(', ') . ') multiple times.');
+                                    $fail('Please do not upload the same files ('.$dupes->map->file->join(', ').') multiple times.');
                                 }
                             }),
                         Forms\Components\Fieldset::make('Tags')
@@ -205,7 +204,7 @@ class RequestResource extends Resource
                                         });
                                     })
                                     ->searchable(),
-                            ])
+                            ]),
                     ]),
             ]);
     }

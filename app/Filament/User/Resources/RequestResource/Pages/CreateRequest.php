@@ -25,12 +25,12 @@ class CreateRequest extends CreateRecord
         if ($attachment?->paths->isNotEmpty()) {
             $paths = $attachment->paths->map(fn ($path) => str($path)->prepend('public/'));
 
-            $paths->each(fn ($path) => Storage::move($path, 'public/attachments/request-' . $this->record->id . '-'. $path->basename()));
+            $paths->each(fn ($path) => Storage::move($path, 'public/attachments/request-'.$this->record->id.'-'.$path->basename()));
 
-            $attachment->paths = $paths->map(fn ($path) => 'attachments/request-' . $this->record->id . '-' . $path->basename());
+            $attachment->paths = $paths->map(fn ($path) => 'attachments/request-'.$this->record->id.'-'.$path->basename());
 
             $attachment->files = $attachment->files->mapWithKeys(function ($file, $path) {
-                return ['attachments/request-' . $this->record->id . '-' . str($path)->basename() => $file];
+                return ['attachments/request-'.$this->record->id.'-'.str($path)->basename() => $file];
             });
 
             $attachment->sanitize();
