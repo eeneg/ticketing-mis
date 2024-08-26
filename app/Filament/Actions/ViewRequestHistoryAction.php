@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Actions\Table;
+namespace App\Filament\Actions;
 
 use App\Filament\Actions\Traits\ViewRequestHistoryTrait;
 use Filament\Actions\Action;
