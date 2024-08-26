@@ -32,8 +32,9 @@ class Tag extends Model
 
     public function requests(): BelongsToMany
     {
-        return $this->belongsToMany(Request::class, 'marks')
-            ->using(Mark::class);
+        return $this->belongsToMany(Request::class, 'labels')
+            ->using(Label::class)
+            ->orderBy('tags.name');
     }
 
     public function taggable(): MorphTo

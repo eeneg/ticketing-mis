@@ -41,6 +41,18 @@ class Request extends Model
     public static function booted(): void
     {
         static::deleting(fn (self $request) => $request->purge());
+
+        static::saving(function (self $request) {
+            $request->tags()->sync(
+                $request->tags()
+                    ->where(function (Builder $query) use ($request) {
+                        $query->orWhere(fn ($query) => $query->where('taggable_type', Subcategory::class)->where('taggable_id', $request->subcategory_id));
+
+                        $query->orWhere(fn ($query) => $query->where('taggable_type', Category::class)->where('taggable_id', $request->category_id));
+                    })
+                    ->pluck('tags.id')
+            );
+        });
     }
 
     public function currentUserAssignee(): HasOne
@@ -127,8 +139,8 @@ class Request extends Model
 
     public function tags(): BelongsToMany
     {
-        return $this->belongsToMany(Tag::class, 'marks')
-            ->using(Mark::class)
+        return $this->belongsToMany(Tag::class, 'labels')
+            ->using(Label::class)
             ->orderBy('tags.name');
     }
 
