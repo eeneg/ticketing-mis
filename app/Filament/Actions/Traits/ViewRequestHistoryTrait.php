@@ -20,19 +20,17 @@ trait ViewRequestHistoryTrait
 
         $this->slideOver();
 
+        $this->modalWidth('2xl');
+
         $this->modalContent(function (Request $record) {
-            $relatedRecords = $record->actions()->orderByRaw('time DESC')->get();
-            $actionStatuses = $record->actions()->orderByRaw('time ASC')->pluck('status')->toArray();
+            $record->load([
+                'actions' => fn ($q) => $q->orderBy('created_at', 'desc'),
+                'actions.attachment',
+                'attachment',
+            ]);
 
-            if ($relatedRecords->isEmpty()) {
-                return view('filament.officer.resources.request-resource.pages.actions.emptyactions', [
-                    'records' => $record,
-                ]);
-            }
-
-            return view('filament.officer.resources.request-resource.pages.actions.viewactions', [
-                'records' => $relatedRecords,
-                'statuses' => $actionStatuses,
+            return view('filament.request.history', [
+                'request' => $record,
             ]);
         });
     }

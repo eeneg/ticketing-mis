@@ -4,11 +4,11 @@ namespace App\Enums;
 
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasDescription;
+use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 
-enum RequestStatus: string implements HasColor, HasDescription, HasLabel
+enum RequestStatus: string implements HasColor, HasDescription, HasIcon, HasLabel
 {
-    // MAJOR
     case APPROVED = 'approved';
     case DECLINED = 'declined';
     case COMPLETED = 'completed';
@@ -18,24 +18,28 @@ enum RequestStatus: string implements HasColor, HasDescription, HasLabel
     case PUBLISHED = 'published';
     case RETRACTED = 'retracted';
 
-    // MINOR -------- DO NOT INCLUDE IN FORMS
-    case ASSIGNED = 'assigned'; // The request has been assigned to any assignees.
-    case ACCEPTED = 'accepted'; // The request has been accepted by the assignee.
-    case REJECTED = 'rejected'; // The request has been rejected by the assignee.
-    case ADJUSTED = 'adjusted'; // The request difficulty or priority has been adjusted.
-    case SCHEDULED = 'scheduled'; // The request has been scheduled for a target specific date and time.
+    case ASSIGNED = 'assigned';
+    case ACCEPTED = 'accepted';
+    case REJECTED = 'rejected';
+    case ADJUSTED = 'adjusted';
+    case SCHEDULED = 'scheduled';
 
     public function getColor(): ?string
     {
         return match ($this) {
-            self::APPROVED => 'green',
-            self::DECLINED => 'red',
+            self::APPROVED => 'success',
+            self::DECLINED => 'danger',
             self::COMPLETED => 'success',
             self::CANCELLED => 'danger',
-            self::STARTED => 'blue',
+            self::STARTED => 'info',
             self::SUSPENDED => 'warning',
             self::PUBLISHED => 'success',
             self::RETRACTED => 'warning',
+            self::ACCEPTED => 'success',
+            self::REJECTED => 'danger',
+            self::ASSIGNED,
+            self::ADJUSTED,
+            self::SCHEDULED => 'info',
             default => 'gray'
         };
     }
@@ -55,6 +59,26 @@ enum RequestStatus: string implements HasColor, HasDescription, HasLabel
         };
     }
 
+    public function getIcon(): ?string
+    {
+        return match($this) {
+            self::APPROVED => 'gmdi-verified-o',
+            self::DECLINED => 'gmdi-block-o',
+            self::COMPLETED => 'gmdi-task-alt-o',
+            self::CANCELLED => 'gmdi-disabled-by-default-o',
+            self::STARTED => 'gmdi-alarm-o',
+            self::SUSPENDED => 'gmdi-front-hand-o',
+            self::PUBLISHED => 'gmdi-published-with-changes-o',
+            self::RETRACTED => 'gmdi-settings-backup-restore-o',
+            self::ASSIGNED => 'gmdi-group-add-o',
+            self::ACCEPTED => 'gmdi-how-to-reg-o',
+            self::REJECTED => 'gmdi-person-off-o',
+            self::ADJUSTED => 'gmdi-scale-o',
+            self::SCHEDULED => 'gmdi-event-o',
+            default => 'gmdi-circle-o',
+        };
+    }
+
     public function getLabel($present = false): ?string
     {
         return str($this->value)
@@ -63,7 +87,7 @@ enum RequestStatus: string implements HasColor, HasDescription, HasLabel
                     'cancelled' => 'Cancel',
                     'declined' => 'Decline',
                     'scheduled' => 'Schedule',
-                    default => $value->substr(0, -2)->headline(),
+                    default => $value->substr(0, -2),
                 };
             })
             ->headline();
@@ -71,7 +95,7 @@ enum RequestStatus: string implements HasColor, HasDescription, HasLabel
 
     public function major()
     {
-        return in_array($this->value, [
+        return in_array($this, [
             self::APPROVED,
             self::DECLINED,
             self::COMPLETED,
@@ -85,7 +109,7 @@ enum RequestStatus: string implements HasColor, HasDescription, HasLabel
 
     public function minor()
     {
-        return in_array($this->value, [
+        return in_array($this, [
             self::ASSIGNED,
             self::ACCEPTED,
             self::REJECTED,
