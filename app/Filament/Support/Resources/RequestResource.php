@@ -4,7 +4,7 @@ namespace App\Filament\Support\Resources;
 
 use App\Enums\RequestStatus;
 use App\Enums\UserAssignmentResponse;
-use App\Filament\Actions\Table\ViewActionsAction;
+use App\Filament\Actions\Tables\ViewRequestHistoryAction;
 use App\Filament\Support\Resources\RequestResource\Pages;
 use App\Models\Request;
 use Filament\Forms\Components\Actions;
@@ -80,7 +80,7 @@ class RequestResource extends Resource
                             ->panelLayout('grid'),
 
                     ])
-                    ->action(function (array $data, $record) { dd($record);
+                    ->action(function (array $data, $record) {
                         $record->action()->create([
                             'user_id' => Auth::id(),
                             'actions.request_id' => $record->id,
@@ -228,7 +228,7 @@ class RequestResource extends Resource
                             ]),
                     ]),
                 ActionGroup::make([
-                    ViewActionsAction::make(),
+                    ViewRequestHistoryAction::make(),
                     Tables\Actions\Action::make('difficulty')
                         ->label('Set Difficulty')
                         ->icon('heroicon-s-adjustments-vertical')
