@@ -89,6 +89,13 @@ class RequestResource extends Resource
                             'remarks' => $data['remarks'],
 
                         ]);
+                        // $record->currentUserAssignee()->updateOrCreate([
+                        //     'user_id' => Auth::id(),
+                        //     'assignees.request_id' => $record->id,
+                        // ], [
+                        //     'response' => $data['status'],
+                        //     'responded_at' => $record->currentUserAssignee->responded->at ?? now(),
+                        // ]);
                         Notification::make()
                             ->title('Submitted Successfully!')
                             ->success()
@@ -104,8 +111,8 @@ class RequestResource extends Resource
                                 Select::make('name')
                                     ->relationship('requestor', 'name')
                                     ->label('Requestor Name'),
-                                // Select::make('number')
-                                //     ->relationship('requestor', 'number'),
+                                Select::make('number')
+                                    ->relationship('requestor', 'number'),
                             ]),
                         Grid::make()
                             ->columns(3)

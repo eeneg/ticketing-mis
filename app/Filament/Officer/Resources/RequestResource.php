@@ -181,7 +181,7 @@ class RequestResource extends Resource
 
                 $query->where('office_id', Auth::user()->office_id);
 
-                $query->orderBy();
+                // $query->orderBy();
             })
             ->columns([
                 Tables\Columns\TextColumn::make('subject')
