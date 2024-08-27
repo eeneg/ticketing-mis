@@ -11,7 +11,9 @@ use Filament\Support\Assets\Css;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\VerticalAlignment;
 use Filament\Support\Facades\FilamentAsset;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Sanctum\Sanctum;
 
@@ -33,11 +35,13 @@ class AppServiceProvider extends ServiceProvider
     {
         Sanctum::usePersonalAccessTokenModel(Token::class);
 
-        FilamentAsset::register([Css::make('app', __DIR__.'/../../resources/css/app.css')]);
+        FilamentAsset::register([Css::make('app', Vite::asset('resources/css/app.css'))]);
 
         Select::configureUsing(fn (Select $select) => $select->native(false));
 
         Table::configureUsing(fn (Table $table) => $table->paginated([10, 25, 50, 100])->defaultPaginationPageOption(25)->striped());
+
+        SelectFilter::configureUsing(fn (SelectFilter $filter) => $filter->native(false));
 
         Notifications::verticalAlignment(VerticalAlignment::End);
 

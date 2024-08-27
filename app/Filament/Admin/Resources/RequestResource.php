@@ -2,12 +2,11 @@
 
 namespace App\Filament\Admin\Resources;
 
-use App\Filament\Actions\Table\ViewActionsAction;
+use App\Filament\Actions\Tables\ViewRequestHistoryAction;
 use App\Filament\Admin\Resources\RequestResource\Pages;
 use App\Models\Request;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
 
 class RequestResource extends Resource
@@ -23,26 +22,15 @@ class RequestResource extends Resource
                 Tables\Columns\TextColumn::make('requestor.name')
                     ->label('Requestor Name'),
                 Tables\Columns\TextColumn::make('category.name'),
-                Tables\Columns\TextColumn::make('remarks')
-                    ->html(),
-                Tables\Columns\TextColumn::make('priority'),
-                Tables\Columns\TextColumn::make('dificulty'),
-                Tables\Columns\TextColumn::make('assignee.name')
-                    ->label('Assignee'),
-
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('office')
+                    ->relationship('office', 'acronym')
+                    ->searchable()
+                    ->preload(),
             ])
             ->actions([
-                ActionGroup::make([
-                    ViewActionsAction::make(),
-                ]),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                ViewRequestHistoryAction::make(),
             ]);
     }
 

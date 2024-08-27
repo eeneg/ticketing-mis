@@ -63,7 +63,7 @@ class CategoryResource extends Resource
                                 ->distinct()
                                 ->markAsRequired()
                                 ->rule('required')
-                                ->maxLength(255)
+                                ->maxLength(15),
                         ),
                 ]),
         ];

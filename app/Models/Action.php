@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class Action extends Model
 {
@@ -36,8 +36,8 @@ class Action extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function attachments(): MorphToMany
+    public function attachment(): MorphOne
     {
-        return $this->morphedByMany(Attachment::class, 'taggable');
+        return $this->morphOne(Attachment::class, 'attachable');
     }
 }

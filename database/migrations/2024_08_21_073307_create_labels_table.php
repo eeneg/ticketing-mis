@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('marks', function (Blueprint $table) {
+        Schema::create('labels', function (Blueprint $table) {
             $table->ulid('id')->primary();
             $table->foreignIdFor(Request::class)->constrained()->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreignIdFor(Tag::class)->constrained()->cascadeOnDelete()->cascadeOnUpdate();
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('marks');
+        Schema::dropIfExists('labels');
     }
 };

@@ -55,7 +55,7 @@ The system allows users to submit tickets for these services and track their sta
 ```mermaid
 erDiagram
     Request ||--|{ Attachment: contains
-    Request ||--|{ Mark: has
+    Request ||--|{ Label: has
     User ||--|{ Assignee: is
     Request ||--|{ Action: has
     Office ||--|{ User: has
@@ -69,7 +69,7 @@ erDiagram
     User ||--|{ Request: makes
     User ||--|{ Action: responds
     Action ||--|{ Attachment: contains
-    Mark }|--|| Tag: has
+    Label }|--|| Tag: has
 
 User {
     ulid id pk
@@ -114,6 +114,7 @@ Request {
     ulid category_id fk
     ulid subcategory_id fk
     ulid requestor_id fk
+    string subject
     text remarks
     int priority
     int difficulty
@@ -148,7 +149,7 @@ Attachment {
     ulid attachable_id fk
 }
 
-Mark {
+Label {
     ulid id pk
     ulid request_id fk
     ulid tag_id fk
