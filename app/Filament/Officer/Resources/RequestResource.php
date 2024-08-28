@@ -185,31 +185,25 @@ class RequestResource extends Resource
             })
             ->columns([
                 Tables\Columns\TextColumn::make('subject')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('office.name'),
-                Tables\Columns\TextColumn::make('action.status')
+                    ->searchable()
+                    ->limit(24)
+                    ->tooltip(fn (Request $record) => $record->subject),
+                Tables\Columns\TextColumn::make('office.acronym')
+                    ->limit(12)
+                    ->tooltip(fn (Request $record) => $record->office->acronym),
+                Tables\Columns\TextColumn::make('requestor.name')
+                    ->limit(24)
+                    ->tooltip(fn (Request $record) => $record->requestor->name),
+                Tables\Columns\TextColumn::make('category.name')
+                    ->limit(36)
+                    ->formatStateUsing(fn ($record) => "{$record->category->name} ({$record->subcategory->name})")
+                    ->tooltip(fn (Request $record) => "{$record->category->name} ({$record->subcategory->name})"),
+                Tables\Columns\TextColumn::make('actions.status')
                     ->label('Status')
                     ->badge(),
-                Tables\Columns\TextColumn::make('category.name')->label('Category'),
-                Tables\Columns\TextColumn::make('priority')
-                    ->label('Priority')
-                    ->badge()
-                    ->color(fn ($state): string => match ($state) {
-                        1 => 'gray',
-                        2 => 'info',
-                        3 => 'success',
-                        4 => 'warning',
-                        5 => 'danger',
-                        default => 'success'
-                    }),
-                Tables\Columns\TextColumn::make('subcategory.name')->label('Subcategory'),
-                Tables\Columns\TextColumn::make('requestor.name')->label('Requestor'),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('office')
-                    ->relationship('office', 'acronym')
-                    ->searchable()
-                    ->preload(),
+                //
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()
@@ -360,17 +354,8 @@ class RequestResource extends Resource
                 ]),
 
             ])
-
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->recordAction(null)
+            ->recordUrl(null);
     }
 
     public static function getRelations(): array
