@@ -215,6 +215,23 @@ class RequestResource extends Resource
             ->modifyQueryUsing(fn (Builder $query) => $query->where('requestor_id', Auth::id()))
             ->columns([
                 Tables\Columns\TextColumn::make('subject')
+                    ->searchable()
+                    ->limit(24)
+                    ->tooltip(fn (Request $record) => $record->subject),
+                Tables\Columns\TextColumn::make('office.acronym')
+                    ->limit(12)
+                    ->tooltip(fn (Request $record) => $record->office->acronym),
+                Tables\Columns\TextColumn::make('category.name')
+                    ->limit(36)
+                    ->formatStateUsing(fn ($record) => "{$record->category->name} ({$record->subcategory->name})")
+                    ->tooltip(fn (Request $record) => "{$record->category->name} ({$record->subcategory->name})"),
+                Tables\Columns\TextColumn::make('action.status')
+                    ->label('Status')
+                    ->badge(),
+                Tables\Columns\TextColumn::make('published_at')
+                    ->tooltip(fn (Request $record) => $record->published_at?->format('Y-m-d H:i:s'))
+                    ->since(),
+                Tables\Columns\TextColumn::make('subject')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('office.acronym'),
                 Tables\Columns\TextColumn::make('category.subcategory')
@@ -224,7 +241,7 @@ class RequestResource extends Resource
                     ->badge(),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('offices')
+                Tables\Filters\SelectFilter::make('office')
                     ->relationship('office', 'acronym')
                     ->searchable()
                     ->preload(),
