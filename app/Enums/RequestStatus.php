@@ -12,21 +12,13 @@ enum RequestStatus: string implements HasColor, HasDescription, HasIcon, HasLabe
     case APPROVED = 'approved';
     case DECLINED = 'declined';
     case COMPLETED = 'completed';
-    // COMPLETED ONLY BY THE SUPPORT
     case CANCELLED = 'cancelled';
     case STARTED = 'started';
-    // IF STARTED SHOW OPTION TO SUSPEND
     case PUBLISHED = 'published';
     case RETRACTED = 'retracted';
     case RESOLVED = 'resolved';
-    //  SHOW RESOLVED ONLY WHEN COMPLETED
     case SUSPENDED = 'suspended';
-    // ADD SUSPENDED STATUS AVAILABILITY WHEN REQUEST HAS BEEN STARTED
     case COMPLIED = 'complied';
-    // AFTER SUSPENSION THE USER MUST COMPLY THE REQUIRED THINGS
-    // BEFORE COMPLETE COMPLIANCE IT REQUIRES THE CONFIRMATION OF THE SUPPORT
-    // TODO
-    // COMPLETED, STARTED, SUSPENDED, COMPLIED
     case ASSIGNED = 'assigned';
     case ACCEPTED = 'accepted';
     case REJECTED = 'rejected';
