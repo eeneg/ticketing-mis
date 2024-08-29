@@ -257,6 +257,7 @@ class RequestResource extends Resource
                     PublishRequestAction::make(),
                     RetractRequestAction::make(),
                     ViewRequestHistoryAction::make(),
+
                 ]),
             ])
             ->recordUrl(null)

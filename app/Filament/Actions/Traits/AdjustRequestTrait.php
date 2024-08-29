@@ -2,6 +2,7 @@
 
 namespace App\Filament\Actions\Traits;
 
+use App\Enums\RequestPriority;
 use App\Enums\RequestStatus;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
@@ -43,13 +44,7 @@ trait AdjustRequestTrait
         $this->form([
             Select::make('diff')
                 ->label('Difficulty Level')
-                ->options([
-                    '1' => '1',
-                    '2' => '2',
-                    '3' => '3',
-                    '4' => '4',
-                    '5' => '5',
-                ]),
+                ->options(RequestPriority::options()),
         ]);
     }
 }

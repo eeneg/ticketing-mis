@@ -3,6 +3,7 @@
 namespace App\Filament\Actions\Traits;
 
 use App\Enums\RequestStatus;
+use App\Enums\UserAssignmentResponse;
 use App\Models\Request;
 
 trait StartedRequestTrait
@@ -12,13 +13,13 @@ trait StartedRequestTrait
 
         parent::setUp();
 
-        $this->name ??= 'started';
+        $this->name ??= 'Start';
 
         $this->color(RequestStatus::STARTED->getColor());
 
         $this->icon(RequestStatus::STARTED->getIcon());
 
-        $this->visible(fn (Request $record) => $record->action?->status === RequestStatus::ASSIGNED);
+        $this->visible(fn (Request $record) => $record->currentUserAssignee?->response === UserAssignmentResponse::ACCEPTED);
 
         $this->action(function ($data, Request $record, self $action) {
             $action->sendSuccessNotification();

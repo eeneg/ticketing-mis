@@ -31,6 +31,7 @@ trait PublishRequestTrait
         $this->successNotificationTitle('Request published successfully');
 
         $this->action(function (Request $record, self $action) {
+
             $record->actions()->create([
                 'request_id' => $record->id,
                 'user_id' => Auth::id(),
