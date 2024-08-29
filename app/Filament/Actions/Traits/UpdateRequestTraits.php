@@ -26,7 +26,7 @@ trait UpdateRequestTraits
         $this->color('info');
 
         $this->hidden(function ($record) {
-            return $record->currentUserAssignee->response->name == 'REJECTED' || $record->action->status->name == RequestStatus::COMPLETED->name;
+            return $record->currentUserAssignee->response->name == 'REJECTED' || $record->action?->status === RequestStatus::RESOLVED || $record->action->status->name == RequestStatus::COMPLETED->name;
         });
 
         $this->button();

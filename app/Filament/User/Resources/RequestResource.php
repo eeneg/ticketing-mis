@@ -4,6 +4,7 @@ namespace App\Filament\User\Resources;
 
 use App\Enums\RequestStatus;
 use App\Filament\Actions\Tables\PublishRequestAction;
+use App\Filament\Actions\Tables\ResolveRequestAction;
 use App\Filament\Actions\Tables\RetractRequestAction;
 use App\Filament\Actions\Tables\ViewRequestHistoryAction;
 use App\Filament\User\Resources\RequestResource\Pages;
@@ -261,6 +262,7 @@ class RequestResource extends Resource
                 ActionGroup::make([
                     PublishRequestAction::make(),
                     RetractRequestAction::make(),
+                    ResolveRequestAction::make(),
                     ViewRequestHistoryAction::make(),
                     Action::make('complied')
                         ->visible(fn (Request $record) => $record->action->status == RequestStatus::SUSPENDED)

@@ -20,6 +20,8 @@ trait AdjustRequestTrait
 
         $this->icon('heroicon-s-adjustments-vertical');
 
+        $this->hidden(fn ($record) => $record->action?->status === RequestStatus::RESOLVED);
+
         $this->action(function ($record, $data) {
             $from = $record->difficulty;
 

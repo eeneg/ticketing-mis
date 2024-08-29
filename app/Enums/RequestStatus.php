@@ -18,7 +18,6 @@ enum RequestStatus: string implements HasColor, HasDescription, HasIcon, HasLabe
     case RETRACTED = 'retracted';
     case RESOLVED = 'resolved';
     case SUSPENDED = 'suspended';
-    case COMPLIED = 'complied';
     case ASSIGNED = 'assigned';
     case ACCEPTED = 'accepted';
     case REJECTED = 'rejected';
@@ -41,7 +40,7 @@ enum RequestStatus: string implements HasColor, HasDescription, HasIcon, HasLabe
             self::REJECTED => 'danger',
             self::ASSIGNED,
             self::ADJUSTED,
-            self::RESOLVED,
+            self::RESOLVED => 'info',
             self::SCHEDULED => 'info',
             self::COMPLIED => 'warning',
             default => 'gray'
@@ -110,6 +109,7 @@ enum RequestStatus: string implements HasColor, HasDescription, HasIcon, HasLabe
             self::SUSPENDED,
             self::PUBLISHED,
             self::RETRACTED,
+            self::RESOLVED,
         ]);
     }
 

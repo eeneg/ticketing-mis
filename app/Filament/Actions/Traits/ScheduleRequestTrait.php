@@ -23,7 +23,7 @@ trait ScheduleRequestTrait
 
         $this->modalWidth(MaxWidth::Large);
 
-        $this->hidden(fn ($record) => $record->action?->status === RequestStatus::STARTED);
+        $this->hidden(fn ($record) => $record->action?->status === RequestStatus::STARTED || $record->action?->status === RequestStatus::RESOLVED);
 
         $this->form([
             DatePicker::make('target_date')
