@@ -26,6 +26,7 @@ class OfficerPanelProvider extends PanelProvider
             ->id('officer')
             ->path('officer')
             ->spa()
+            ->databaseNotifications()
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -33,7 +34,7 @@ class OfficerPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Officer/Pages'), for: 'App\\Filament\\Officer\\Pages')
             ->pages([
             ])
-            ->discoverWidgets(in: app_path('Filament/Officer/Widgets'), for: 'App\\Filament\\Officer\\Widgets')
+            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,
                 Widgets\FilamentInfoWidget::class,

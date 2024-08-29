@@ -9,6 +9,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 
+
 class RequestResource extends Resource
 {
     protected static ?string $model = Request::class;
@@ -37,7 +38,6 @@ class RequestResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
         ];
     }
 
@@ -47,4 +47,5 @@ class RequestResource extends Resource
             'index' => Pages\ListRequests::route('/'),
         ];
     }
+
 }

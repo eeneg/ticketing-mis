@@ -7,43 +7,42 @@ use App\Models\Request;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
-use Filament\Support\Enums\Alignment;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Get;
+use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
-trait RetractRequestTrait
+trait UpdateRequestTraits
 {
-    protected function setUp(): void
+    protected function setUp():void
     {
         parent::setUp();
 
-        $this->name ??= 'retract';
+        $this->name  ??= 'update';
 
-        $this->color(RequestStatus::RETRACTED->getColor());
+        $this->color('info');
 
-        $this->visible(fn (Request $record) => $record->action?->status === RequestStatus::PUBLISHED);
+        $this->button();
 
-        $this->icon('heroicon-c-newspaper');
-
-        $this->modalAlignment(Alignment::Left);
-
-        $this->modalIcon('heroicon-c-newspaper');
-
-        $this->modalDescription('Are you sure you want to retract this request?');
-
-        $this->modalWidth('3xl');
-
-        $this->successNotificationTitle('Request retracted successfully');
+        $this->disabled(function ($record) {
+                 return $record->currentUserAssignee->response->name == 'PENDING';
+                 });
 
         $this->form([
-            RichEditor::make('remarks')
-                ->columnSpanFull()
-                ->label('Remarks')
-                ->placeholder('Please provide a reason for retracting this request...')
-                ->required(),
-            Repeater::make('attachments')
+                    Select::make('status')
+                        ->required()
+                        ->options([
+                            RequestStatus::COMPLETED->value => RequestStatus::COMPLETED->getLabel(),
+                            RequestStatus::SUSPENDED->value => RequestStatus::SUSPENDED->getLabel(),
+                        ])
+                        ->reactive()
+                        ->native(false),
+                    RichEditor::make('remarks')
+                        ->required(fn(Get $get):bool =>  $get('status') === RequestStatus::SUSPENDED->value),
+                    Repeater::make('attachments')
                 ->columnSpanFull()
                 ->label('Attachments')
                 ->columnSpanFull()
@@ -85,29 +84,30 @@ trait RetractRequestTrait
                     }
                 }
                 ),
-        ]);
+                ]);
 
-        $this->action(function (Request $record, self $action, array $data) {
-            $retraction = $record->actions()->create([
-                'request_id' => $record->id,
+        $this-> action(function (array $data, $record) {
+            $update= $record->action()->create([
                 'user_id' => Auth::id(),
-                'status' => RequestStatus::RETRACTED,
+                'actions.request_id' => $record->id,
+                'status' => $data['status'],
                 'time' => now(),
                 'remarks' => $data['remarks'],
+
             ]);
 
             if (($attachments = collect(current($data['attachments'])))->isNotEmpty()) {
                 $files = $attachments
                     ->mapWithKeys(fn (string $file) => [
                         str(str()->ulid())
-                            ->prepend("attachments/action-{$retraction->id}-")
+                            ->prepend("attachments/action-{$update->id}-")
                             ->append(($ext = pathinfo($file, PATHINFO_EXTENSION)) ? ".$ext" : '')
                             ->lower()
                             ->toString() => $file,
                     ])
                     ->each(fn (string $file, string $path) => Storage::move("public/$file", "public/$path"));
 
-                $retraction->attachment()->create([
+                $update->attachment()->create([
                     'files' => $files->map(fn ($file) => basename($file))->toArray(),
                     'paths' => $files->keys()->toArray(),
                 ]);
@@ -115,7 +115,17 @@ trait RetractRequestTrait
                 Process::run(['rm', '-rf', Storage::path('public/attachments/tmp/'.$record->id)]);
             }
 
-            $action->sendSuccessNotification();
+            Notification::make()
+                ->title('Submitted Successfully!')
+                ->success()
+                ->send();
+
+            Notification::make()
+                ->title('Request '.$data['status'])
+                ->body(str("Request “<i>{$record->subject}</i>” has been {$data['status']} by " . auth()->user()->name .'.')->toHtmlString())
+                ->icon(RequestStatus::tryFrom($data['status'])?->getIcon())
+                ->iconColor(RequestStatus::tryFrom($data['status'])?->getColor())
+                ->sendToDatabase($record->requestor);
         });
     }
 }
