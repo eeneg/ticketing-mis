@@ -49,7 +49,7 @@ trait AcceptAssignmentTrait
                 ->send();
 
             Notification::make()
-                ->title('Scheduled Task')
+                ->title('Request Accepted')
                 ->body(str("Request of <b>{$record->requestor->name}</b> has been <b>ACCEPTED</b> by ".auth()->user()->name.'.')->toHtmlString())
                 ->icon(RequestStatus::ACCEPTED->getIcon())
                 ->iconColor(RequestStatus::ACCEPTED->getColor())

@@ -66,7 +66,8 @@ class RequestResource extends Resource
                                     ->relationship('requestor', 'name')
                                     ->label('Requestor Name'),
                                 Select::make('number')
-                                    ->relationship('requestor', 'number'),
+                                    ->relationship('requestor', 'number')
+                                    ->label('Number'),
                             ]),
                         Grid::make()
                             ->columns(3)
