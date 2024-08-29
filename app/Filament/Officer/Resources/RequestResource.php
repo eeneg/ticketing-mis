@@ -181,7 +181,7 @@ class RequestResource extends Resource
 
                 $query->where('office_id', Auth::user()->office_id);
 
-                $query->orderBy();
+                // $query->orderBy();
             })
             ->columns([
                 Tables\Columns\TextColumn::make('subject')
@@ -198,7 +198,7 @@ class RequestResource extends Resource
                     ->limit(36)
                     ->formatStateUsing(fn ($record) => "{$record->category->name} ({$record->subcategory->name})")
                     ->tooltip(fn (Request $record) => "{$record->category->name} ({$record->subcategory->name})"),
-                Tables\Columns\TextColumn::make('actions.status')
+                Tables\Columns\TextColumn::make('action.status')
                     ->label('Status')
                     ->badge(),
             ])
@@ -361,7 +361,6 @@ class RequestResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
         ];
     }
 
