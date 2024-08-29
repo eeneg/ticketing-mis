@@ -3,7 +3,7 @@
 namespace App\Filament\Admin\Resources\RequestResource\Pages;
 
 use App\Filament\Admin\Resources\RequestResource;
-use App\Filament\Widgets\RequestOverview;
+use App\Filament\Widgets\AdminRequestOverview;
 use Filament\Resources\Pages\ListRecords;
 
 class ListRequests extends ListRecords
@@ -18,9 +18,11 @@ class ListRequests extends ListRecords
 
     protected function getHeaderWidgets(): array
     {
-        return
-        [
-            RequestOverview::class,
+        return [
+            AdminRequestOverview::class,
         ];
     }
+
+
+
 }

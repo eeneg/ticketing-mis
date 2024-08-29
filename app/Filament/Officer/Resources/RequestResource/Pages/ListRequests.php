@@ -3,7 +3,7 @@
 namespace App\Filament\Officer\Resources\RequestResource\Pages;
 
 use App\Filament\Officer\Resources\RequestResource;
-use App\Filament\Widgets\RequestOverview;
+use App\Filament\Widgets\OfficerRequestOverview;
 use Filament\Resources\Pages\ListRecords;
 
 class ListRequests extends ListRecords
@@ -22,7 +22,7 @@ class ListRequests extends ListRecords
     {
         return
         [
-            RequestOverview::class,
+            OfficerRequestOverview::class,
         ];
     }
 }

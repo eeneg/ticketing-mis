@@ -9,14 +9,14 @@ use Filament\Support\Enums\IconPosition;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
-class RequestOverview extends BaseWidget
+class AdminRequestOverview extends BaseWidget
 {
-    private ?Request $record;
-
     protected function getStats(): array
     {
         return [
-
+            Stat::make('Unassigned Request',Request::doesntHave('assignees')->count())
+                ->description('Request that has no assignee')
+                ->descriptionIcon(RequestStatus::STARTED->getIcon(), IconPosition::Before),
             Stat::make('Active Request', Assignee::where('response','accepted')->count())
                 ->descriptionIcon(RequestStatus::ACCEPTED->getIcon(), IconPosition::Before)
                 ->color(RequestStatus::ACCEPTED->getColor())
@@ -28,8 +28,13 @@ class RequestOverview extends BaseWidget
             Stat::make('Pending Request', Assignee::where('response','pending')->count())
                 ->descriptionIcon(RequestStatus::PUBLISHED->getIcon(), IconPosition::Before)
                 ->color('warning')
-                ->description('Request that needed to be accepted'),
+                ->description('Request that has not yet accepted'),
         ];
+    }
+
+    public function test()
+    {
+
     }
 
 }

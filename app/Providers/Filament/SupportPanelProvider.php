@@ -25,6 +25,7 @@ class SupportPanelProvider extends PanelProvider
         return $panel
             ->profile()
             ->id('support')
+            ->databaseNotifications()
             ->path('support')
             ->spa()
             ->colors([

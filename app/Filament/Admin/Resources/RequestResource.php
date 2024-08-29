@@ -38,7 +38,6 @@ class RequestResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
         ];
     }
 
@@ -48,4 +47,5 @@ class RequestResource extends Resource
             'index' => Pages\ListRequests::route('/'),
         ];
     }
+
 }
