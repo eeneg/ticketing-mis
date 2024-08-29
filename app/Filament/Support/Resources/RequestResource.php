@@ -2,7 +2,6 @@
 
 namespace App\Filament\Support\Resources;
 
-use App\Enums\RequestStatus;
 use App\Filament\Actions\AcceptAssignmentAction;
 use App\Filament\Actions\RejectAssignmentAction;
 use App\Filament\Actions\Tables\AdjustRequestAction;
@@ -122,7 +121,7 @@ class RequestResource extends Resource
                             ->schema([
                                 Actions::make([
                                     AcceptAssignmentAction::make(),
-                                    RejectAssignmentAction::make()
+                                    RejectAssignmentAction::make(),
                                 ])
                                     ->alignCenter(),
                             ]),

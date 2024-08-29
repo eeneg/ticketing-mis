@@ -7,7 +7,7 @@ use Filament\Support\Contracts\HasDescription;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 
-enum    RequestStatus: string implements HasColor, HasDescription, HasIcon, HasLabel
+enum RequestStatus: string implements HasColor, HasDescription, HasIcon, HasLabel
 {
     case APPROVED = 'approved';
     case DECLINED = 'declined';

@@ -22,7 +22,4 @@ class ListRequests extends ListRecords
             AdminRequestOverview::class,
         ];
     }
-
-
-
 }

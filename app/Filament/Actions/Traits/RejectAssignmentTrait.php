@@ -9,21 +9,21 @@ use Illuminate\Support\Facades\Auth;
 
 trait RejectAssignmentTrait
 {
-    protected function setUp():void
+    protected function setUp(): void
     {
         parent::setUp();
 
-        $this -> name ??= 'reject';
+        $this->name ??= 'reject';
 
-        $this -> button();
+        $this->button();
 
-        $this -> icon('heroicon-c-x-circle');
+        $this->icon('heroicon-c-x-circle');
 
-        $this -> color('danger');
+        $this->color('danger');
 
-        $this -> close();
+        $this->close();
 
-        $this -> action(function ($record) {
+        $this->action(function ($record) {
             if ($record->currentUserAssignee->responded_at?->addMinutes(15)->lt(now())) {
                 Notification::make()
                     ->title('No activity for 15 minutes')
@@ -44,20 +44,20 @@ trait RejectAssignmentTrait
                 ->danger()
                 ->send();
 
-                Notification::make()
+            Notification::make()
                 ->title('Scheduled Task')
-                ->body(str("Request of <b>{$record->requestor->name}</b> has been <b>REJECTED</b> by " . auth()->user()->name .'.')->toHtmlString())
+                ->body(str("Request of <b>{$record->requestor->name}</b> has been <b>REJECTED</b> by ".auth()->user()->name.'.')->toHtmlString())
                 ->icon(RequestStatus::DECLINED->getIcon())
                 ->iconColor(RequestStatus::DECLINED->getColor())
                 ->sendToDatabase($record->currentUserAssignee->assigner);
-            });
-        $this -> hidden(function ($record) {
-                if ($record->currentUserAssignee->responded_at == null) {
-                    return;
-                }
+        });
+        $this->hidden(function ($record) {
+            if ($record->currentUserAssignee->responded_at == null) {
+                return;
+            }
 
-                return $record->currentUserAssignee->responded_at->addMinutes(15)->lt(now());
-            });
+            return $record->currentUserAssignee->responded_at->addMinutes(15)->lt(now());
+        });
 
     }
 }
