@@ -53,6 +53,7 @@ class OfficerPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
+            ->databaseNotifications()
             ->userMenuItems([
                 MenuItem::make()
                     ->label('Officer')

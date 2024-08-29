@@ -7,17 +7,18 @@ use Filament\Support\Contracts\HasDescription;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 
-enum    RequestStatus: string implements HasColor, HasDescription, HasIcon, HasLabel
+enum RequestStatus: string implements HasColor, HasDescription, HasIcon, HasLabel
 {
     case APPROVED = 'approved';
     case DECLINED = 'declined';
     case COMPLETED = 'completed';
     case CANCELLED = 'cancelled';
     case STARTED = 'started';
-    case SUSPENDED = 'suspended';
     case PUBLISHED = 'published';
     case RETRACTED = 'retracted';
-
+    case RESOLVED = 'resolved';
+    case SUSPENDED = 'suspended';
+    case COMPLIED = 'complied';
     case ASSIGNED = 'assigned';
     case ACCEPTED = 'accepted';
     case REJECTED = 'rejected';
@@ -39,6 +40,7 @@ enum    RequestStatus: string implements HasColor, HasDescription, HasIcon, HasL
             self::REJECTED => 'danger',
             self::ASSIGNED,
             self::ADJUSTED,
+            self::RESOLVED,
             self::SCHEDULED => 'info',
             default => 'gray'
         };
@@ -65,6 +67,7 @@ enum    RequestStatus: string implements HasColor, HasDescription, HasIcon, HasL
             self::APPROVED => 'gmdi-verified-o',
             self::DECLINED => 'gmdi-block-o',
             self::COMPLETED => 'gmdi-task-alt-o',
+            self::RESOLVED => 'gmdi-approval-tt',
             self::CANCELLED => 'gmdi-disabled-by-default-o',
             self::STARTED => 'gmdi-alarm-o',
             self::SUSPENDED => 'gmdi-front-hand-o',

@@ -9,30 +9,31 @@ use Illuminate\Support\Facades\Auth;
 
 trait AcceptAssignmentTrait
 {
-    protected function setUp():void
+    protected function setUp(): void
     {
         parent::setUp();
 
-        $this -> name ??= 'accept';
+        $this->name ??= 'accept';
 
-        $this -> button();
+        $this->button();
 
-        $this -> icon('heroicon-c-check-circle');
+        $this->icon('heroicon-c-check-circle');
 
-        $this -> color('success');
+        $this->color('success');
 
-        $this -> close();
+        $this->close();
 
-        $this ->hidden(function ($record) {
-                return $record->currentUserAssignee->responded_at?->addMinutes(15)->lt(now());
-                });
+        $this->hidden(function ($record) {
+            return $record->currentUserAssignee->responded_at?->addMinutes(15)->lt(now());
+        });
 
-        $this -> action(function ($record) {
+        $this->action(function ($record) {
             if ($record->currentUserAssignee->responded_at?->addMinutes(15)->lt(now())) {
                 Notification::make()
                     ->title('No activity for 15 minutes')
                     ->Warning()
                     ->send();
+
                 return;
             }
             $record->currentUserAssignee()->updateOrCreate([
@@ -49,7 +50,7 @@ trait AcceptAssignmentTrait
 
             Notification::make()
                 ->title('Scheduled Task')
-                ->body(str("Request of <b>{$record->requestor->name}</b> has been <b>ACCEPTED</b> by " . auth()->user()->name .'.')->toHtmlString())
+                ->body(str("Request of <b>{$record->requestor->name}</b> has been <b>ACCEPTED</b> by ".auth()->user()->name.'.')->toHtmlString())
                 ->icon(RequestStatus::ACCEPTED->getIcon())
                 ->iconColor(RequestStatus::ACCEPTED->getColor())
                 ->sendToDatabase($record->currentUserAssignee->assigner);

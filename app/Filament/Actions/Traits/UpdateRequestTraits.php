@@ -17,32 +17,32 @@ use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 trait UpdateRequestTraits
 {
-    protected function setUp():void
+    protected function setUp(): void
     {
         parent::setUp();
 
-        $this->name  ??= 'update';
+        $this->name ??= 'update';
 
         $this->color('info');
 
         $this->button();
 
         $this->disabled(function ($record) {
-                 return $record->currentUserAssignee->response->name == 'PENDING';
-                 });
+            return $record->currentUserAssignee->response->name == 'PENDING';
+        });
 
         $this->form([
-                    Select::make('status')
-                        ->required()
-                        ->options([
-                            RequestStatus::COMPLETED->value => RequestStatus::COMPLETED->getLabel(),
-                            RequestStatus::SUSPENDED->value => RequestStatus::SUSPENDED->getLabel(),
-                        ])
-                        ->reactive()
-                        ->native(false),
-                    RichEditor::make('remarks')
-                        ->required(fn(Get $get):bool =>  $get('status') === RequestStatus::SUSPENDED->value),
-                    Repeater::make('attachments')
+            Select::make('status')
+                ->required()
+                ->options([
+                    RequestStatus::COMPLETED->value => RequestStatus::COMPLETED->getLabel(),
+                    RequestStatus::SUSPENDED->value => RequestStatus::SUSPENDED->getLabel(),
+                ])
+                ->reactive()
+                ->native(false),
+            RichEditor::make('remarks')
+                ->required(fn (Get $get): bool => $get('status') === RequestStatus::SUSPENDED->value),
+            Repeater::make('attachments')
                 ->columnSpanFull()
                 ->label('Attachments')
                 ->columnSpanFull()
@@ -84,10 +84,10 @@ trait UpdateRequestTraits
                     }
                 }
                 ),
-                ]);
+        ]);
 
-        $this-> action(function (array $data, $record) {
-            $update= $record->action()->create([
+        $this->action(function (array $data, $record) {
+            $update = $record->action()->create([
                 'user_id' => Auth::id(),
                 'actions.request_id' => $record->id,
                 'status' => $data['status'],
@@ -122,7 +122,7 @@ trait UpdateRequestTraits
 
             Notification::make()
                 ->title('Request '.$data['status'])
-                ->body(str("Request “<i>{$record->subject}</i>” has been {$data['status']} by " . auth()->user()->name .'.')->toHtmlString())
+                ->body(str("Request “<i>{$record->subject}</i>” has been {$data['status']} by ".auth()->user()->name.'.')->toHtmlString())
                 ->icon(RequestStatus::tryFrom($data['status'])?->getIcon())
                 ->iconColor(RequestStatus::tryFrom($data['status'])?->getColor())
                 ->sendToDatabase($record->requestor);

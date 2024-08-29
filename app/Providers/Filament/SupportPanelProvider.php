@@ -54,6 +54,7 @@ class SupportPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
+            ->databaseNotifications()
             ->userMenuItems([
                 MenuItem::make()
                     ->label('Support')

@@ -46,5 +46,6 @@ class AppServiceProvider extends ServiceProvider
         Notifications::verticalAlignment(VerticalAlignment::End);
 
         Notifications::alignment(Alignment::Start);
+
     }
 }

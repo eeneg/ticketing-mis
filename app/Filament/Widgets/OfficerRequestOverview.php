@@ -14,19 +14,18 @@ class OfficerRequestOverview extends BaseWidget
     protected function getStats(): array
     {
         return [
-            Stat::make('Active Request', Assignee::where('assigner_id',Auth::id())->where('response','accepted')->count())
+            Stat::make('Active Request', Assignee::where('assigner_id', Auth::id())->where('response', 'accepted')->count())
                 ->descriptionIcon(RequestStatus::ACCEPTED->getIcon(), IconPosition::Before)
                 ->color(RequestStatus::ACCEPTED->getColor())
-                ->description('Request that has been accepted'),
-            Stat::make('Completed Request', Assignee::where('assigner_id',Auth::id())->where('response','completed')->count())
+                ->description('Requests that has been accepted'),
+            Stat::make('Completed Request', Assignee::where('assigner_id', Auth::id())->where('response', 'completed')->count())
                 ->descriptionIcon(RequestStatus::COMPLETED->getIcon(), IconPosition::Before)
                 ->color('info')
-                ->description('Request that needed to be accepted'),
-            Stat::make('Pending Request', Assignee::where('assigner_id',Auth::id())->where('response','pending')->count())
+                ->description('Requests that have been completed'),
+            Stat::make('Pending Request', Assignee::where('assigner_id', Auth::id())->where('response', 'pending')->count())
                 ->descriptionIcon(RequestStatus::PUBLISHED->getIcon(), IconPosition::Before)
                 ->color('warning')
-                ->description('Request that needed to be accepted'),
+                ->description('Requests that needs to be accepted'),
         ];
     }
-
 }

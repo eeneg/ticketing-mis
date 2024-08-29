@@ -3,19 +3,19 @@
 namespace App\Filament\Officer\Resources;
 
 use App\Enums\RequestStatus;
+use App\Filament\Actions\Tables\ApproveRequestAction;
+use App\Filament\Actions\Tables\AssignRequestAction;
+use App\Filament\Actions\Tables\DeclineRequestAction;
+use App\Filament\Actions\Tables\ResolveRequestAction;
 use App\Filament\Actions\Tables\ViewRequestHistoryAction;
 use App\Filament\Officer\Resources\RequestResource\Pages;
 use App\Models\Category;
 use App\Models\Request;
 use App\Models\Subcategory;
-use App\Models\User;
 use Filament\Forms;
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Form;
-use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -158,7 +158,6 @@ class RequestResource extends Resource
 
                                             $query->where('taggable_id', $get('category_id'));
                                         });
-
                                         $query->orWhere(function (Builder $query) use ($get) {
                                             $query->where('taggable_type', Subcategory::class);
 
@@ -181,6 +180,7 @@ class RequestResource extends Resource
 
                 $query->where('office_id', Auth::user()->office_id);
 
+                // $query->orderBy();
                 // $query->orderBy();
             })
             ->columns([
@@ -209,150 +209,12 @@ class RequestResource extends Resource
                 Tables\Actions\ViewAction::make()
                     ->modalWidth('6xl'),
                 ActionGroup::make([
-                    Action::make('Reassign')
-                        ->color('success')
-                        ->icon('heroicon-s-pencil-square')
-                        ->form([
-                            Forms\Components\Select::make('priority')
-                                ->label('New Priority')
-                                ->options([
-                                    '1' => '1',
-                                    '2' => '2',
-                                    '3' => '3',
-                                    '4' => '4',
-                                    '5' => '5',
-                                ])
-                                ->required(),
-                            RichEditor::make('remarks')
-                                ->label('New Remarks')
-                                ->required(),
-                            Forms\Components\Select::make('user_ids')
-                                ->label('Assignees')
-                                ->default('Hello')
-                                ->options(User::query()->where('role', 'support')->pluck('name', 'id'))
-                                ->multiple(),
-                        ])
-                        ->action(function ($data, $record) {
-                            $userIds = $data['user_ids'] ?? [];
-
-                            $upsert_records = collect($userIds)->map(function ($id) use ($record) {
-                                return [
-                                    'assigner_id' => Auth::id(),
-                                    'request_id' => $record->id,
-                                    'user_id' => $id,
-                                    'response' => 'pending',
-                                ];
-                            })->toArray();
-
-                            $record->assignees()->upsert(
-                                $upsert_records,
-                                ['request_id', 'user_id'],
-                                ['user_id'],
-                            );
-
-                            $record->action()->create([
-                                'request_id' => $record->id,
-                                'user_id' => Auth::id(),
-                                'status' => RequestStatus::ASSIGNED,
-                                'remarks' => $record['remarks'],
-                                'time' => now(),
-                            ]);
-
-                            Notification::make()
-                                ->title('Request Reassigned Successfully')
-                                ->success()
-                                ->send();
-
-                            $record->update(['priority' => $data['priority']]);
-                        })
-                        ->visible(function ($record) {
-                            $latestAction = $record->actions()->latest()->first();
-                            $latestActionStatus = $latestAction?->status;
-
-                            return $latestActionStatus == RequestStatus::ACCEPTED;
-                        }),
-                    Action::make('Approve')
-                        ->icon('heroicon-o-check-circle')
-                        ->color('success')
-                        ->form([
-                            Forms\Components\Select::make('priority')
-                                ->options([
-                                    '1' => '1',
-                                    '2' => '2',
-                                    '3' => '3',
-                                    '4' => '4',
-                                    '5' => '5',
-                                ])
-                                ->required(),
-                            Forms\Components\RichEditor::make('remarks')
-                                ->label('Remarks')
-                                ->required(),
-
-                            Forms\Components\Select::make('user_ids')
-                                ->label('Assignees')
-                                ->options(User::query()->where('role', 'support')->pluck('name', 'id'))
-                                ->multiple(),
-                        ])
-                        ->closeModalByClickingAway(false)
-                        ->action(function ($data, $record) {
-                            $userIds = $data['user_ids'] ?? [];
-
-                            $record->assignees()->createMany(
-                                collect($userIds)->map(function ($id) use ($record) {
-                                    return [
-                                        'assigner_id' => Auth::id(),
-                                        'request_id' => $record->id,
-                                        'user_id' => $id,
-                                        'response' => 'pending',
-                                    ];
-                                })
-                            );
-
-                            $record->action()->create([
-                                'request_id' => $record->id,
-                                'user_id' => Auth::id(),
-                                'status' => RequestStatus::APPROVED,
-                                'remarks' => $record['remarks'],
-                                'time' => now(),
-                            ]);
-
-                            Notification::make()
-                                ->title('Request Assigned Successfully')
-                                ->success()
-                                ->send();
-                            $record->update(['priority' => $data['priority']]);
-
-                        })
-                        ->visible(function ($record) {
-                            $latestAction = $record->actions()->latest()->first();
-                            $latestActionStatus = $latestAction?->status;
-
-                            return $latestActionStatus == RequestStatus::PUBLISHED;
-                        }),
+                    AssignRequestAction::make(),
+                    ApproveRequestAction::make(),
+                    ResolveRequestAction::make(),
                     ViewRequestHistoryAction::make(),
-                    Action::make('Reject')
-                        ->icon('heroicon-o-trash')
-                        ->requiresConfirmation()
-                        ->color('danger')
-                        ->action(function ($record) {
-                            $record->action()->create([
-                                'request_id' => $record->id,
-                                'user_id' => Auth::id(),
-                                'status' => RequestStatus::REJECTED,
-                                'remarks' => $record['remarks'],
-                                'time' => now(),
-                            ]);
-
-                        })
-                        ->visible(function ($record) {
-                            $latestAction = $record->actions()->latest()->first();
-                            $latestActionStatus = $latestAction?->status;
-
-                            return $latestActionStatus == '';
-                        }),
-
+                    DeclineRequestAction::make(),
                 ]),
-
             ])
             ->recordAction(null)
             ->recordUrl(null);
