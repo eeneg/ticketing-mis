@@ -25,70 +25,70 @@ trait UpdateRequestTraits
 
         $this->color('info');
 
-        $this->hidden(function ($record){
+        $this->hidden(function ($record) {
             return $record->currentUserAssignee->response->name == 'REJECTED' || $record->action->status->name == RequestStatus::COMPLETED->name;
         });
 
         $this->button();
 
         $this->disabled(function ($record) {
-                 return $record->currentUserAssignee->response->name == 'REJECTED';
-                 });
+            return $record->currentUserAssignee->response->name == 'REJECTED';
+        });
 
         $this->form([
-                    Select::make('status')
-                        ->required()
-                        ->options([
-                            RequestStatus::COMPLETED->value => RequestStatus::COMPLETED->getLabel(),
-                            RequestStatus::SUSPENDED->value => RequestStatus::SUSPENDED->getLabel(),
-                        ])
-                        ->reactive()
-                        ->native(false),
-                    RichEditor::make('remarks')
-                        ->required(fn(Get $get):bool =>  $get('status') === RequestStatus::SUSPENDED->value),
-                    Repeater::make('attachments')
-                        ->columnSpanFull()
-                        ->label('Attachments')
-                        ->columnSpanFull()
-                        ->deletable(false)
-                        ->addable(false)
-                        ->reorderable(false)
-                        ->hint('Help')
-                        ->hintIcon('heroicon-o-question-mark-circle')
-                        ->hintIconTooltip('Please upload a maximum file count of 5 items and file size of 4096 kilobytes.')
-                        ->simple(
-                            FileUpload::make('paths')
-                                ->placeholder(fn (string $operation) => match ($operation) {
-                                    'view' => 'Click the icon at the left side of the filename to download',
-                                    default => null,
-                                })
-                                ->directory(fn (Request $record) => "attachments/tmp/{$record->id}")
-                                ->preserveFilenames()
-                                ->multiple()
-                                ->maxFiles(5)
-                                ->downloadable()
-                                ->previewable(false)
-                                ->maxSize(1024 * 4)
-                                ->removeUploadedFileButtonPosition('right')
-                        )
-                        ->rule(fn () => function ($attribute, $value, $fail) {
-                            $files = collect(current($value)['paths'])->map(fn (TemporaryUploadedFile|string $file) => [
-                                'file' => $file instanceof TemporaryUploadedFile
-                                    ? $file->getClientOriginalName()
-                                    : current($value)['files'][$file],
-                                'hash' => $file instanceof TemporaryUploadedFile
-                                    ? hash_file('sha512', $file->getRealPath())
-                                    : hash_file('sha512', storage_path("app/public/$file")),
-                            ]);
+            Select::make('status')
+                ->required()
+                ->options([
+                    RequestStatus::COMPLETED->value => RequestStatus::COMPLETED->getLabel(),
+                    RequestStatus::SUSPENDED->value => RequestStatus::SUSPENDED->getLabel(),
+                ])
+                ->reactive()
+                ->native(false),
+            RichEditor::make('remarks')
+                ->required(fn (Get $get): bool => $get('status') === RequestStatus::SUSPENDED->value),
+            Repeater::make('attachments')
+                ->columnSpanFull()
+                ->label('Attachments')
+                ->columnSpanFull()
+                ->deletable(false)
+                ->addable(false)
+                ->reorderable(false)
+                ->hint('Help')
+                ->hintIcon('heroicon-o-question-mark-circle')
+                ->hintIconTooltip('Please upload a maximum file count of 5 items and file size of 4096 kilobytes.')
+                ->simple(
+                    FileUpload::make('paths')
+                        ->placeholder(fn (string $operation) => match ($operation) {
+                            'view' => 'Click the icon at the left side of the filename to download',
+                            default => null,
+                        })
+                        ->directory(fn (Request $record) => "attachments/tmp/{$record->id}")
+                        ->preserveFilenames()
+                        ->multiple()
+                        ->maxFiles(5)
+                        ->downloadable()
+                        ->previewable(false)
+                        ->maxSize(1024 * 4)
+                        ->removeUploadedFileButtonPosition('right')
+                )
+                ->rule(fn () => function ($attribute, $value, $fail) {
+                    $files = collect(current($value)['paths'])->map(fn (TemporaryUploadedFile|string $file) => [
+                        'file' => $file instanceof TemporaryUploadedFile
+                            ? $file->getClientOriginalName()
+                            : current($value)['files'][$file],
+                        'hash' => $file instanceof TemporaryUploadedFile
+                            ? hash_file('sha512', $file->getRealPath())
+                            : hash_file('sha512', storage_path("app/public/$file")),
+                    ]);
 
-                            if (($duplicates = $files->duplicates('hash'))->isNotEmpty()) {
-                                $dupes = $files->filter(fn ($file) => $duplicates->contains($file['hash']))->unique();
+                    if (($duplicates = $files->duplicates('hash'))->isNotEmpty()) {
+                        $dupes = $files->filter(fn ($file) => $duplicates->contains($file['hash']))->unique();
 
-                                $fail('Please do not upload the same files ('.$dupes->map->file->join(', ').') multiple times.');
-                            }
-                        }
-                        ),
-                        ]);
+                        $fail('Please do not upload the same files ('.$dupes->map->file->join(', ').') multiple times.');
+                    }
+                }
+                ),
+        ]);
 
         $this->action(function (array $data, $record) {
             $update = $record->action()->create([

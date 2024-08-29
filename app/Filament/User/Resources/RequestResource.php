@@ -267,7 +267,7 @@ class RequestResource extends Resource
                         ->color('warning')
                         ->form([
                             RichEditor::make('remarks')
-                                ->required(fn(Get $get):bool =>  $get('status') === RequestStatus::SUSPENDED->value),
+                                ->required(fn (Get $get): bool => $get('status') === RequestStatus::SUSPENDED->value),
                             Repeater::make('attachments')
                                 ->columnSpanFull()
                                 ->label('Attachments')
@@ -310,8 +310,8 @@ class RequestResource extends Resource
                                     }
                                 }
                                 ),
-                                ])
-                        ->action(function ($data , $record){
+                        ])
+                        ->action(function ($data, $record) {
                             $record->action()->create([
                                 'user_id' => Auth::id(),
                                 'actions.request_id' => $record->id,
@@ -319,7 +319,7 @@ class RequestResource extends Resource
                                 'time' => now(),
                                 'remarks' => $data['remarks'],
                             ]);
-                        })
+                        }),
                 ]),
             ])
             ->recordUrl(null)
