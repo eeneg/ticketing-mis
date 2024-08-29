@@ -44,9 +44,9 @@ trait RejectAssignmentTrait
                 ->danger()
                 ->send();
 
-            Notification::make()
-                ->title('Scheduled Task')
-                ->body(str("Request of <b>{$record->requestor->name}</b> has been <b>REJECTED</b> by ".auth()->user()->name.'.')->toHtmlString())
+                Notification::make()
+                ->title('Request Rejected')
+                ->body(str("Request of <b>{$record->requestor->name}</b> has been <b>REJECTED</b> by " . auth()->user()->name .'.')->toHtmlString())
                 ->icon(RequestStatus::DECLINED->getIcon())
                 ->iconColor(RequestStatus::DECLINED->getColor())
                 ->sendToDatabase($record->currentUserAssignee->assigner);

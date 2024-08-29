@@ -37,6 +37,7 @@ class OfficeResource extends Resource
                                 Forms\Components\TextInput::make('acronym')
                                     ->required()
                                     ->unique(ignoreRecord: true)
+                                    ->required()
                                     ->maxLength(255),
                             ]),
                         Forms\Components\TextInput::make('address')

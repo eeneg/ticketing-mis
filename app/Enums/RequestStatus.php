@@ -24,6 +24,7 @@ enum RequestStatus: string implements HasColor, HasDescription, HasIcon, HasLabe
     case REJECTED = 'rejected';
     case ADJUSTED = 'adjusted';
     case SCHEDULED = 'scheduled';
+    case COMPLIED = 'complied';
 
     public function getColor(): ?string
     {
@@ -42,6 +43,7 @@ enum RequestStatus: string implements HasColor, HasDescription, HasIcon, HasLabe
             self::ADJUSTED,
             self::RESOLVED,
             self::SCHEDULED => 'info',
+            self::COMPLIED => 'warning',
             default => 'gray'
         };
     }
@@ -78,6 +80,7 @@ enum RequestStatus: string implements HasColor, HasDescription, HasIcon, HasLabe
             self::REJECTED => 'gmdi-person-off-o',
             self::ADJUSTED => 'gmdi-scale-o',
             self::SCHEDULED => 'gmdi-event-o',
+            self::COMPLIED => 'gmdi-task-r',
             default => 'gmdi-circle-o',
         };
     }
@@ -118,6 +121,7 @@ enum RequestStatus: string implements HasColor, HasDescription, HasIcon, HasLabe
             self::REJECTED,
             self::ADJUSTED,
             self::SCHEDULED,
+            self::COMPLIED,
         ]);
     }
 }
