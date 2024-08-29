@@ -205,6 +205,8 @@ class RequestResource extends Resource
                                     })
                                     ->searchable(),
                             ]),
+                        Forms\Components\Hidden::make('requestor_id')
+                            ->default(Auth::id()),
                     ]),
             ]);
     }

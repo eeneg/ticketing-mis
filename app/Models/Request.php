@@ -72,12 +72,13 @@ class Request extends Model
                 $query->whereIn('status', [
                     RequestStatus::APPROVED,
                     RequestStatus::DECLINED,
+                    RequestStatus::PUBLISHED,
                     RequestStatus::COMPLETED,
                     RequestStatus::CANCELLED,
                     RequestStatus::STARTED,
                     RequestStatus::SUSPENDED,
-                    RequestStatus::PUBLISHED,
                     RequestStatus::RETRACTED,
+                    RequestStatus::RESOLVED,
                 ]);
             });
     }

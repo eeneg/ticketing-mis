@@ -12,11 +12,19 @@ enum    RequestStatus: string implements HasColor, HasDescription, HasIcon, HasL
     case APPROVED = 'approved';
     case DECLINED = 'declined';
     case COMPLETED = 'completed';
+    // COMPLETED ONLY BY THE SUPPORT
     case CANCELLED = 'cancelled';
     case STARTED = 'started';
-    case SUSPENDED = 'suspended';
+    // IF STARTED SHOW OPTION TO SUSPEND
     case PUBLISHED = 'published';
     case RETRACTED = 'retracted';
+    case RESOLVED = 'resolved';
+    //  SHOW RESOLVED ONLY WHEN COMPLETED
+    case SUSPENDED = 'suspended';
+    // ADD SUSPENDED STATUS AVAILABILITY WHEN REQUEST HAS BEEN STARTED
+    case COMPLIED = 'complied';
+    // AFTER SUSPENSION THE USER MUST COMPLY THE REQUIRED THINGS
+    // BEFORE COMPLETE COMPLIANCE IT REQUIRES THE CONFIRMATION OF THE SUPPORT
 
     case ASSIGNED = 'assigned';
     case ACCEPTED = 'accepted';
@@ -39,6 +47,7 @@ enum    RequestStatus: string implements HasColor, HasDescription, HasIcon, HasL
             self::REJECTED => 'danger',
             self::ASSIGNED,
             self::ADJUSTED,
+            self::RESOLVED,
             self::SCHEDULED => 'info',
             default => 'gray'
         };
@@ -65,6 +74,7 @@ enum    RequestStatus: string implements HasColor, HasDescription, HasIcon, HasL
             self::APPROVED => 'gmdi-verified-o',
             self::DECLINED => 'gmdi-block-o',
             self::COMPLETED => 'gmdi-task-alt-o',
+            self::RESOLVED => 'gmdi-approval-tt',
             self::CANCELLED => 'gmdi-disabled-by-default-o',
             self::STARTED => 'gmdi-alarm-o',
             self::SUSPENDED => 'gmdi-front-hand-o',
