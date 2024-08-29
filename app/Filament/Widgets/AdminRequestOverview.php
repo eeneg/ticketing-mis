@@ -15,20 +15,20 @@ class AdminRequestOverview extends BaseWidget
     {
         return [
             Stat::make('Unassigned Request', Request::doesntHave('assignees')->count())
-                ->description('Request that has no assignee')
+                ->description('Requests that has no assignee')
                 ->descriptionIcon(RequestStatus::STARTED->getIcon(), IconPosition::Before),
             Stat::make('Active Request', Assignee::where('response', 'accepted')->count())
                 ->descriptionIcon(RequestStatus::ACCEPTED->getIcon(), IconPosition::Before)
                 ->color(RequestStatus::ACCEPTED->getColor())
-                ->description('Request that has been accepted'),
+                ->description('Requests that has been accepted'),
             Stat::make('Completed Request', Assignee::where('response', 'completed')->count())
                 ->descriptionIcon(RequestStatus::COMPLETED->getIcon(), IconPosition::Before)
                 ->color('info')
-                ->description('Request that needed to be accepted'),
+                ->description('Requests that needs to be accepted'),
             Stat::make('Pending Request', Assignee::where('response', 'pending')->count())
                 ->descriptionIcon(RequestStatus::PUBLISHED->getIcon(), IconPosition::Before)
                 ->color('warning')
-                ->description('Request that has not yet accepted'),
+                ->description('Requests that has not yet been accepted'),
         ];
     }
 

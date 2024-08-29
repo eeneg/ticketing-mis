@@ -45,7 +45,7 @@ trait DeclineRequestTrait
             $time = now();
             $from = User::where('id', Auth::id())->value('name');
             $subject = $record->subject;
-            $recipientUser = User::find($record->requestor_id);
+            $recipientUser = $record->requestor_id;
             $remarks = $data['remarks'];
             Notification::make()
                 ->title('The request has been declined by the officers')

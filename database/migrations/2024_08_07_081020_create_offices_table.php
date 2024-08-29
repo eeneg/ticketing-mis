@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('offices', function (Blueprint $table) {
             $table->ulid('id')->primary();
             $table->string('name')->unique();
-            $table->string('acronym')->unique()->nullable();
+            $table->string('acronym')->unique();
             $table->string('logo')->nullable();
             $table->string('address')->nullable();
             $table->string('room')->nullable();

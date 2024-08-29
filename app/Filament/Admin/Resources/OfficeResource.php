@@ -35,6 +35,7 @@ class OfficeResource extends Resource
                                     ->rule('required')
                                     ->maxLength(255),
                                 Forms\Components\TextInput::make('acronym')
+                                    ->required()
                                     ->unique(ignoreRecord: true)
                                     ->maxLength(255),
                             ]),

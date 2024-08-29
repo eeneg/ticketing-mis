@@ -25,7 +25,8 @@ enum RequestStatus: string implements HasColor, HasDescription, HasIcon, HasLabe
     case COMPLIED = 'complied';
     // AFTER SUSPENSION THE USER MUST COMPLY THE REQUIRED THINGS
     // BEFORE COMPLETE COMPLIANCE IT REQUIRES THE CONFIRMATION OF THE SUPPORT
-
+    // TODO
+    // COMPLETED, STARTED, SUSPENDED, COMPLIED
     case ASSIGNED = 'assigned';
     case ACCEPTED = 'accepted';
     case REJECTED = 'rejected';

@@ -5,6 +5,7 @@ namespace App\Filament\Actions\Traits;
 use App\Enums\RequestStatus;
 use App\Models\Request;
 use App\Models\User;
+use Carbon\Carbon;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
@@ -74,9 +75,16 @@ trait AssignRequestTrait
                 'time' => now(),
             ]);
 
+            $subject = $record->subject;
+            $category = $record->category->name;
+            $office = $record->office->name;
+            $availability_from = Carbon::parse($record['availability_from'])->format('j\t\h \o\f F \a\t h:i:s A');
+            $availability_to = Carbon::parse($record['availability_to'])->format('j\t\h \o\f F \a\t h:i:s A');
+
             foreach ($listofAssignees as $Assignees) {
                 Notification::make()
-                    ->title('Request has been reassigned to you')
+                    ->title('A request has been reassigned to you')
+                    ->body(str($office.' - '.$subject.'( '.$category.' )'.'<br>'.'Available from:'.$availability_from.'<br>'.'Available to: '.' '.$availability_to)->toHtmlString())
                     ->icon('heroicon-c-arrow-path')
                     ->iconColor(RequestStatus::ASSIGNED->getColor())
                     ->sendtoDatabase(User::find($Assignees));
@@ -87,6 +95,7 @@ trait AssignRequestTrait
                 ->success()
                 ->send();
             $action->sendSuccessNotification();
+
         });
     }
 }
