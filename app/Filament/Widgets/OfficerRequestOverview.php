@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Enums\RequestStatus;
+use App\Models\Action;
 use App\Models\Assignee;
 use Filament\Support\Enums\IconPosition;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
@@ -18,7 +19,7 @@ class OfficerRequestOverview extends BaseWidget
                 ->descriptionIcon(RequestStatus::ACCEPTED->getIcon(), IconPosition::Before)
                 ->color(RequestStatus::ACCEPTED->getColor())
                 ->description('Requests that has been accepted'),
-            Stat::make('Completed Request', Assignee::where('assigner_id', Auth::id())->where('response', 'completed')->count())
+            Stat::make('Completed Request', Action::where('user_id', Auth::id())->where('status', RequestStatus::RESOLVED)->count())
                 ->descriptionIcon(RequestStatus::COMPLETED->getIcon(), IconPosition::Before)
                 ->color('info')
                 ->description('Requests that have been completed'),

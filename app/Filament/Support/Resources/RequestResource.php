@@ -5,8 +5,8 @@ namespace App\Filament\Support\Resources;
 use App\Filament\Actions\AcceptAssignmentAction;
 use App\Filament\Actions\RejectAssignmentAction;
 use App\Filament\Actions\Tables\AdjustRequestAction;
+use App\Filament\Actions\Tables\AmmendRecentActionAction;
 use App\Filament\Actions\Tables\ScheduleRequestAction;
-use App\Filament\Actions\Tables\StartedRequestAction;
 use App\Filament\Actions\Tables\UpdateRequestAction;
 use App\Filament\Actions\Tables\ViewRequestHistoryAction;
 use App\Filament\Support\Resources\RequestResource\Pages;
@@ -128,12 +128,11 @@ class RequestResource extends Resource
                                     ->alignCenter(),
                             ]),
                     ]),
-
                 ActionGroup::make([
+                    AmmendRecentActionAction::make(),
                     ViewRequestHistoryAction::make(),
                     AdjustRequestAction::make(),
                     ScheduleRequestAction::make(),
-                    StartedRequestAction::make(),
                 ]),
             ])
             ->bulkActions([

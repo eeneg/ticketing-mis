@@ -3,6 +3,7 @@
 namespace App\Filament\Actions\Traits;
 
 use App\Enums\RequestStatus;
+use App\Enums\UserAssignmentResponse;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TimePicker;
 use Filament\Notifications\Notification;
@@ -23,7 +24,7 @@ trait ScheduleRequestTrait
 
         $this->modalWidth(MaxWidth::Large);
 
-        $this->hidden(fn ($record) => $record->action?->status === RequestStatus::STARTED || $record->action?->status === RequestStatus::RESOLVED);
+        $this->hidden(fn ($record) => $record->action?->status === RequestStatus::STARTED || $record->action?->status === RequestStatus::RESOLVED || $record->currentUserAssignee->response === UserAssignmentResponse::REJECTED);
 
         $this->form([
             DatePicker::make('target_date')

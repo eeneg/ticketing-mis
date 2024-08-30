@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 trait AssignRequestTrait
 {
@@ -66,14 +67,43 @@ trait AssignRequestTrait
             $oldAssignees = $record->assignees->pluck('user_id')->toArray();
             $oldNames = User::whereIn('id', $oldAssignees)->pluck('name')->toArray();
             $oldFinal = implode(', ', $oldNames);
+            $remarks = '';
+            // if ($record->request_id) {
+            //     $existsInAssigneeTable = DB::table('assignees')
+            //         ->where('request_id', $record->request_id)
+            //         ->exists();
 
+            //     if (! $existsInAssigneeTable) {
+            //         $remarks = str('Assigned to: '.$assigneesString)->toHtmlString();
+            //     } else {
+            //         $remarks = str('FROM: '.$oldFinal.'<br>'.' TO: '.$assigneesString)->toHtmlString();
+            //     }
+
+            // }
             $record->action()->create([
                 'request_id' => $record->id,
                 'user_id' => Auth::id(),
                 'status' => RequestStatus::ASSIGNED,
-                'remarks' => (str(' FROM: '.$oldFinal.'<br>'.' TO: '.$assigneesString))->toHtmlString(),
+                'remarks' => str('FROM: '.$oldFinal.'<br>'.' TO: '.$assigneesString)->toHtmlString(),
                 'time' => now(),
             ]);
+            // $request_ids = $record->assignees->pluck('request_id')->toArray();
+            // $remarks = (function ($record, $oldAssignees, $assigneesString, $oldFinal, $request_ids) {
+            //     if ($record->request_id => in_array([$request_ids])) {
+            //         return str('Assigned to: '.$assigneesString)->toHtmlString();
+            //     }
+
+            //     return str('FROM: '.$oldFinal.'<br>'.' TO: '.$assigneesString)->toHtmlString();
+            // })($oldAssignees, $assigneesString, $oldFinal);
+
+            // $this->hidden(fn ($record) => in_array($record->action->status, [
+            //     RequestStatus::RESOLVED,
+            //     RequestStatus::COMPLETED,
+            //     RequestStatus::APPROVED,
+            // ]) || in_array($record->currentUserAssignee?->response, [
+            //     UserAssignmentResponse::PENDING,
+            //     UserAssignmentResponse::REJECTED,
+            // ]));
 
             $subject = $record->subject;
             $category = $record->category->name;

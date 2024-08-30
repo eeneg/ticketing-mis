@@ -24,7 +24,7 @@ class AdminRequestOverview extends BaseWidget
             Stat::make('Completed Request', Assignee::where('response', 'completed')->count())
                 ->descriptionIcon(RequestStatus::COMPLETED->getIcon(), IconPosition::Before)
                 ->color('info')
-                ->description('Requests that needs to be accepted'),
+                ->description('Requests that needs to be completed'),
             Stat::make('Pending Request', Assignee::where('response', 'pending')->count())
                 ->descriptionIcon(RequestStatus::PUBLISHED->getIcon(), IconPosition::Before)
                 ->color('warning')

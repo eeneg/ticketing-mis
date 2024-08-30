@@ -2,6 +2,7 @@
 
 namespace App\Filament\User\Resources\RequestResource\Pages;
 
+use App\Filament\Actions\AmmendRecentActionAction;
 use App\Filament\Actions\PublishRequestAction;
 use App\Filament\Actions\RetractRequestAction;
 use App\Filament\User\Resources\RequestResource;
@@ -16,6 +17,7 @@ class EditRequest extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            AmmendRecentActionAction::make(),
             PublishRequestAction::make(),
             RetractRequestAction::make(),
             Actions\DeleteAction::make(),

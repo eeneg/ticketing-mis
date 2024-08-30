@@ -22,7 +22,7 @@ trait StartedRequestTrait
 
         $this->visible(fn (Request $record) => $record->currentUserAssignee?->response === UserAssignmentResponse::ACCEPTED);
 
-        $this->hidden(fn (Request $record) => $record->action?->status === RequestStatus::STARTED || $record->action?->status === RequestStatus::RESOLVED);
+        $this->hidden(fn (Request $record) => $record->action?->status === RequestStatus::STARTED || $record->action?->status === RequestStatus::RESOLVED || $record->action?->status === RequestStatus::COMPLETED);
 
         $this->requiresConfirmation();
 

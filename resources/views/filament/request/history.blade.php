@@ -39,7 +39,7 @@
                             {{ $action->user->name }}
                         </span>
 
-                        on {{ $action->created_at->format('jS \of F Y \a\t H:i:s') }} ({{ $action->created_at->diffForHumans() }}).
+                        on {{ $action->created_at->format('jS \of F Y \a\t H:i') }} ({{ $action->created_at->diffForHumans() }})
                     </time>
 
                     @if ($action->remarks && ($action->status->major() || $action->status === RequestStatus::ASSIGNED))
@@ -79,6 +79,12 @@
                                 @endforeach
                             </ul>
                         </div>
+                    @endif
+
+                    @if ($action->created_at->ne($action->updated_at))
+                        <time class="block mt-2 text-sm font-light leading-none text-neutral-500">
+                            Ammended at {{ $action->updated_at->format('jS \of F Y \a\t H:i') }} ({{ $action->updated_at->diffForHumans() }})
+                        </time>
                     @endif
                 </li>
             @endforeach
