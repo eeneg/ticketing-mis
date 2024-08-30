@@ -24,7 +24,6 @@ enum RequestStatus: string implements HasColor, HasDescription, HasIcon, HasLabe
     case REJECTED = 'rejected';
     case ADJUSTED = 'adjusted';
     case SCHEDULED = 'scheduled';
-    case COMPLIED = 'complied';
 
     public function getColor(): ?string
     {
@@ -85,18 +84,36 @@ enum RequestStatus: string implements HasColor, HasDescription, HasIcon, HasLabe
         };
     }
 
-    public function getLabel($present = false): ?string
+    public function getLabel(?string $type = null, ?bool $capitalize = true): ?string
     {
-        return str($this->value)
-            ->when($present, function ($value) {
-                return match ($value->toString()) {
-                    'cancelled' => 'Cancel',
-                    'declined' => 'Decline',
-                    'scheduled' => 'Schedule',
-                    default => $value->substr(0, -2),
-                };
-            })
-            ->headline();
+        $label = match ($type) {
+            'nounForm' => match ($this->value) {
+                'approved' => 'approval',
+                'declined' => 'declination',
+                'completed' => 'completion',
+                'cancelled' => 'cancellation',
+                'initiated' => 'initiation',
+                'suspended' => 'suspension',
+                'published' => 'publication',
+                'retracted' => 'retraction',
+                'assigned' => 'assignment',
+                'accepted' => 'acceptance',
+                'rejected' => 'rejection',
+                'adjusted' => 'adjustment',
+                'scheduled' => 'scheduling',
+                default => $this->value,
+            },
+            'presentTense' => match ($this->value) {
+                'approved' => 'approve',
+                'cancelled' => 'cancel',
+                'declined' => 'decline',
+                'scheduled' => 'schedule',
+                default => substr($this->value, 0, -2),
+            },
+            default => $this->value,
+        };
+
+        return $capitalize ? ucfirst($label) : $label;
     }
 
     public function major()

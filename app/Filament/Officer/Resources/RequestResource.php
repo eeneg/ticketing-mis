@@ -211,9 +211,9 @@ class RequestResource extends Resource
                 ActionGroup::make([
                     AssignRequestAction::make(),
                     ApproveRequestAction::make(),
+                    DeclineRequestAction::make(),
                     ResolveRequestAction::make(),
                     ViewRequestHistoryAction::make(),
-                    DeclineRequestAction::make(),
                 ]),
             ])
             ->recordAction(null)

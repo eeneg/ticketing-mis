@@ -5,6 +5,7 @@ namespace App\Filament\Support\Resources;
 use App\Filament\Actions\AcceptAssignmentAction;
 use App\Filament\Actions\RejectAssignmentAction;
 use App\Filament\Actions\Tables\AdjustRequestAction;
+use App\Filament\Actions\Tables\AmmendRecentActionAction;
 use App\Filament\Actions\Tables\ScheduleRequestAction;
 use App\Filament\Actions\Tables\UpdateRequestAction;
 use App\Filament\Actions\Tables\ViewRequestHistoryAction;
@@ -128,10 +129,10 @@ class RequestResource extends Resource
                             ]),
                     ]),
                 ActionGroup::make([
+                    AmmendRecentActionAction::make(),
                     ViewRequestHistoryAction::make(),
                     AdjustRequestAction::make(),
                     ScheduleRequestAction::make(),
-
                 ]),
             ])
             ->bulkActions([
