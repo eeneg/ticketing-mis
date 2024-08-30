@@ -78,7 +78,9 @@ class Request extends Model
                     RequestStatus::STARTED,
                     RequestStatus::SUSPENDED,
                     RequestStatus::RETRACTED,
+                    RequestStatus::COMPLIED,
                     RequestStatus::RESOLVED,
+
                 ]);
             });
     }
@@ -173,7 +175,7 @@ class Request extends Model
                         continue;
                     }
 
-                    [$type, $id] = explode('-', $file);
+                    @[$type, $id] = explode('-', $file);
 
                     if ($type === 'request' && $id !== $this->id || $type === 'action' && $actions->doesntContain($id)) {
                         continue;
