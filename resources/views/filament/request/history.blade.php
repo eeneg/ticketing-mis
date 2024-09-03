@@ -108,7 +108,7 @@
                         {{ $request->requestor?->name }}
                     </span>
 
-                    on {{ $request->created_at->format('jS \of F Y \a\t H:i') }} on ({{ $request->created_at->diffForHumans() }})
+                    on {{ $request->created_at->format('jS \of F Y \a\t H:i:s') }} on ({{ $request->created_at->diffForHumans() }}).
                 </time>
             </li>
         </ol>

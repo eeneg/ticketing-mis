@@ -12,10 +12,10 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Pages\Auth\Register;
 use Filament\Forms\Form;
 use Filament\Http\Responses\Auth\Contracts\RegistrationResponse;
 use Filament\Notifications\Notification;
+use Filament\Pages\Auth\Register;
 
 class RegistrationPage extends Register
 {
@@ -77,18 +77,18 @@ class RegistrationPage extends Register
                                 $this->getEmailFormComponent(),
                                 $this->getPasswordFormComponent(),
                             ]),
-                            Group::make()
+                        Group::make()
                             ->schema([
                                 $this->getOfficeFormComponent(),
                                 $this->getNumberFormComponent(),
                                 $this->getPasswordConfirmationFormComponent(),
-                            ])
+                            ]),
                     ]),
             ])
             ->statePath('data');
     }
 
-    protected function getAvatarFormComponent() : Component
+    protected function getAvatarFormComponent(): Component
     {
         return FileUpload::make('avatar')
             ->alignCenter()
@@ -96,17 +96,17 @@ class RegistrationPage extends Register
             ->directory('avatars');
     }
 
-    protected function getOfficeFormComponent() : Component
+    protected function getOfficeFormComponent(): Component
     {
         return Select::make('office_id')
             ->native(false)
             ->searchable()
             ->options(Office::query()->pluck('acronym', 'id'))
-            ->getSearchResultsUsing(fn ($search) : array => Office::where('name','like',"{$search}")->pluck('acronym','id')->toArray())
-            ->getOptionLabelUsing(fn ($value) : ?string => Office::find($value)?->acronym);
+            ->getSearchResultsUsing(fn ($search): array => Office::where('name', 'like', "{$search}")->pluck('acronym', 'id')->toArray())
+            ->getOptionLabelUsing(fn ($value): ?string => Office::find($value)?->acronym);
     }
 
-    protected function getNumberFormComponent() : Component
+    protected function getNumberFormComponent(): Component
     {
         return TextInput::make('number')
             ->placeholder('9xx xxx xxxx')
@@ -126,6 +126,6 @@ class RegistrationPage extends Register
             ->icon(RequestStatus::ACCEPTED->getIcon())
             ->iconColor(RequestStatus::ACCEPTED->getColor())
             ->body(str("<b>{$data['name']}</b> has been registered in the system")->toHtmlString())
-            ->sendToDatabase(User::where('role','admin')->get());
+            ->sendToDatabase(User::where('role', 'admin')->get());
     }
 }

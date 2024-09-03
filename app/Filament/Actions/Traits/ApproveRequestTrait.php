@@ -4,8 +4,6 @@ namespace App\Filament\Actions\Traits;
 
 use App\Enums\RequestPriority;
 use App\Enums\RequestStatus;
-use App\Models\Category;
-use App\Models\Office;
 use App\Models\Request;
 use App\Models\User;
 use Carbon\Carbon;
@@ -30,15 +28,17 @@ trait ApproveRequestTrait
 
         $this->form([
             Select::make('priority')
+                ->placeholder('Provide an estimate on how time crucial the task is.')
                 ->options(RequestPriority::options())
                 ->required(),
 
             RichEditor::make('remarks')
                 ->label('Remarks')
-                ->required(),
+                ->placeholder('Provide further details regarding this request'),
 
             Select::make('user_ids')
                 ->label('Assignees')
+                ->placeholder('Select a support to assign this request to.')
                 ->options(User::query()->where('role', 'support')->pluck('name', 'id'))
                 ->multiple(),
         ]);
@@ -65,28 +65,33 @@ trait ApproveRequestTrait
                 'time' => now(),
             ]);
 
-            $subject = $record['subject'];
-            $recipientAssignees = $data['user_ids'] ?? [];
-            $recipientUser = User::find($record->requestor_id);
-            $office = Office::where('id', $record->office_id)->value('acronym');
-            $category = Category::where('id', $record->category_id)->value('name');
             $availability_from = Carbon::parse($record['availability_from'])->format('j\t\h \o\f F \a\t h:i:s A');
             $availability_to = Carbon::parse($record['availability_to'])->format('j\t\h \o\f F \a\t h:i:s A');
 
-            foreach ($recipientAssignees as $Assignees) {
+            foreach ($userIds as $Assignees) {
                 Notification::make()
                     ->title('New Request Assigned')
                     ->icon('heroicon-o-check-circle')
                     ->iconColor(RequestStatus::APPROVED->getColor())
-                    ->body(str($office.' - '.$subject.'( '.$category.' )'.'<br>'.'Available from:'.$availability_from.'<br>'.'Available to: '.' '.$availability_to)->toHtmlString())
+                    ->body(str($record->office->acronym.' - '.$record->subject.'( '.$record->category->name.' )'.'<br>'.'Available from:'.$availability_from.'<br>'.'Available to: '.' '.$availability_to)->toHtmlString())
                     ->sendToDatabase(User::find($Assignees));
             }
+            $assigneeNames = User::whereIn('id', $userIds)->pluck('name')->toArray();
+            $assigneesString = implode(', ', $assigneeNames);
 
-            Notification::make()
-                ->title('The request is being processed')
-                ->icon('heroicon-o-check-circle')
-                ->iconColor(RequestStatus::APPROVED->getColor())
-                ->sendToDatabase($recipientUser);
+            if (empty($userIds)) {
+                Notification::make()
+                    ->title('The request is being processed and is to be assigned soon')
+                    ->icon('heroicon-o-check-circle')
+                    ->iconColor(RequestStatus::APPROVED->getColor())
+                    ->sendToDatabase($record->requestor);
+            } else {
+                Notification::make()
+                    ->title('The request has been assigned to '.$assigneesString.' by '.auth()->user()->name.' and is awaiting further process')
+                    ->icon('heroicon-o-check-circle')
+                    ->iconColor(RequestStatus::APPROVED->getColor())
+                    ->sendToDatabase($record->requestor);
+            }
 
             Notification::make()
                 ->title('Request has been assigned')

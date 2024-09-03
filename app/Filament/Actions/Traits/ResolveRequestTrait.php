@@ -2,8 +2,12 @@
 
 namespace App\Filament\Actions\Traits;
 
+use App\Enums\RequestQuality;
 use App\Enums\RequestStatus;
+use App\Enums\RequestTimeliness;
 use App\Models\Request;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 
@@ -23,34 +27,34 @@ trait ResolveRequestTrait
             RequestStatus::COMPLETED,
         ]));
 
+        $this->requiresConfirmation();
+        $this->form([
+            Select::make('Quality')
+                ->required()
+                ->options(RequestQuality::options()),
+            Select::make('Timeliness')
+                ->required()
+                ->options(RequestTimeliness::options()),
+            TextInput::make('Remarks')
+                ->placeholder('Provide further description of your experience regarding this request transaction'),
+        ]);
+        $this->modalDescription('This survey reflects how well the request has been managed by the support and how smooth the process was');
         $this->action(function ($data, Request $record, self $action) {
-            $record->actions()->create([
+            $record->action()->create([
                 'request_id' => $record->id,
                 'user_id' => Auth::id(),
                 'status' => RequestStatus::RESOLVED,
                 'time' => now(),
             ]);
-
-            $recipientUser = $record->requestor_id;
-            $subject = $record['subject'];
-            $category = $record->category->name;
-            $subcategory = $record->subcategory->name;
             $currentAssignees = $data['user_ids'] ?? [];
-
-            Notification::make()
-                ->title('This Request has been resolved')
-                ->icon('heroicon-c-clipboard-document-check')
-                ->iconColor(RequestStatus::RESOLVED->getColor())
-                ->body(str($subject.'( '.$category.' - '.$subcategory.' )'.'<br>'.'This request will no longer recieve any updates')->toHtmlString())
-                ->sendToDatabase($recipientUser);
-
             foreach ($currentAssignees as $Assignees) {
                 Notification::make()
                     ->title('Your assigned request has been resolved')
-                    ->body(str($subject.'( '.$category.' - '.$subcategory.' )'.'<br>'.'This request will no longer recieve any updates')->toHtmlString())
+                    ->body(str($record['subject'].'( '.$record->category->name.' - '.$record->subcategory->name.' )'.'<br>'.'This request will no longer recieve any updates')->toHtmlString())
                     ->sendToDatabase($Assignees);
+
             }
-            $action->sendSuccessNotification();
+            $this->successNotificationTitle('Request resolved and surveyed');
         });
     }
 }

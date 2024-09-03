@@ -3,7 +3,10 @@
 namespace App\Filament\Actions\Traits;
 
 use App\Enums\RequestStatus;
+use App\Enums\UserAssignmentResponse;
 use App\Models\Request;
+use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Auth;
 
 trait StartedRequestTrait
 {
@@ -12,16 +15,40 @@ trait StartedRequestTrait
 
         parent::setUp();
 
-        $this->name ??= 'started';
+        $this->name ??= 'Start';
 
         $this->color(RequestStatus::STARTED->getColor());
 
         $this->icon(RequestStatus::STARTED->getIcon());
 
-        $this->visible(fn (Request $record) => $record->action?->status === RequestStatus::ASSIGNED);
+        $this->visible(function (Request $record) {
+            $assignees = $record->assignees;
+            if ($assignees->isEmpty()) {
+                return false;
+            }
+
+            return $assignees->every(fn ($assignee) => $assignee->response === UserAssignmentResponse::ACCEPTED);
+        });
+
+        $this->hidden(fn (Request $record) => $record->action?->status === RequestStatus::STARTED || $record->action?->status === RequestStatus::RESOLVED || $record->action?->status === RequestStatus::COMPLETED);
+
+        $this->requiresConfirmation();
 
         $this->action(function ($data, Request $record, self $action) {
-            $action->sendSuccessNotification();
+            $record->action()->create([
+                'request_id' => $record->id,
+                'user_id' => Auth::id(),
+                'status' => RequestStatus::STARTED,
+                'time' => now(),
+            ]);
+
+            Notification::make()
+                ->title('Support has started this ticket')
+                ->body('Assigned support has started working on this ticket')
+                ->icon(RequestStatus::STARTED->getIcon())
+                ->iconColor(RequestStatus::STARTED->getColor())
+                ->sendToDatabase($record->requestor);
+            $this->successNotificationTitle('Request started');
 
         });
     }

@@ -1,0 +1,50 @@
+
+
+
+
+
+AcceptAssignemt = DONE
+AdjustRequest = DONE
+AmmenRecentAction = DONE
+ApproveRequest = DONE
+    No assigne = DONE
+    With Assignee = DONE
+AssignRequst = DONE
+
+CompliedReqest = TO FINISH USER REQUEST FORMx
+Completed Notif = Done
+DeclineRequest = DONE
+DenyCompletedR = DONE
+ExtensionRequest = DONE
+PublishRequest = Self-notif (lacks color)
+
+RejectAssignment = DONE - clause where oxnly 1 reject and the other accepts
+ResolveRequest = HIDDEN
+RetractRequest = DONE
+SatisfactorySurvey = DONE
+ScheduleRequest = DONE
+StartedRequest = DONE
+UpdateRequest = DONE
+VerifyCompleted = DONE
+
+  Notification::make()
+                ->title('')
+                ->body('')
+                ->icon(RequestStatus::->getIcon())
+                ->color(RequestStatus::->getColor())
+                ->sendToDatabase();
+
+
+FOr assignees
+  $assigneeId = $record->assignees->pluck('user_id')->toArray();
+
+                            foreach ($assigneeId as $Assignee) {
+                                Notification::make()
+                                    ->title('User Complied')
+                                    ->icon(RequestStatus::COMPLIED->getIcon())
+                                    ->iconColor(RequestStatus::COMPLIED->getColor())
+                                    ->body('I have Complied')
+                                    ->sendToDatabase(User::find($Assignee));
+                            }
+
+$record->category->name.' ( '.$record->subcategory->name.' ) '.'</br>'.auth()->user()->name.

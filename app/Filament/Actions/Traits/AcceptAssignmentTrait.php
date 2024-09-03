@@ -27,7 +27,7 @@ trait AcceptAssignmentTrait
             return $record->currentUserAssignee->responded_at?->addMinutes(15)->lt(now());
         });
 
-        $this->action(function ($record) {
+        $this->action(function ($record, $action) {
             if ($record->currentUserAssignee->responded_at?->addMinutes(15)->lt(now())) {
                 Notification::make()
                     ->title('No activity for 15 minutes')
@@ -54,6 +54,8 @@ trait AcceptAssignmentTrait
                 ->icon(RequestStatus::ACCEPTED->getIcon())
                 ->iconColor(RequestStatus::ACCEPTED->getColor())
                 ->sendToDatabase($record->currentUserAssignee->assigner);
+
+            $action->sendSuccessNotification();
         });
     }
 }

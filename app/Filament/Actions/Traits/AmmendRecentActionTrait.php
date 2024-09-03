@@ -4,10 +4,12 @@ namespace App\Filament\Actions\Traits;
 
 use App\Enums\RequestStatus;
 use App\Models\Request;
+use App\Models\User;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Get;
+use Filament\Notifications\Notification;
 use Filament\Support\Enums\Alignment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Process;
@@ -140,8 +142,18 @@ trait AmmendRecentActionTrait
 
                 $ammendment->touch();
             }
+            $assigneeId = $record->assignees->pluck('user_id')->toArray();
 
+            foreach ($assigneeId as $Assignee) {
+                Notification::make()
+                    ->title('Request Ammenbded')
+                    ->icon(RequestStatus::AMMENDED->getIcon())
+                    ->iconColor(RequestStatus::AMMENDED->getColor())
+                    ->body($record->category->name.' ( '.$record->subcategory->name.' ) '.'</br>'.auth()->user()->name.' : '.'</br>'.$data['remarks'])
+                    ->sendToDatabase(User::find($Assignee));
+            }
             $action->sendSuccessNotification();
+
         });
     }
 

@@ -7,6 +7,7 @@ use App\Filament\Actions\RejectAssignmentAction;
 use App\Filament\Actions\Tables\AdjustRequestAction;
 use App\Filament\Actions\Tables\AmmendRecentActionAction;
 use App\Filament\Actions\Tables\ScheduleRequestAction;
+use App\Filament\Actions\Tables\StartedRequestAction;
 use App\Filament\Actions\Tables\UpdateRequestAction;
 use App\Filament\Actions\Tables\ViewRequestHistoryAction;
 use App\Filament\Support\Resources\RequestResource\Pages;
@@ -39,16 +40,23 @@ class RequestResource extends Resource
         return $table
             ->modifyQueryUsing(function (Builder $query) {
                 $query->whereHas('currentUserAssignee');
+
             })
             ->columns([
-                Tables\Columns\TextColumn::make('requestor.name'),
-                Tables\Columns\TextColumn::make('requestor.office.name'),
+                Tables\Columns\TextColumn::make('requestor.name')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('subject')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('requestor.office.acronym')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('currentUserAssignee.response')
                     ->badge()
-                    ->label('Response'),
+                    ->label('Response')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('action.status')
                     ->badge()
-                    ->label('Status'),
+                    ->label('Status')
+                    ->sortable(),
             ])
             ->filters([
 
@@ -57,7 +65,6 @@ class RequestResource extends Resource
                 UpdateRequestAction::make(),
                 Tables\Actions\ViewAction::make()
                     ->modalCancelAction(false)
-                    ->color('primary')
                     ->form([
                         Grid::make()
                             ->columns(2)
@@ -91,6 +98,11 @@ class RequestResource extends Resource
                                 Select::make('sub-cat')
                                     ->relationship('subcategory', 'name')
                                     ->label('SubCategory'),
+                            ]),
+                        Grid::make()
+                            ->schema([
+                                TextInput::make('remarks')
+                                    ->label('Remarks'),
                             ]),
                         Grid::make()
                             ->columns(2)
@@ -128,8 +140,10 @@ class RequestResource extends Resource
                                     ->alignCenter(),
                             ]),
                     ]),
+
                 ActionGroup::make([
                     AmmendRecentActionAction::make(),
+                    StartedRequestAction::make(),
                     ViewRequestHistoryAction::make(),
                     AdjustRequestAction::make(),
                     ScheduleRequestAction::make(),

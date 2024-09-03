@@ -4,6 +4,7 @@ namespace App\Filament\Actions\Traits;
 
 use App\Enums\RequestStatus;
 use App\Models\Request;
+use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 
 trait PublishRequestTrait
@@ -31,6 +32,7 @@ trait PublishRequestTrait
         $this->successNotificationTitle('Request published successfully');
 
         $this->action(function (Request $record, self $action) {
+
             $record->actions()->create([
                 'request_id' => $record->id,
                 'user_id' => Auth::id(),
@@ -38,7 +40,14 @@ trait PublishRequestTrait
                 'time' => now(),
             ]);
 
-            $action->sendSuccessNotification();
+            Notification::make()
+                ->title('Request published')
+                ->icon(RequestStatus::PUBLISHED->getIcon())
+                ->body('( '.$record->subject.' )'.' has been published for processing')
+                ->iconColor(RequestStatus::PUBLISHED->getColor())
+                ->sendToDatabase($record->requestor);
+
+            $this->successNotificationTitle('Request successfully published');
         });
     }
 }

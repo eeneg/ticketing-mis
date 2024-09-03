@@ -3,6 +3,7 @@
 namespace App\Filament\Actions\Traits;
 
 use App\Enums\RequestStatus;
+use App\Enums\UserAssignmentResponse;
 use App\Models\Request;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
@@ -25,9 +26,7 @@ trait UpdateRequestTraits
 
         $this->color('info');
 
-        $this->hidden(function ($record) {
-            return $record->currentUserAssignee->response->name == 'REJECTED' || $record->action->status->name == RequestStatus::COMPLETED->name;
-        });
+        $this->visible(fn ($record) => $record->action->status === RequestStatus::STARTED);
 
         $this->button();
 
@@ -99,7 +98,10 @@ trait UpdateRequestTraits
                 'remarks' => $data['remarks'],
 
             ]);
-
+            $record->currentUserAssignee()->update([
+                'response' => UserAssignmentResponse::COMPLETED,
+                'responded_at' => now(),
+            ]);
             if (($attachments = collect(current($data['attachments'])))->isNotEmpty()) {
                 $files = $attachments
                     ->mapWithKeys(fn (string $file) => [
@@ -130,6 +132,8 @@ trait UpdateRequestTraits
                 ->icon(RequestStatus::tryFrom($data['status'])?->getIcon())
                 ->iconColor(RequestStatus::tryFrom($data['status'])?->getColor())
                 ->sendToDatabase($record->requestor);
+
+            $this->successNotificationTitle('Request updated');
         });
     }
 }

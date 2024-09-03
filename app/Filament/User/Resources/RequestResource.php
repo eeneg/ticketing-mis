@@ -4,19 +4,24 @@ namespace App\Filament\User\Resources;
 
 use App\Enums\RequestStatus;
 use App\Filament\Actions\Tables\AmmendRecentActionAction;
+use App\Filament\Actions\Tables\DenyCompletedAction;
+use App\Filament\Actions\Tables\ExtensionRequestAction;
 use App\Filament\Actions\Tables\PublishRequestAction;
+use App\Filament\Actions\Tables\ResolveRequestAction;
 use App\Filament\Actions\Tables\RetractRequestAction;
 use App\Filament\Actions\Tables\ViewRequestHistoryAction;
 use App\Filament\User\Resources\RequestResource\Pages;
 use App\Models\Category;
 use App\Models\Request;
 use App\Models\Subcategory;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
@@ -127,11 +132,15 @@ class RequestResource extends Resource
                                 Forms\Components\DatePicker::make('availability_from')
                                     ->label('From')
                                     ->seconds(false)
+                                    ->default(now())
+
                                     ->hidden(fn (string $operation, ?string $state) => $operation === 'view' && $state === null),
                                 Forms\Components\DatePicker::make('availability_to')
                                     ->label('Until')
                                     ->seconds(false)
                                     ->afterOrEqual('availability_from')
+                                    ->default(now())
+
                                     ->hidden(fn (string $operation, ?string $state) => $operation === 'view' && $state === null),
                             ]),
                         Forms\Components\Repeater::make('attachments')
@@ -213,6 +222,8 @@ class RequestResource extends Resource
                             ]),
                         Forms\Components\Hidden::make('requestor_id')
                             ->default(Auth::id()),
+                        Forms\Components\Hidden::make('requestor_id')
+                            ->default(Auth::id()),
                     ]),
             ]);
     }
@@ -222,6 +233,24 @@ class RequestResource extends Resource
         return $table
             ->modifyQueryUsing(fn (Builder $query) => $query->where('requestor_id', Auth::id()))
             ->columns([
+                Tables\Columns\TextColumn::make('subject')
+                    ->searchable()
+                    ->limit(24)
+                    ->sortable()
+                    ->tooltip(fn (Request $record) => $record->subject),
+                Tables\Columns\TextColumn::make('office.acronym')
+                    ->limit(12)
+                    ->tooltip(fn (Request $record) => $record->office->acronym),
+                Tables\Columns\TextColumn::make('category.name')
+                    ->limit(36)
+                    ->formatStateUsing(fn ($record) => "{$record->category->name} ({$record->subcategory->name})")
+                    ->tooltip(fn (Request $record) => "{$record->category->name} ({$record->subcategory->name})"),
+                Tables\Columns\TextColumn::make('action.status')
+                    ->label('Status')
+                    ->badge(),
+                Tables\Columns\TextColumn::make('published_at')
+                    ->tooltip(fn (Request $record) => $record->published_at?->format('Y-m-d H:i:s'))
+                    ->since(),
                 Tables\Columns\TextColumn::make('subject')
                     ->searchable()
                     ->limit(24)
@@ -260,13 +289,18 @@ class RequestResource extends Resource
                 Tables\Actions\ViewAction::make()
                     ->modalWidth('6xl'),
                 ActionGroup::make([
+                    DenyCompletedAction::make(),
                     PublishRequestAction::make(),
                     RetractRequestAction::make(),
                     AmmendRecentActionAction::make()
                         ->statuses(['accepted']),
+                    ResolveRequestAction::make(),
+                    ExtensionRequestAction::make(),
                     ViewRequestHistoryAction::make(),
-                    Action::make('complied')
+                    Action::make('comply')
                         ->visible(fn (Request $record) => $record->action->status == RequestStatus::SUSPENDED)
+                        ->icon(RequestStatus::COMPLIED->getIcon())
+                        ->label('Comply')
                         ->color('warning')
                         ->form([
                             RichEditor::make('remarks')
@@ -322,7 +356,75 @@ class RequestResource extends Resource
                                 'time' => now(),
                                 'remarks' => $data['remarks'],
                             ]);
+                            $assigneeId = $record->assignees->pluck('user_id')->toArray();
+
+                            foreach ($assigneeId as $Assignee) {
+                                Notification::make()
+                                    ->title('User Complied')
+                                    ->icon(RequestStatus::COMPLIED->getIcon())
+                                    ->iconColor(RequestStatus::COMPLIED->getColor())
+                                    ->body('I have Complied')
+                                    ->sendToDatabase(User::find($Assignee));
+                            }
                         }),
+                    // Action::make('complied')
+                    //     ->visible(fn (Request $record) => $record->action->status == RequestStatus::SUSPENDED)
+                    //     ->color('warning')
+                    //     ->form([
+                    //         RichEditor::make('remarks')
+                    //             ->required(fn (Get $get): bool => $get('status') === RequestStatus::SUSPENDED->value),
+                    //         Repeater::make('attachments')
+                    //             ->columnSpanFull()
+                    //             ->label('Attachments')
+                    //             ->columnSpanFull()
+                    //             ->deletable(false)
+                    //             ->addable(false)
+                    //             ->reorderable(false)
+                    //             ->hint('Help')
+                    //             ->hintIcon('heroicon-o-question-mark-circle')
+                    //             ->hintIconTooltip('Please upload a maximum file count of 5 items and file size of 4096 kilobytes.')
+                    //             ->simple(
+                    //                 FileUpload::make('paths')
+                    //                     ->placeholder(fn (string $operation) => match ($operation) {
+                    //                         'view' => 'Click the icon at the left side of the filename to download',
+                    //                         default => null,
+                    //                     })
+                    //                     ->directory(fn (Request $record) => "attachments/tmp/{$record->id}")
+                    //                     ->preserveFilenames()
+                    //                     ->multiple()
+                    //                     ->maxFiles(5)
+                    //                     ->downloadable()
+                    //                     ->previewable(false)
+                    //                     ->maxSize(1024 * 4)
+                    //                     ->removeUploadedFileButtonPosition('right')
+                    //             )
+                    //             ->rule(fn () => function ($attribute, $value, $fail) {
+                    //                 $files = collect(current($value)['paths'])->map(fn (TemporaryUploadedFile|string $file) => [
+                    //                     'file' => $file instanceof TemporaryUploadedFile
+                    //                         ? $file->getClientOriginalName()
+                    //                         : current($value)['files'][$file],
+                    //                     'hash' => $file instanceof TemporaryUploadedFile
+                    //                         ? hash_file('sha512', $file->getRealPath())
+                    //                         : hash_file('sha512', storage_path("app/public/$file")),
+                    //                 ]);
+
+                    //                 if (($duplicates = $files->duplicates('hash'))->isNotEmpty()) {
+                    //                     $dupes = $files->filter(fn ($file) => $duplicates->contains($file['hash']))->unique();
+
+                    //                     $fail('Please do not upload the same files ('.$dupes->map->file->join(', ').') multiple times.');
+                    //                 }
+                    //             }
+                    //             ),
+                    //     ])
+                    //     ->action(function ($data, $record) {
+                    //         $record->action()->create([
+                    //             'user_id' => Auth::id(),
+                    //             'actions.request_id' => $record->id,
+                    //             'status' => RequestStatus::COMPLIED,
+                    //             'time' => now(),
+                    //             'remarks' => $data['remarks'],
+                    //         ]);
+                    //     }),
                 ]),
             ])
             ->recordUrl(null)

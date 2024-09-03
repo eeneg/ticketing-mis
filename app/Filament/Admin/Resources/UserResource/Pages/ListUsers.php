@@ -17,13 +17,14 @@ class ListUsers extends ListRecords
             Actions\CreateAction::make(),
         ];
     }
-    public function getTabs() : array
+
+    public function getTabs(): array
     {
-        return[
+        return [
             'approved' => Tab::make('Approved User')
-                ->modifyQueryUsing(fn ($query)=>$query->whereNotNull('email_verified_at')),
+                ->modifyQueryUsing(fn ($query) => $query->whereNotNull('email_verified_at')),
             'pending' => Tab::make('Pending User')
-                ->modifyQueryUsing(fn ($query)=>$query->whereNull('email_verified_at')),
+                ->modifyQueryUsing(fn ($query) => $query->whereNull('email_verified_at')),
         ];
     }
 }

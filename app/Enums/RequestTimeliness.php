@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum RequestPriority: string
+enum RequestTimeliness: string
 {
     case ONE = '1';
     case TWO = '2';
@@ -13,11 +13,11 @@ enum RequestPriority: string
     public function getDescription(): ?string
     {
         return match ($this) {
-            self::ONE => 'Minimal Priority',
-            self::TWO => 'Low Priority',
-            self::THREE => 'Medium Priority',
-            self::FOUR => 'High Priority',
-            self::FIVE => 'Critical Priority',
+            self::ONE => 'Extremely Late',
+            self::TWO => 'Moderately Late',
+            self::THREE => 'Slightly Late',
+            self::FOUR => 'Almost on Time',
+            self::FIVE => 'On Time',
         };
     }
 

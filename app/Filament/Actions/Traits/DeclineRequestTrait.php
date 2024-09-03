@@ -4,7 +4,6 @@ namespace App\Filament\Actions\Traits;
 
 use App\Enums\RequestStatus;
 use App\Models\Request;
-use App\Models\User;
 use Filament\Forms\Components\RichEditor;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
@@ -42,17 +41,13 @@ trait DeclineRequestTrait
                 'remarks' => $data['remarks'],
                 'time' => now(),
             ]);
-            $time = now();
-            $from = User::where('id', Auth::id())->value('name');
-            $subject = $record->subject;
-            $recipientUser = $record->requestor_id;
-            $remarks = $data['remarks'];
+
             Notification::make()
                 ->title('The request has been declined by the officers')
                 ->icon('heroicon-c-no-symbol')
                 ->iconColor(RequestStatus::DECLINED->getColor())
-                ->body(str($from.' '.$subject.' '.$time.'<br>'.'Reasoning : '.$remarks)->toHtmlString())
-                ->sendToDatabase($recipientUser);
+                ->body(str(auth()->user()->name.' declined : '.' '.$record->subject.'</br>'.$data['remarks'])->toHtmlString())
+                ->sendToDatabase($record->requestor);
             $action->sendSuccessNotification();
 
         });

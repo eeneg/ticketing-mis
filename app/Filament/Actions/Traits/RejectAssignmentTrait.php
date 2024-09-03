@@ -39,6 +39,7 @@ trait RejectAssignmentTrait
                 'response' => UserAssignmentResponse::REJECTED,
                 'responded_at' => $record->currentUserAssignee->responded->at ?? now(),
             ]);
+
             Notification::make()
                 ->title('Rejected Successfully!')
                 ->danger()
@@ -50,7 +51,10 @@ trait RejectAssignmentTrait
                 ->icon(RequestStatus::DECLINED->getIcon())
                 ->iconColor(RequestStatus::DECLINED->getColor())
                 ->sendToDatabase($record->currentUserAssignee->assigner);
+
+            $this->successNotificationTitle('Assignment rejected');
         });
+
         $this->hidden(function ($record) {
             if ($record->currentUserAssignee->responded_at == null) {
                 return;

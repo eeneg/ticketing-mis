@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum RequestPriority: string
+enum RequestQuality: string
 {
     case ONE = '1';
     case TWO = '2';
@@ -13,11 +13,11 @@ enum RequestPriority: string
     public function getDescription(): ?string
     {
         return match ($this) {
-            self::ONE => 'Minimal Priority',
-            self::TWO => 'Low Priority',
-            self::THREE => 'Medium Priority',
-            self::FOUR => 'High Priority',
-            self::FIVE => 'Critical Priority',
+            self::ONE => '★',
+            self::TWO => '★★',
+            self::THREE => '★★★',
+            self::FOUR => '★★★★',
+            self::FIVE => '★★★★★',
         };
     }
 
@@ -26,3 +26,4 @@ enum RequestPriority: string
         return array_map(fn ($case) => $case->value.' - '.$case->getDescription(), self::cases());
     }
 }
+// <!-- ★ -->

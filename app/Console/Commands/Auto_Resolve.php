@@ -28,16 +28,16 @@ class Auto_Resolve extends Command
     public function handle()
     {
         \App\Models\Request::query()
-        ->whereHas('action', function($query){
-           $query->where('status',RequestStatus::COMPLETED);
-           $query->where('created_at','<=',now()->subHours(env('AUTO_RESOLVE_DURATION')));
-        })
-        ->with('action')
-        ->lazy()
-        ->each(function (Request $request){
-            $request->actions->each(function($actions){
-                $actions->update(['status'=>RequestStatus::RESOLVED]);
+            ->whereHas('action', function ($query) {
+                $query->where('status', RequestStatus::COMPLETED);
+                $query->where('created_at', '<=', now()->subHours(env('AUTO_RESOLVE_DURATION')));
+            })
+            ->with('action')
+            ->lazy()
+            ->each(function (Request $request) {
+                $request->actions->each(function ($actions) {
+                    $actions->update(['status' => RequestStatus::RESOLVED]);
+                });
             });
-        });
     }
 }

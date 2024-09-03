@@ -81,6 +81,10 @@ class Request extends Model
                     RequestStatus::SUSPENDED,
                     RequestStatus::RETRACTED,
                     RequestStatus::COMPLIED,
+                    RequestStatus::RESOLVED,
+                    RequestStatus::VERIFIED,
+                    RequestStatus::DENIED,
+                    RequestStatus::EXTENDED,
                 ]);
             });
     }

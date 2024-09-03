@@ -29,16 +29,16 @@ class Notifications extends Command
      */
     public function handle()
     {
-        $time=now()->addHour();
+        $time = now()->addHour();
 
         \App\Models\Request::query()
-            ->whereDate('target_date',$time)
+            ->whereDate('target_date', $time)
             ->whereTime('target_time', $time)
-            ->whereHas('assignees', function ($querry){
+            ->whereHas('assignees', function ($querry) {
                 $querry->where('response', UserAssignmentResponse::ACCEPTED);
             })
-            ->whereDoesntHave('actions',function ($querry){
-                $querry->where('status' , RequestStatus::STARTED);
+            ->whereDoesntHave('actions', function ($querry) {
+                $querry->where('status', RequestStatus::STARTED);
             })
             ->with('assignees')
             ->lazy()

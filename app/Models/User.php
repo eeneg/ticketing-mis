@@ -80,9 +80,8 @@ class User extends Authenticatable implements FilamentUser
 
     public static function booted(): void
     {
-        static::creating(function (User $user){
+        static::creating(function (User $user) {
             $user->role = 'user';
         });
     }
-
 }
