@@ -3,6 +3,7 @@
 namespace App\Filament\Admin\Resources;
 
 use App\Enums\RequestStatus;
+use App\Enums\RequestStatus;
 use App\Enums\UserRole;
 use App\Filament\Admin\Resources\UserResource\Pages;
 use App\Models\User;
@@ -93,6 +94,9 @@ class UserResource extends Resource
                     ->searchable(),
                 Tables\Columns\ToggleColumn::make('is_active')
                     ->hidden(fn ($livewire) => $livewire->activeTab === 'pending')
+                    ->onColor('success')
+                Tables\Columns\ToggleColumn::make('is_active')
+                    ->hidden(fn ($livewire) => $livewire->activeTab === 'pending')
                     ->onColor('success'),
             ])
             ->filters([
@@ -113,14 +117,14 @@ class UserResource extends Resource
                     ->label('Approved')
                     ->icon(RequestStatus::APPROVED->getIcon())
                     ->color(RequestStatus::APPROVED->getColor())
-                    ->visible(fn ($record) => $record->email_verified_at === null)
+                    ->visible(fn ($record)=>$record->email_verified_at === null)
                     ->action(function ($record) {
                         $record->update([
-                            'id' => $record->id,
-                            'name' => $record->name,
-                            'email' => $record->email,
-                            'password' => $record->password,
-                            'email_verified_at' => now(),
+                            'id'=>$record->id,
+                            'name'=>$record->name,
+                            'email'=>$record->email,
+                            'password'=>$record->password,
+                            'email_verified_at'=>now(),
                         ]);
                     }),
                 Tables\Actions\EditAction::make(),
