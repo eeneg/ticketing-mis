@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('number')->default('');
             $table->string('avatar')->nullable();
             $table->ulid('office_id')->nullable();
+            $table->boolean('is_active')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

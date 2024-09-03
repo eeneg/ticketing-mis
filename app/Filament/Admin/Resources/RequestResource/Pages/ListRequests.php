@@ -4,6 +4,7 @@ namespace App\Filament\Admin\Resources\RequestResource\Pages;
 
 use App\Filament\Admin\Resources\RequestResource;
 use App\Filament\Widgets\AdminRequestOverview;
+use Filament\Forms\Components\Tabs\Tab;
 use Filament\Resources\Pages\ListRecords;
 
 class ListRequests extends ListRecords
@@ -22,4 +23,5 @@ class ListRequests extends ListRecords
             AdminRequestOverview::class,
         ];
     }
+
 }
