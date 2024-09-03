@@ -262,7 +262,8 @@ class RequestResource extends Resource
                 ActionGroup::make([
                     PublishRequestAction::make(),
                     RetractRequestAction::make(),
-                    AmmendRecentActionAction::make(),
+                    AmmendRecentActionAction::make()
+                        ->statuses(['accepted']),
                     ViewRequestHistoryAction::make(),
                     Action::make('complied')
                         ->visible(fn (Request $record) => $record->action->status == RequestStatus::SUSPENDED)

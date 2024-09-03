@@ -7,7 +7,6 @@ namespace App\Models;
 use App\Enums\UserRole;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -29,6 +28,9 @@ class User extends Authenticatable implements FilamentUser
         'avatar',
         'number',
         'role',
+        'office_id',
+        'email_verified_at',
+        'is_active',
     ];
 
     protected $hidden = [
@@ -76,11 +78,11 @@ class User extends Authenticatable implements FilamentUser
         return false;
     }
 
-    public function number(): Attribute
+    public static function booted(): void
     {
-        return Attribute::make(
-            fn (?string $number) => $number ?? '',
-            fn (?string $number) => empty($number) ? null : $number,
-        );
+        static::creating(function (User $user){
+            $user->role = 'user';
+        });
     }
+
 }
