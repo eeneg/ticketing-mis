@@ -180,8 +180,6 @@ class RequestResource extends Resource
 
                 $query->where('office_id', Auth::user()->office_id);
 
-                // $query->orderBy();
-                // $query->orderBy();
             })
             ->columns([
                 Tables\Columns\TextColumn::make('subject')
@@ -190,7 +188,7 @@ class RequestResource extends Resource
                     ->tooltip(fn (Request $record) => $record->subject),
                 Tables\Columns\TextColumn::make('office.acronym')
                     ->limit(12)
-                    ->tooltip(fn (Request $record) => $record->office->acronym),
+                    ->tooltip(fn (Request $record) => $record->office->name),
                 Tables\Columns\TextColumn::make('requestor.name')
                     ->limit(24)
                     ->tooltip(fn (Request $record) => $record->requestor->name),
@@ -200,6 +198,7 @@ class RequestResource extends Resource
                     ->tooltip(fn (Request $record) => "{$record->category->name} ({$record->subcategory->name})"),
                 Tables\Columns\TextColumn::make('action.status')
                     ->label('Status')
+                    ->tooltip(fn (Request $record) => $record->action->status->getDescription())
                     ->badge(),
             ])
             ->filters([

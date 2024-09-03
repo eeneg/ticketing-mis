@@ -60,9 +60,11 @@ class Request extends Model
             ->ofMany(['id' => 'max'], fn ($query) => $query->where('assignees.user_id', Auth::id()));
     }
 
-    public function assignees(): HasMany
+    public function assignees(): BelongsToMany
     {
-        return $this->hasMany(Assignee::class);
+        return $this->belongsToMany(User::class, 'assignees')
+            ->using(Assignee::class);
+
     }
 
     public function action(): HasOne
@@ -80,7 +82,9 @@ class Request extends Model
                     RequestStatus::RETRACTED,
                     RequestStatus::COMPLIED,
                     RequestStatus::RESOLVED,
-
+                    RequestStatus::VERIFIED,
+                    RequestStatus::DENIED,
+                    RequestStatus::EXTENDED,
                 ]);
             });
     }

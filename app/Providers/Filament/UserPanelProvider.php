@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Auth\LoginPage;
+use App\Filament\Auth\RegistrationPage;
 use App\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -24,6 +25,7 @@ class UserPanelProvider extends PanelProvider
     {
         return $panel
             ->default()
+            ->registration(RegistrationPage::class)
             ->databaseNotifications()
             ->profile()
             ->id('user')

@@ -19,6 +19,8 @@ return new class extends Migration
             $table->foreignIdFor(User::class);
             $table->string('status')->nullable();
             $table->text('remarks')->nullable();
+            $table->string('response')->default('pending');
+            $table->datetime('responded_at')->nullable();
             $table->datetime('time');
             $table->timestamps();
         });

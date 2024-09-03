@@ -30,10 +30,12 @@ trait ScheduleRequestTrait
             DatePicker::make('target_date')
                 ->required()
                 ->minDate(fn ($record) => $record->availability_from)
+                ->default(fn ($record) => $record->availability_from)
                 ->maxDate(fn ($record) => $record->availability_to),
             TimePicker::make('target_time')
                 ->required()
                 ->seconds(false)
+                ->default(now())
                 ->placeholder('12:00')
                 ->rule(fn () => function ($a, $v, $f) {
                     if ($v < '08:00' || $v > '17:00') {
@@ -63,6 +65,7 @@ trait ScheduleRequestTrait
                 ->icon(RequestStatus::SCHEDULED->getIcon())
                 ->iconColor(RequestStatus::SCHEDULED->getColor())
                 ->sendToDatabase($record->requestor);
+            $this->successNotificationTitle('Request scheduled');
         });
     }
 }

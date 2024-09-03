@@ -5,6 +5,7 @@ namespace App\Filament\Actions\Traits;
 use App\Enums\RequestStatus;
 use App\Enums\UserAssignmentResponse;
 use App\Models\Request;
+use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 
 trait StartedRequestTrait
@@ -20,7 +21,14 @@ trait StartedRequestTrait
 
         $this->icon(RequestStatus::STARTED->getIcon());
 
-        $this->visible(fn (Request $record) => $record->currentUserAssignee?->response === UserAssignmentResponse::ACCEPTED);
+        $this->visible(function (Request $record) {
+            $assignees = $record->assignees;
+            if ($assignees->isEmpty()) {
+                return false;
+            }
+
+            return $assignees->every(fn ($assignee) => $assignee->response === UserAssignmentResponse::ACCEPTED);
+        });
 
         $this->hidden(fn (Request $record) => $record->action?->status === RequestStatus::STARTED || $record->action?->status === RequestStatus::RESOLVED || $record->action?->status === RequestStatus::COMPLETED);
 
@@ -33,7 +41,14 @@ trait StartedRequestTrait
                 'status' => RequestStatus::STARTED,
                 'time' => now(),
             ]);
-            $action->sendSuccessNotification();
+
+            Notification::make()
+                ->title('Support has started this ticket')
+                ->body('Assigned support has started working on this ticket')
+                ->icon(RequestStatus::STARTED->getIcon())
+                ->iconColor(RequestStatus::STARTED->getColor())
+                ->sendToDatabase($record->requestor);
+            $this->successNotificationTitle('Request started');
 
         });
     }

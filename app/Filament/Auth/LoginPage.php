@@ -34,7 +34,8 @@ class LoginPage extends Login
         if (
             ($user instanceof FilamentUser) &&
             (! $user->canAccessPanel(Filament::getCurrentPanel())) ||
-            empty($user->role)
+            empty($user->role) || empty($user->email_verified_at) || $user->is_active === false
+            || empty($user->is_active)
         ) {
             Filament::auth()->logout();
 

@@ -9,7 +9,6 @@ use Carbon\Carbon;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 trait AssignRequestTrait
 {
@@ -60,66 +59,49 @@ trait AssignRequestTrait
                 ['request_id', 'user_id'],
                 ['user_id'],
             );
-
+            // List of old assignees
             $listofAssignees = $data['user_ids'] ?? [];
             $assigneeNames = User::whereIn('id', $listofAssignees)->pluck('name')->toArray();
             $assigneesString = implode(', ', $assigneeNames);
-            $oldAssignees = $record->assignees->pluck('user_id')->toArray();
+            // List of new assignees
+            $oldAssignees = $record['user_ids'] ?? [];
             $oldNames = User::whereIn('id', $oldAssignees)->pluck('name')->toArray();
             $oldFinal = implode(', ', $oldNames);
             $remarks = '';
-            // if ($record->request_id) {
-            //     $existsInAssigneeTable = DB::table('assignees')
-            //         ->where('request_id', $record->request_id)
-            //         ->exists();
+            // check there are assigned support
+            $remarks = empty($userIds)
+                ? str('Assigned to: '.$assigneesString)->toHtmlString()
+                : str('Assigned from: '.$oldFinal.'<br>'.' to: '.$assigneesString)->toHtmlString();
 
-            //     if (! $existsInAssigneeTable) {
-            //         $remarks = str('Assigned to: '.$assigneesString)->toHtmlString();
-            //     } else {
-            //         $remarks = str('FROM: '.$oldFinal.'<br>'.' TO: '.$assigneesString)->toHtmlString();
-            //     }
-
-            // }
             $record->action()->create([
                 'request_id' => $record->id,
                 'user_id' => Auth::id(),
                 'status' => RequestStatus::ASSIGNED,
-                'remarks' => str('FROM: '.$oldFinal.'<br>'.' TO: '.$assigneesString)->toHtmlString(),
+                'remarks' => $remarks,
                 'time' => now(),
             ]);
-            // $request_ids = $record->assignees->pluck('request_id')->toArray();
-            // $remarks = (function ($record, $oldAssignees, $assigneesString, $oldFinal, $request_ids) {
-            //     if ($record->request_id => in_array([$request_ids])) {
-            //         return str('Assigned to: '.$assigneesString)->toHtmlString();
-            //     }
 
-            //     return str('FROM: '.$oldFinal.'<br>'.' TO: '.$assigneesString)->toHtmlString();
-            // })($oldAssignees, $assigneesString, $oldFinal);
-
-            // $this->hidden(fn ($record) => in_array($record->action->status, [
-            //     RequestStatus::RESOLVED,
-            //     RequestStatus::COMPLETED,
-            //     RequestStatus::APPROVED,
-            // ]) || in_array($record->currentUserAssignee?->response, [
-            //     UserAssignmentResponse::PENDING,
-            //     UserAssignmentResponse::REJECTED,
-            // ]));
-
-            $subject = $record->subject;
-            $category = $record->category->name;
-            $office = $record->office->name;
             $availability_from = Carbon::parse($record['availability_from'])->format('j\t\h \o\f F \a\t h:i:s A');
             $availability_to = Carbon::parse($record['availability_to'])->format('j\t\h \o\f F \a\t h:i:s A');
+            $assigned = empty($userIds)
+                ? str('assigned')->toHtmlString()
+                : str('reassigned')->toHtmlString();
 
             foreach ($listofAssignees as $Assignees) {
                 Notification::make()
-                    ->title('A request has been reassigned to you')
-                    ->body(str($office.' - '.$subject.'( '.$category.' )'.'<br>'.'Available from:'.$availability_from.'<br>'.'Available to: '.' '.$availability_to)->toHtmlString())
+                    ->title('A new request has been '.$assigned.' to you')
+                    ->body(str("<b>{$record->office->acronym}</b>".' - '."<i>$record->subject</i>".' ( '.$record->category->name.' )'.'<br>'.'Available from:'.$availability_from.'<br>'.'Available to: '.' '.$availability_to)->toHtmlString())
                     ->icon('heroicon-c-arrow-path')
                     ->iconColor(RequestStatus::ASSIGNED->getColor())
                     ->sendtoDatabase(User::find($Assignees));
             }
-
+            Notification::make()
+                ->title('Your request ('."<b>$record->subject</b>".') has been '.$assigned.'.')
+                ->icon(RequestStatus::ASSIGNED->getIcon())
+                ->iconColor(RequestStatus::ASSIGNED->getColor())
+                ->body($assigned.' to: '.$assigneesString)
+                ->sendToDatabase($record->requestor);
+            //
             Notification::make()
                 ->title('Request has been reassigned')
                 ->success()

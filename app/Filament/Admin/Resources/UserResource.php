@@ -2,12 +2,12 @@
 
 namespace App\Filament\Admin\Resources;
 
+use App\Enums\RequestStatus;
 use App\Enums\UserRole;
 use App\Filament\Admin\Resources\UserResource\Pages;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -91,6 +91,9 @@ class UserResource extends Resource
                     ->prefix('+63 '),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable(),
+                Tables\Columns\ToggleColumn::make('is_active')
+                    ->hidden(fn ($livewire) => $livewire->activeTab === 'pending')
+                    ->onColor('success'),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('role')
@@ -105,32 +108,20 @@ class UserResource extends Resource
                     ->multiple(),
             ])
             ->actions([
-                Tables\Actions\Action::make('change_password')
-                    ->requiresConfirmation()
-                    ->modalDescription()
-                    ->icon('heroicon-s-lock-closed')
-                    ->color('danger')
-                    ->form([
-                        Forms\Components\TextInput::make('password')
-                            ->password()
-                            ->markAsRequired()
-                            ->rules('required')
-                            ->revealable(),
-                        Forms\Components\TextInput::make('confirm_password')
-                            ->password()
-                            ->markAsRequired()
-                            ->rules('required')
-                            ->same('password')
-                            ->revealable(),
-                    ])
-                    ->closeModalByClickingAway(false)
-                    ->action(function (array $data, User $record) {
-                        $record->update($data);
-
-                        Notification::make()
-                            ->title('Pasword updated successfully')
-                            ->success()
-                            ->send();
+                Tables\Actions\Action::make('approve')
+                    ->button()
+                    ->label('Approved')
+                    ->icon(RequestStatus::APPROVED->getIcon())
+                    ->color(RequestStatus::APPROVED->getColor())
+                    ->visible(fn ($record) => $record->email_verified_at === null)
+                    ->action(function ($record) {
+                        $record->update([
+                            'id' => $record->id,
+                            'name' => $record->name,
+                            'email' => $record->email,
+                            'password' => $record->password,
+                            'email_verified_at' => now(),
+                        ]);
                     }),
                 Tables\Actions\EditAction::make(),
             ])

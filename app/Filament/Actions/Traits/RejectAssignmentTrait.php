@@ -51,6 +51,8 @@ trait RejectAssignmentTrait
                 ->icon(RequestStatus::DECLINED->getIcon())
                 ->iconColor(RequestStatus::DECLINED->getColor())
                 ->sendToDatabase($record->currentUserAssignee->assigner);
+
+            $this->successNotificationTitle('Assignment rejected');
         });
 
         $this->hidden(function ($record) {
