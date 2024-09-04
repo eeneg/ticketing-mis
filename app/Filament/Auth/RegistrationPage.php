@@ -109,6 +109,7 @@ class RegistrationPage extends Register
     protected function getNumberFormComponent(): Component
     {
         return TextInput::make('number')
+            ->required()
             ->placeholder('9xx xxx xxxx')
             ->mask('999 999 9999')
             ->prefix('+63 ')

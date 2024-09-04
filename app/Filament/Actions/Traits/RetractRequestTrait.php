@@ -114,7 +114,6 @@ trait RetractRequestTrait
 
                 Process::run(['rm', '-rf', Storage::path('public/attachments/tmp/'.$record->id)]);
             }
-
             $this->successNotificationTitle('Request retracted');
         });
     }

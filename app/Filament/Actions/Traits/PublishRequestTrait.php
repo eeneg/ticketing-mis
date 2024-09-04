@@ -48,6 +48,8 @@ trait PublishRequestTrait
                 ->sendToDatabase($record->requestor);
 
             $this->successNotificationTitle('Request successfully published');
+
+            redirect(route('filament.user.resources.requests.index'));
         });
     }
 }

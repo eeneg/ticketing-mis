@@ -42,7 +42,6 @@ class UserResource extends Resource
                             ]),
                         Forms\Components\TextInput::make('email')
                             ->markAsRequired()
-                            ->unique()
                             ->rules(['required', 'email'])
                             ->maxLength(255),
                         Forms\Components\Select::make('role')

@@ -117,8 +117,7 @@ class RequestResource extends Resource
                             ->columnSpan(2)
                             ->label('Remarks')
                             ->placeholder('Provide a detailed description of the issue to ensure that the assigned personnel have a comprehensive understanding of the problem, which will help them address it more effectively.')
-                            ->hidden(fn (string $operation, ?string $state) => $operation === 'view' && $state === null)
-                            ->required(),
+                            ->hidden(fn (string $operation, ?string $state) => $operation === 'view' && $state === null),
                     ]),
                 Forms\Components\Group::make()
                     ->columnSpan(4)
@@ -284,7 +283,7 @@ class RequestResource extends Resource
                     ExtensionRequestAction::make(),
                     ViewRequestHistoryAction::make(),
                     Action::make('comply')
-                        ->visible(fn (Request $record) => $record->action->status == RequestStatus::SUSPENDED)
+                        ->visible(fn (Request $record) => $record->action->status == RequestStatus::SUSPENDED )
                         ->icon(RequestStatus::COMPLIED->getIcon())
                         ->label('Comply')
                         ->color('warning')
