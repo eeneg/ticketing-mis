@@ -29,18 +29,23 @@ trait ApproveRequestTrait
         $this->form([
             Select::make('priority')
                 ->placeholder('Provide an estimate on how time crucial the task is.')
-                ->options(RequestPriority::options())
+                ->options(RequestPriority::options()
+                )
                 ->required(),
-
+            Select::make('user_ids')
+                ->label('Assignees')
+                ->placeholder('Select a support to assign this request to.')
+                ->options(function ($record) {
+                    return User::query()
+                        ->where('role', 'support')
+                        ->where('office_id', $record->office_id)
+                        ->pluck('name', 'id');
+                })
+                ->multiple(),
             RichEditor::make('remarks')
                 ->label('Remarks')
                 ->placeholder('Provide further details regarding this request'),
 
-            Select::make('user_ids')
-                ->label('Assignees')
-                ->placeholder('Select a support to assign this request to.')
-                ->options(User::query()->where('role', 'support')->pluck('name', 'id'))
-                ->multiple(),
         ]);
 
         $this->action(function ($data, $record, self $action) {
@@ -65,8 +70,8 @@ trait ApproveRequestTrait
                 'time' => now(),
             ]);
 
-            $availability_from = Carbon::parse($record['availability_from'])->format('j\t\h \o\f F \a\t h:i:s A');
-            $availability_to = Carbon::parse($record['availability_to'])->format('j\t\h \o\f F \a\t h:i:s A');
+            $availability_from = Carbon::parse($record['availability_from'])->format('jS \o\f F \a\t h:i:s A');
+            $availability_to = Carbon::parse($record['availability_to'])->format('jS \o\f F \a\t h:i:s A');
 
             foreach ($userIds as $Assignees) {
                 Notification::make()

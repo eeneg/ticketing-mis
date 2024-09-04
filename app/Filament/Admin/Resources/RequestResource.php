@@ -5,9 +5,6 @@ namespace App\Filament\Admin\Resources;
 use App\Filament\Actions\Tables\ViewRequestHistoryAction;
 use App\Filament\Admin\Resources\RequestResource\Pages;
 use App\Models\Request;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\Grid as ComponentsGrid;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
@@ -26,15 +23,26 @@ class RequestResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('requestor.name')
-                    ->label('Requestor Name'),
-                Tables\Columns\TextColumn::make('office.acronym'),
-                Tables\Columns\TextColumn::make('subject'),
-                Tables\Columns\TextColumn::make('category.name'),
-                Tables\Columns\TextColumn::make('assignees.response')
-                    ->badge()
-                    ->label('Response')
+                    ->label('Requestor Name')
+                    ->searchable()
+                    ->sortable()
+                    ->limit(13),
+                Tables\Columns\TextColumn::make('office.acronym')
+                    ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('action.status'),
+                Tables\Columns\TextColumn::make('subject')
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('category.name')
+                    ->searchable()
+                    ->sortable(),
+                // Tables\Columns\TextColumn::make('assignees.response')
+                //     ->searchable()
+                //     ->badge()
+                //     ->label('Response')
+                //     ->sortable(),
+                Tables\Columns\TextColumn::make('action.status')
+                    ->badge(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('office')
@@ -44,20 +52,67 @@ class RequestResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()
-                    // ->modalCancelAction(false)
-                    ->modalWidth('6xl')
+                    ->modalWidth('5xl')
                     ->infolist([
-                        ComponentsGrid::make(3)
+                        ComponentsGrid::make(4)
                             ->schema([
-
-                                Section::make('Assignees')
-                                    ->columnSpan(3)
+                                Section::make('Personal Details')
+                                    ->columnSpan(4)
+                                    ->columns(3)
                                     ->schema([
-                                        TextEntry::make('Assignees')
-                                            ->label('Category :'),
-                                        TextEntry::make('subcategory.name')
-                                            ->label('Subcategory'),
+                                        TextEntry::make('requestor.name')
+                                            ->label('Name'),
+                                        TextEntry::make('requestor.number')
+                                            ->prefix('+63 0')
+                                            ->label('Phone Number'),
+                                        TextEntry::make('requestor.email')
+                                            ->label('Email'),
 
+                                    ]),
+                                Section::make('Office Details')
+                                    ->columnSpan(2)
+                                    ->columns(3)
+                                    ->schema([
+                                        TextEntry::make('office.acronym')
+                                            ->label('Office'),
+                                        TextEntry::make('office.room')
+                                            ->label('Room Number'),
+                                        TextEntry::make('office.address')
+                                            ->label('Office address :'),
+
+                                    ]),
+                                Section::make('Request Details')
+                                    ->columnSpan(2)
+                                    ->columns(4)
+                                    ->schema([
+                                        TextEntry::make('category.name')
+                                            ->label('Category'),
+                                        TextEntry::make('subcategory.name')
+                                            ->columnSpan(2)
+                                            ->label('Subcategory'),
+                                        TextEntry::make('tags')
+                                            ->label('Tags'),
+
+                                    ]),
+                                Section::make('Availability')
+                                    ->columns(4)
+                                    ->schema([
+                                        TextEntry::make('availability_from')
+
+                                            ->date()
+                                            ->columnSpan(2)
+                                            ->inlineLabel('Availability from'),
+                                        TextEntry::make('availability_to')
+                                            ->date()
+                                            ->columnSpan(2)
+                                            ->inlineLabel('Availability to'),
+
+                                    ]),
+                                Section::make('Remarks')
+                                    ->columnSpan(4)
+                                    ->schema([
+                                        TextEntry::make('remarks')
+                                            ->inlineLabel('Updated at'),
                                     ]),
                             ]),
                         // Section::make('Time Details')
@@ -71,71 +126,11 @@ class RequestResource extends Resource
                         //         TextEntry::make('availability_from')
                         //             ->inlineLabel('Availability from'),
                         //         TextEntry::make('availability_to')
-                        //             ->inlineLabel('Availability to'),
+                        //             ->inlineLabel('Availabilisdsty to'),
 
                         //     ]),
 
                     ]),
-                // Grid::make()
-                //     ->columns(2)
-                //     ->schema([
-                //         Select::make('name')
-                //             ->relationship('requestor', 'name')
-                //             ->label('Requestor Name'),
-                //         Select::make('number')
-                //             ->relationship('requestor', 'number')
-                //             ->label('Number'),
-                //     ]),
-                // Grid::make()
-                //     ->columns(3)
-                //     ->schema([
-                //         Select::make('office')
-                //             ->relationship('office', 'acronym')
-                //             ->label('Office Name'),
-                //         Select::make('address')
-                //             ->relationship('office', 'address')
-                //             ->label('Address'),
-                //         Select::make('room')
-                //             ->label('Room #')
-                //             ->relationship('office', 'room'),
-                //     ]),
-                // Grid::make()
-                //     ->columns(2)
-                //     ->schema([
-                //         Select::make('cat')
-                //             ->relationship('category', 'name')
-                //             ->label('Category'),
-                //         Select::make('sub-cat')
-                //             ->relationship('subcategory', 'name')
-                //             ->label('SubCategory'),
-                //     ]),
-                // Grid::make()
-                //     ->columns(2)
-                //     ->schema([
-                //         TextInput::make('priority')
-                //             ->placeholder('N/A'),
-                //         TextInput::make('difficulty')
-                //             ->placeholder('N/A'),
-                //     ]),
-
-                // Grid::make()
-                //     ->columns(2)
-                //     ->schema([
-                //         TextInput::make('target_date')
-                //             ->placeholder('N/A'),
-                //         TextInput::make('target_time')
-                //             ->placeholder('N/A'),
-
-                //     ]),
-
-                // Grid::make()
-                //     ->columns(2)
-                //     ->schema([
-                //         TextInput::make('availability_from'),
-                //         TextInput::make('availability_to'),
-                //     ]),
-
-                // ]),
                 ViewRequestHistoryAction::make(),
             ]);
     }

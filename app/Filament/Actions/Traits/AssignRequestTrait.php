@@ -34,7 +34,12 @@ trait AssignRequestTrait
                 ->default(fn ($record) => $record ? $record->assignees()->pluck('user_id')->toArray() : [])
                 ->searchable()
                 ->hiddenLabel()
-                ->options(User::query()->where('role', 'support')->pluck('name', 'id')),
+                ->options(function ($record) {
+                    return User::query()
+                        ->where('role', 'support')
+                        ->where('office_id', $record->office_id)
+                        ->pluck('name', 'id');
+                }),
         ]);
 
         $this->action(function ($data, $record, self $action) {
@@ -81,8 +86,8 @@ trait AssignRequestTrait
                 'time' => now(),
             ]);
 
-            $availability_from = Carbon::parse($record['availability_from'])->format('j\t\h \o\f F \a\t h:i:s A');
-            $availability_to = Carbon::parse($record['availability_to'])->format('j\t\h \o\f F \a\t h:i:s A');
+            $availability_from = Carbon::parse($record['availability_from'])->format('jS \o\f F \a\t h:i:s A');
+            $availability_to = Carbon::parse($record['availability_to'])->format('jS \o\f F \a\t h:i:s A');
             $assigned = empty($userIds)
                 ? str('assigned')->toHtmlString()
                 : str('reassigned')->toHtmlString();

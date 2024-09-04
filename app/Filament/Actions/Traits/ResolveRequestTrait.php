@@ -46,14 +46,12 @@ trait ResolveRequestTrait
                 'status' => RequestStatus::RESOLVED,
                 'time' => now(),
             ]);
-            $currentAssignees = $data['user_ids'] ?? [];
-            foreach ($currentAssignees as $Assignees) {
-                Notification::make()
-                    ->title('Your assigned request has been resolved')
-                    ->body(str($record['subject'].'( '.$record->category->name.' - '.$record->subcategory->name.' )'.'<br>'.'This request will no longer recieve any updates')->toHtmlString())
-                    ->sendToDatabase($Assignees);
-
-            }
+            Notification::make()
+                ->title('Your assigned request has been resolved')
+                ->icon(RequestStatus::RESOLVED->getIcon())
+                ->iconColor(RequestStatus::RESOLVED->getColor())
+                ->body(str($record['subject'].'( '.$record->category->name.' - '.$record->subcategory->name.' )'.'<br>'.'This request will no longer recieve any updates')->toHtmlString())
+                ->sendToDatabase($record->assignees);
             $this->successNotificationTitle('Request resolved and surveyed');
         });
     }

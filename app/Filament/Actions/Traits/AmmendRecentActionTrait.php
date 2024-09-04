@@ -4,7 +4,6 @@ namespace App\Filament\Actions\Traits;
 
 use App\Enums\RequestStatus;
 use App\Models\Request;
-use App\Models\User;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
@@ -31,6 +30,7 @@ trait AmmendRecentActionTrait
                 $record->action?->status !== RequestStatus::PUBLISHED &&
                 $record->action?->user->is(Auth::user());
         });
+        $this->hidden(fn (Request $record) => $record->action->status == RequestStatus::RESOLVED);
 
         $this->color('primary');
 
@@ -142,16 +142,13 @@ trait AmmendRecentActionTrait
 
                 $ammendment->touch();
             }
-            $assigneeId = $record->assignees->pluck('user_id')->toArray();
 
-            foreach ($assigneeId as $Assignee) {
-                Notification::make()
-                    ->title('Request Ammenbded')
-                    ->icon(RequestStatus::AMMENDED->getIcon())
-                    ->iconColor(RequestStatus::AMMENDED->getColor())
-                    ->body($record->category->name.' ( '.$record->subcategory->name.' ) '.'</br>'.auth()->user()->name.' : '.'</br>'.$data['remarks'])
-                    ->sendToDatabase(User::find($Assignee));
-            }
+            Notification::make()
+                ->title('Request Ammenbded')
+                ->icon(RequestStatus::AMMENDED->getIcon())
+                ->iconColor(RequestStatus::AMMENDED->getColor())
+                ->body($record->category->name.' ( '.$record->subcategory->name.' ) '.'</br>'.auth()->user()->name.' : '.'</br>'.$data['remarks'])
+                ->sendToDatabase($record->assignees);
             $action->sendSuccessNotification();
 
         });

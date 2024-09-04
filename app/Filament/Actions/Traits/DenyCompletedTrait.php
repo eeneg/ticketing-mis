@@ -4,7 +4,6 @@ namespace App\Filament\Actions\Traits;
 
 use App\Enums\RequestStatus;
 use App\Models\Request;
-use App\Models\User;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 
@@ -30,20 +29,14 @@ trait DenyCompletedTrait
                 'request_id' => $record->id,
                 'user_id' => Auth::id(),
                 'status' => RequestStatus::DENIED,
-                // 'remarks' => $data['remarks'],
                 'time' => now(),
             ]);
-
-            $assigneeId = $record->assignees->pluck('user_id')->toArray();
-
-            foreach ($assigneeId as $Assignee) {
-                Notification::make()
-                    ->title('Completion denied')
-                    ->icon(RequestStatus::DENIED->getIcon())
-                    ->iconColor(RequestStatus::DENIED->getColor())
-                    ->body($record->category->name.' ( '.$record->subcategory->name.' ) '.'</br>'.auth()->user()->name.' has denied the completed of this request')
-                    ->sendToDatabase(User::find($Assignee));
-            }
+            Notification::make()
+                ->title('Completion denied')
+                ->icon(RequestStatus::DENIED->getIcon())
+                ->iconColor(RequestStatus::DENIED->getColor())
+                ->body($record->category->name.' ( '.$record->subcategory->name.' ) '.'</br>'.auth()->user()->name.' has denied the completed of this request')
+                ->sendToDatabase($record->assignees);
             $this->successNotificationTitle('Denied request completion');
         });
     }

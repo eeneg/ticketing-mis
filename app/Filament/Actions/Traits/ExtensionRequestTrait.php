@@ -4,7 +4,6 @@ namespace App\Filament\Actions\Traits;
 
 use App\Enums\RequestStatus;
 use App\Models\Request;
-use App\Models\User;
 use Filament\Forms\Components\RichEditor;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
@@ -41,16 +40,12 @@ trait ExtensionRequestTrait
                 'time' => now(),
             ]);
 
-            $assigneeId = $record->assignees->pluck('user_id')->toArray();
-
-            foreach ($assigneeId as $assigned) {
-                Notification::make()
-                    ->title('User requires extension')
-                    ->icon(RequestStatus::EXTENDED->getIcon())
-                    ->iconColor(RequestStatus::EXTENDED->getColor())
-                    ->body($record->category->name.' ( '.$record->subcategory->name.' ) '.'</br>'.auth()->user()->name.' has approved the completion of this request')
-                    ->sendToDatabase(User::find($assigned));
-            }
+            Notification::make()
+                ->title('User requires extension')
+                ->icon(RequestStatus::EXTENDED->getIcon())
+                ->iconColor(RequestStatus::EXTENDED->getColor())
+                ->body($record->category->name.' ( '.$record->subcategory->name.' ) '.'</br>'.auth()->user()->name.' has approved the completion of this request')
+                ->sendToDatabase($record->assignees);
             $this->successNotificationTitle('Requested for extension.');
         });
     }

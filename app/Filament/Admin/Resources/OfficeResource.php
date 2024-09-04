@@ -61,6 +61,11 @@ class OfficeResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('acronym')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('building')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('address')
+                    ->searchable(),
+
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

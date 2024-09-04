@@ -7,6 +7,7 @@ use App\Filament\Auth\RegistrationPage;
 use App\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\MenuItem;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -17,6 +18,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class UserPanelProvider extends PanelProvider
@@ -58,6 +60,42 @@ class UserPanelProvider extends PanelProvider
             ->databaseNotifications()
             ->authMiddleware([
                 Authenticate::class,
+            ])
+            ->userMenuItems([
+                MenuItem::make()
+                    ->label(function () {
+                        $role = Auth::user()->role->value;
+                        switch ($role) {
+                            case 'admin':
+                                return 'Admin';
+                            case 'support':
+                                return 'Support';
+                            case 'officer':
+                                return 'Officer';
+                            default:
+                                return;
+                        }
+                    })
+                    ->icon(function () {
+                        $role = Auth::user()->role->value;
+                        if ($role != 'user') {
+                            return 'heroicon-o-user';
+                        }
+                    })
+                    ->url(function () {
+                        $role = Auth::user()->role->value;
+                        switch ($role) {
+                            case 'admin':
+                                return route('filament.admin.resources.requests.index');
+                            case 'support':
+                                return route('filament.support.resources.requests.index');
+                            case 'officer':
+                                return route('filament.officer.resources.requests.index');
+                            default:
+                                return;
+                        }
+                    }),
+
             ]);
 
     }

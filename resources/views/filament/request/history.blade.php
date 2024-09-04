@@ -26,7 +26,7 @@
                                 @endif
                             </span>
 
-                            @if ($action->remarks && $action->status->minor() && $action->status !== RequestStatus::ASSIGNED)
+                            @if ($action->remarks && $action->status->minor() && $action->status !== RequestStatus::ASSIGNED && $action->status !== RequestStatus::COMPLIED)
                                 <span class="text-xs align-text-bottom">
                                     {{ $action->remarks }}
                                 </span>
@@ -42,7 +42,7 @@
                         on {{ $action->created_at->format('jS \of F Y \a\t H:i') }} ({{ $action->created_at->diffForHumans() }})
                     </time>
 
-                    @if ($action->remarks && ($action->status->major() || $action->status === RequestStatus::ASSIGNED))
+                    @if ($action->remarks && ($action->status->major() || $action->status === RequestStatus::ASSIGNED || $action->status === RequestStatus::COMPLIED))
                         <div class="p-2 mb-3 text-base bg-gray-100 rounded-md dark:bg-gray-800">
                             <span class="text-sm text-neutral-500">
                                 <svg class="inline w-6 h-6 text-gray-400 dark:text-gray-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor">

@@ -4,11 +4,11 @@ namespace App\Enums;
 
 enum RequestPriority: string
 {
-    case ONE = '1';
-    case TWO = '2';
-    case THREE = '3';
-    case FOUR = '4';
     case FIVE = '5';
+    case FOUR = '4';
+    case THREE = '3';
+    case TWO = '2';
+    case ONE = '1';
 
     public function getDescription(): ?string
     {
