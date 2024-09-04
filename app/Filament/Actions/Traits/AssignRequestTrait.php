@@ -28,42 +28,40 @@ trait AssignRequestTrait
         ]));
 
         $this->form([
-            CheckboxList::make('user_ids')
+            CheckboxList::make('assignees')
                 ->columns(2)
                 ->label('Assignees')
                 ->default(fn ($record) => $record ? $record->assignees()->pluck('user_id')->toArray() : [])
                 ->searchable()
                 ->hiddenLabel()
-                ->options(function ($record) {
-                    return User::query()
-                        ->where('role', 'support')
-                        ->where('office_id', $record->office_id)
-                        ->pluck('name', 'id');
-                }),
+                ->options(function($record) {
+                    return
+                          User::query()
+                           ->where('role','support')
+                           ->where('office_id',$record->office->id)
+                           ->pluck('name','id');
+                })
         ]);
 
         $this->action(function ($data, $record, self $action) {
-            $formerAssignees = User::find($record->assignees->pluck('user_id'));
+            $record->assignees()->detach();
 
-            $userIds = $data['user_ids'] ?? [];
-
-            $record->assignees()->whereNotIn('user_id', $userIds)->delete();
-            // drop unassigned support
-
-            $upsert_records = collect($userIds)->map(function ($id) use ($record) {
-                return [
-                    'assigner_id' => Auth::id(),
-                    'request_id' => $record->id,
-                    'user_id' => $id,
-                    'response' => 'pending',
-                ];
-            })->toArray();
-
-            $record->assignees()->upsert(
-                $upsert_records,
-                ['request_id', 'user_id'],
-                ['user_id'],
-            );
+                $record->assignees()->attach(
+                    collect($data['assignees'])->mapWithKeys(function ($id) use ($record){
+                        Notification::make()
+                            ->title('New Request Assigned')
+                            ->icon('heroicon-o-check-circle')
+                            ->iconColor(RequestStatus::APPROVED->getColor())
+                            ->body($record->office->acronym.' - '.$record->subject.'( '.$record->category->name)
+                            ->sendToDatabase(User::find($id));
+                        return [
+                            $id => [
+                                'assigner_id' => Auth::id(),
+                                'created_at' => now(),
+                            ]
+                        ];
+                        })->toArray()
+                );
             // List of old assignees
             $listofAssignees = $data['user_ids'] ?? [];
             $assigneeNames = User::whereIn('id', $listofAssignees)->pluck('name')->toArray();
@@ -85,33 +83,33 @@ trait AssignRequestTrait
                 'remarks' => $remarks,
                 'time' => now(),
             ]);
+            $availability_from = Carbon::parse($record['availability_from'])->format('j\t\h \o\f F \a\t h:i:s A');
+                $availability_to = Carbon::parse($record['availability_to'])->format('j\t\h \o\f F \a\t h:i:s A');
+                $assigned = empty($userIds)
+                    ? str('assigned')->toHtmlString()
+                    : str('reassigned')->toHtmlString();
 
-            $availability_from = Carbon::parse($record['availability_from'])->format('jS \o\f F \a\t h:i:s A');
-            $availability_to = Carbon::parse($record['availability_to'])->format('jS \o\f F \a\t h:i:s A');
-            $assigned = empty($userIds)
-                ? str('assigned')->toHtmlString()
-                : str('reassigned')->toHtmlString();
-
-            foreach ($listofAssignees as $Assignees) {
+                foreach ($listofAssignees as $Assignees) {
+                    Notification::make()
+                        ->title('A new request has been '.$assigned.' to you')
+                        ->body(str("<b>{$record->office->acronym}</b>".' - '."<i>$record->subject</i>".' ( '.$record->category->name.' )'.'<br>'.'Available from:'.$availability_from.'<br>'.'Available to: '.' '.$availability_to)->toHtmlString())
+                        ->icon('heroicon-c-arrow-path')
+                        ->iconColor(RequestStatus::ASSIGNED->getColor())
+                        ->sendtoDatabase(User::find($Assignees));
+                }
                 Notification::make()
-                    ->title('A new request has been '.$assigned.' to you')
-                    ->body(str("<b>{$record->office->acronym}</b>".' - '."<i>$record->subject</i>".' ( '.$record->category->name.' )'.'<br>'.'Available from:'.$availability_from.'<br>'.'Available to: '.' '.$availability_to)->toHtmlString())
-                    ->icon('heroicon-c-arrow-path')
+                    ->title('Your request ('."<b>$record->subject</b>".') has been '.$assigned.'.')
+                    ->icon(RequestStatus::ASSIGNED->getIcon())
                     ->iconColor(RequestStatus::ASSIGNED->getColor())
-                    ->sendtoDatabase(User::find($Assignees));
-            }
-            Notification::make()
-                ->title('Your request ('."<b>$record->subject</b>".') has been '.$assigned.'.')
-                ->icon(RequestStatus::ASSIGNED->getIcon())
-                ->iconColor(RequestStatus::ASSIGNED->getColor())
-                ->body($assigned.' to: '.$assigneesString)
-                ->sendToDatabase($record->requestor);
-            //
-            Notification::make()
-                ->title('Request has been reassigned')
-                ->success()
-                ->send();
-            $action->sendSuccessNotification();
+                    ->body($assigned.' to: '.$assigneesString)
+                    ->sendToDatabase($record->requestor);
+                //
+                Notification::make()
+                    ->title('Request has been reassigned')
+                    ->success()
+                    ->send();
+                $action->sendSuccessNotification();
+
 
         });
     }

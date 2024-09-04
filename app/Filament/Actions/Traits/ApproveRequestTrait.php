@@ -32,36 +32,25 @@ trait ApproveRequestTrait
                 ->options(RequestPriority::options()
                 )
                 ->required(),
-            Select::make('user_ids')
-                ->label('Assignees')
-                ->placeholder('Select a support to assign this request to.')
-                ->options(function ($record) {
-                    return User::query()
-                        ->where('role', 'support')
-                        ->where('office_id', $record->office_id)
-                        ->pluck('name', 'id');
-                })
-                ->multiple(),
+
             RichEditor::make('remarks')
                 ->label('Remarks')
                 ->placeholder('Provide further details regarding this request'),
 
+            Select::make('assignees')
+                ->label('Assignees')
+                ->placeholder('Select a support to assign this request to.')
+                ->options(function($record) {
+                      return
+                            User::query()
+                             ->where('role','support')
+                             ->where('office_id',$record->office->id)
+                             ->pluck('name','id');
+                })
+                ->multiple(),
         ]);
 
         $this->action(function ($data, $record, self $action) {
-            $userIds = $data['user_ids'] ?? [];
-
-            $record->assignees()->createMany(
-                collect($userIds)->map(function ($id) use ($record) {
-                    return [
-                        'assigner_id' => Auth::id(),
-                        'request_id' => $record->id,
-                        'user_id' => $id,
-                        'response' => 'pending',
-                    ];
-                })
-            );
-
             $record->action()->create([
                 'request_id' => $record->id,
                 'user_id' => Auth::id(),
@@ -70,18 +59,24 @@ trait ApproveRequestTrait
                 'time' => now(),
             ]);
 
-            $availability_from = Carbon::parse($record['availability_from'])->format('jS \o\f F \a\t h:i:s A');
-            $availability_to = Carbon::parse($record['availability_to'])->format('jS \o\f F \a\t h:i:s A');
+            $record->assignees()->attach(
+                collect($data['assignees'])->mapWithKeys(function ($id) use ($record){
+                    Notification::make()
+                        ->title('New Request Assigned')
+                        ->icon('heroicon-o-check-circle')
+                        ->iconColor(RequestStatus::APPROVED->getColor())
+                        ->body($record->office->acronym.' - '.$record->subject.'( '.$record->category->name)
+                        ->sendToDatabase(User::find($id));
+                    return [
+                        $id => [
+                            'assigner_id' => Auth::id(),
+                            'created_at' => now(),
+                        ]
+                    ];
+                    })->toArray()
+            );
 
-            foreach ($userIds as $Assignees) {
-                Notification::make()
-                    ->title('New Request Assigned')
-                    ->icon('heroicon-o-check-circle')
-                    ->iconColor(RequestStatus::APPROVED->getColor())
-                    ->body(str($record->office->acronym.' - '.$record->subject.'( '.$record->category->name.' )'.'<br>'.'Available from:'.$availability_from.'<br>'.'Available to: '.' '.$availability_to)->toHtmlString())
-                    ->sendToDatabase(User::find($Assignees));
-            }
-            $assigneeNames = User::whereIn('id', $userIds)->pluck('name')->toArray();
+            $assigneeNames = User::whereIn('id', $data['assignees'])->pluck('name')->toArray();
             $assigneesString = implode(', ', $assigneeNames);
 
             if (empty($userIds)) {
@@ -103,8 +98,6 @@ trait ApproveRequestTrait
                 ->success()
                 ->send();
             $record->update(['priority' => $data['priority']]);
-
-            $action->sendSuccessNotification();
 
         });
 

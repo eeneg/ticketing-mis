@@ -64,8 +64,8 @@ class Request extends Model
     {
         return $this->belongsToMany(User::class, 'assignees')
             ->using(Assignee::class);
-
     }
+
 
     public function action(): HasOne
     {
