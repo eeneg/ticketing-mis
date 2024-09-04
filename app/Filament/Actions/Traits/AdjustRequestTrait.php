@@ -4,7 +4,6 @@ namespace App\Filament\Actions\Traits;
 
 use App\Enums\RequestDifficulty;
 use App\Enums\RequestStatus;
-use App\Enums\UserAssignmentResponse;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
@@ -21,7 +20,12 @@ trait AdjustRequestTrait
 
         $this->icon('heroicon-s-adjustments-vertical');
 
-        $this->hidden(fn ($record) => $record->action?->status === RequestStatus::RESOLVED || $record->currentUserAssignee->response === UserAssignmentResponse::REJECTED);
+        $this->hidden(fn ($record) => in_array($record->action->status, [
+            RequestStatus::RESOLVED,
+            RequestStatus::REJECTED,
+            RequestStatus::COMPLETED,
+            RequestStatus::DECLINED,
+        ]));
 
         $this->action(function ($record, $data, $action) {
             $from = $record->difficulty;

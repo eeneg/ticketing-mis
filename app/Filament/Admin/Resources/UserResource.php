@@ -88,13 +88,12 @@ class UserResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('role'),
                 Tables\Columns\TextColumn::make('number')
-                    ->prefix('+63 '),
+                    ->prefix('+63 0'),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable(),
                 Tables\Columns\ToggleColumn::make('is_active')
                     ->hidden(fn ($livewire) => $livewire->activeTab === 'pending')
                     ->onColor('success'),
-
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('role')

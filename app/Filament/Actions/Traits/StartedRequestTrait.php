@@ -21,15 +21,15 @@ trait StartedRequestTrait
 
         $this->icon(RequestStatus::STARTED->getIcon());
 
-        $this->visible(function (Request $record) {
-            $assignees = $record->assignees;
-            if ($assignees->isEmpty()) {
-                return false;
-            }
+        // $this->visible(function (Request $record) {
+        //     $assignees = $record->assignees;
+        //     if ($assignees->isEmpty()) {
+        //         return false;
+        //     }
 
-            return $assignees->every(fn ($assignee) => $assignee->response === UserAssignmentResponse::ACCEPTED);
-        });
-
+        //     return $assignees->every(fn ($assignee) => $assignee->response === UserAssignmentResponse::ACCEPTED);
+        // });
+        $this->visible(true);
         $this->hidden(fn (Request $record) => $record->action?->status === RequestStatus::STARTED || $record->action?->status === RequestStatus::RESOLVED || $record->action?->status === RequestStatus::COMPLETED);
 
         $this->requiresConfirmation();
