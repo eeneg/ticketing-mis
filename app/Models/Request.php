@@ -87,6 +87,7 @@ class Request extends Model
                     RequestStatus::DENIED,
                     RequestStatus::REJECTED,
                     RequestStatus::EXTENDED,
+                    RequestStatus::ACCEPTED,
                 ]);
             });
     }

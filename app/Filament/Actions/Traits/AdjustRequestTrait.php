@@ -57,7 +57,8 @@ trait AdjustRequestTrait
         $this->form([
             Select::make('diff')
                 ->label('Difficulty Level')
-                ->options(RequestDifficulty::options()),
+                ->options(RequestDifficulty::options())
+                ->default(fn ($record)=>$record->difficulty),
         ]);
     }
 }

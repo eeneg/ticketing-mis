@@ -48,12 +48,12 @@ trait AssignRequestTrait
             $record->assignees()->detach();
 
             $record->assignees()->attach(
-                collect($data['assignees'])->mapWithKeys(function ($id) use ($record) {
+                collect($data['assignees'])->mapWithKeys(function ($id) use ($record, $data) {
                     Notification::make()
                         ->title('New Request Assigned')
                         ->icon('heroicon-o-check-circle')
                         ->iconColor(RequestStatus::APPROVED->getColor())
-                        ->body($record->office->acronym.' - '.$record->subject.'( '.$record->category->name)
+                        ->body(str('Assigned to : '.implode(' and ', User::whereIn('id', $data['assignees'])->pluck('name')->toArray()).'</br>'.$record->office->acronym.' - '.$record->subject.' ( '.$record->category->name.' )')->toHtmlString())
                         ->sendToDatabase(User::find($id));
 
                     return [
@@ -74,10 +74,10 @@ trait AssignRequestTrait
             ]);
 
             Notification::make()
-                ->title(str("Your request <b>{$record->subject}</b> has been assigned")->toHtmlString())
+                ->title(str("Your request <b>{$record->subject}</b> has been ".($record['assignees'] ? 'reassigned' : 'assigned'))->toHtmlString())
                 ->icon(RequestStatus::ASSIGNED->getIcon())
                 ->iconColor(RequestStatus::ASSIGNED->getColor())
-                ->body('Assign '.($from ? ' from '.$from : '').' to '.implode(' and ', User::whereIn('id', $data['assignees'])->pluck('name')->toArray()))
+                ->body('Assigned '.($from ? ' from '.$from : '').' to '.implode(' and ', User::whereIn('id', $data['assignees'])->pluck('name')->toArray()))
                 ->sendToDatabase($record->requestor);
 
             Notification::make()
