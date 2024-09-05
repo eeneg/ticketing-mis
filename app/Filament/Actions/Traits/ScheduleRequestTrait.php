@@ -3,6 +3,7 @@
 namespace App\Filament\Actions\Traits;
 
 use App\Enums\RequestStatus;
+use App\Enums\UserAssignmentResponse;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TimePicker;
 use Filament\Notifications\Notification;
@@ -25,9 +26,12 @@ trait ScheduleRequestTrait
 
         $this->hidden(fn ($record) => in_array($record->action->status, [
             RequestStatus::RESOLVED,
-            RequestStatus::REJECTED,
+            UserAssignmentResponse::REJECTED,
             RequestStatus::COMPLETED,
             RequestStatus::DECLINED,
+        ]) || in_array($record->currentUserAssignee->response, [
+            UserAssignmentResponse::REJECTED,
+            UserAssignmentResponse::COMPLETED,
         ]));
 
         $this->form([
