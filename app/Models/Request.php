@@ -66,7 +66,6 @@ class Request extends Model
             ->using(Assignee::class);
     }
 
-
     public function action(): HasOne
     {
         return $this->hasOne(Action::class)
@@ -79,11 +78,13 @@ class Request extends Model
                     RequestStatus::CANCELLED,
                     RequestStatus::STARTED,
                     RequestStatus::SUSPENDED,
+                    RequestStatus::ASSIGNED,
                     RequestStatus::RETRACTED,
                     RequestStatus::COMPLIED,
                     RequestStatus::RESOLVED,
                     RequestStatus::VERIFIED,
                     RequestStatus::DENIED,
+                    RequestStatus::REJECTED,
                     RequestStatus::EXTENDED,
                 ]);
             });

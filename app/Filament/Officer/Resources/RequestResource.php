@@ -14,12 +14,17 @@ use App\Models\Request;
 use App\Models\Subcategory;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Grid as ComponentsGrid;
+use Filament\Infolists\Components\Group;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\HtmlString;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class RequestResource extends Resource
@@ -187,16 +192,22 @@ class RequestResource extends Resource
                     ->limit(24)
                     ->tooltip(fn (Request $record) => $record->subject),
                 Tables\Columns\TextColumn::make('office.acronym')
+                    ->sortable()
+                    ->searchable()
                     ->limit(12)
                     ->tooltip(fn (Request $record) => $record->office->name),
                 Tables\Columns\TextColumn::make('requestor.name')
+                    ->sortable()
+                    ->searchable()
                     ->limit(24)
                     ->tooltip(fn (Request $record) => $record->requestor->name),
                 Tables\Columns\TextColumn::make('category.name')
+                    ->searchable()
                     ->limit(36)
                     ->formatStateUsing(fn ($record) => "{$record->category->name} ({$record->subcategory->name})")
                     ->tooltip(fn (Request $record) => "{$record->category->name} ({$record->subcategory->name})"),
                 Tables\Columns\TextColumn::make('action.status')
+                    ->searchable()
                     ->label('Status')
                     ->tooltip(fn (Request $record) => $record->action->status->getDescription())
                     ->badge(),
@@ -206,7 +217,75 @@ class RequestResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()
-                    ->modalWidth('6xl'),
+                    ->modalWidth('5xl')
+                    ->infolist([
+                        ComponentsGrid::make(12)
+                            ->schema([
+                                Group::make([
+                                    Section::make('Personal Details')
+                                        ->columnSpan(8)
+                                        ->columns(3)
+                                        ->schema([
+                                            TextEntry::make('requestor.name')
+                                                ->label('Name'),
+                                            TextEntry::make('requestor.number')
+                                                ->prefix('+63 0')
+                                                ->label('Phone Number'),
+                                            TextEntry::make('requestor.email')
+                                                ->label('Email'),
+                                        ]),
+                                    Section::make('Office Details')
+                                        ->columnSpan(8)
+                                        ->columns(3)
+                                        ->schema([
+                                            TextEntry::make('office.acronym')
+                                                ->label('Office'),
+                                            TextEntry::make('office.room')
+                                                ->label('Room Number'),
+                                            TextEntry::make('office.address')
+                                                ->label('Office address :'),
+
+                                        ]),
+                                    Section::make('Request Details')
+                                        ->columnSpan(8)
+                                        ->columns(2)
+                                        ->schema([
+                                            TextEntry::make('category.name')
+                                                ->label('Category'),
+                                            TextEntry::make('subcategory.name')
+                                                ->label('Subcategory'),
+                                        ]),
+
+                                ])->columnSpan(8),
+
+                                Group::make([
+                                    Section::make('Availability')
+                                        ->columnSpan(4)
+                                        ->columns(2)
+                                        ->schema([
+                                            TextEntry::make('availability_from')
+                                                ->columnSpan(1)
+                                                ->date()
+                                                ->label('Availability from'),
+                                            TextEntry::make('availability_to')
+                                                ->columnSpan(1)
+                                                ->date()
+                                                ->label('Availability to'),
+
+                                        ]),
+                                    Section::make('Remarks & Attachments')
+                                        ->columnSpan(4)
+                                        ->schema([
+                                            TextEntry::make('remarks')
+                                                ->columnSpan(2)
+                                                ->formatStateUsing(fn ($record) => new HtmlString($record->remarks))
+                                                ->label('Remarks'),
+                                        ]),
+                                ])->columnSpan(4),
+
+                            ]),
+
+                    ]),
                 ActionGroup::make([
                     AssignRequestAction::make(),
                     ApproveRequestAction::make(),

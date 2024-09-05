@@ -85,12 +85,14 @@ class UserResource extends Resource
                     ->circular(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('role'),
+                Tables\Columns\TextColumn::make('role')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('number')
                     ->prefix('+63 0'),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable(),
                 Tables\Columns\ToggleColumn::make('is_active')
+                    ->sortable()
                     ->hidden(fn ($livewire) => $livewire->activeTab === 'pending')
                     ->onColor('success'),
             ])

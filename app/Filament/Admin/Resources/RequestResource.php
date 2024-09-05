@@ -6,11 +6,14 @@ use App\Filament\Actions\Tables\ViewRequestHistoryAction;
 use App\Filament\Admin\Resources\RequestResource\Pages;
 use App\Models\Request;
 use Filament\Infolists\Components\Grid as ComponentsGrid;
+use Filament\Infolists\Components\Group;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\HtmlString;
 
 class RequestResource extends Resource
 {
@@ -21,6 +24,10 @@ class RequestResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                $query->whereHas('action');
+                // filter only published requests
+            })
             ->columns([
                 Tables\Columns\TextColumn::make('requestor.name')
                     ->label('Requestor Name')
@@ -36,11 +43,6 @@ class RequestResource extends Resource
                 Tables\Columns\TextColumn::make('category.name')
                     ->searchable()
                     ->sortable(),
-                // Tables\Columns\TextColumn::make('assignees.response')
-                //     ->searchable()
-                //     ->badge()
-                //     ->label('Response')
-                //     ->sortable(),
                 Tables\Columns\TextColumn::make('action.status')
                     ->badge(),
             ])
@@ -54,90 +56,83 @@ class RequestResource extends Resource
                 Tables\Actions\ViewAction::make()
                     ->modalWidth('5xl')
                     ->infolist([
-                        ComponentsGrid::make(4)
+                        ComponentsGrid::make(12)
                             ->schema([
-                                Section::make('Personal Details')
-                                    ->columnSpan(4)
-                                    ->columns(3)
-                                    ->schema([
-                                        TextEntry::make('requestor.name')
-                                            ->label('Name'),
-                                        TextEntry::make('requestor.number')
-                                            ->prefix('+63 0')
-                                            ->label('Phone Number'),
-                                        TextEntry::make('requestor.email')
-                                            ->label('Email'),
+                                Group::make([
+                                    Section::make('Personal Details')
+                                        ->columnSpan(8)
+                                        ->columns(3)
+                                        ->schema([
+                                            TextEntry::make('requestor.name')
+                                                ->label('Name'),
+                                            TextEntry::make('requestor.number')
+                                                ->prefix('+63 0')
+                                                ->label('Phone Number'),
+                                            TextEntry::make('requestor.email')
+                                                ->label('Email'),
+                                        ]),
+                                    Section::make('Office Details')
+                                        ->columnSpan(8)
+                                        ->columns(3)
+                                        ->schema([
+                                            TextEntry::make('office.acronym')
+                                                ->label('Office'),
+                                            TextEntry::make('office.room')
+                                                ->label('Room Number'),
+                                            TextEntry::make('office.address')
+                                                ->label('Office address :'),
 
-                                    ]),
-                                Section::make('Office Details')
-                                    ->columnSpan(2)
-                                    ->columns(3)
-                                    ->schema([
-                                        TextEntry::make('office.acronym')
-                                            ->label('Office'),
-                                        TextEntry::make('office.room')
-                                            ->label('Room Number'),
-                                        TextEntry::make('office.address')
-                                            ->label('Office address :'),
+                                        ]),
+                                    Section::make('Request Details')
+                                        ->columnSpan(8)
+                                        ->columns(2)
+                                        ->schema([
+                                            TextEntry::make('category.name')
+                                                ->label('Category'),
+                                            TextEntry::make('subcategory.name')
+                                                ->label('Subcategory'),
+                                        ]),
 
-                                    ]),
-                                Section::make('Request Details')
-                                    ->columnSpan(2)
-                                    ->columns(4)
-                                    ->schema([
-                                        TextEntry::make('category.name')
-                                            ->label('Category'),
-                                        TextEntry::make('subcategory.name')
-                                            ->columnSpan(2)
-                                            ->label('Subcategory'),
-                                        TextEntry::make('tags')
-                                            ->label('Tags'),
+                                ])->columnSpan(8),
 
-                                    ]),
-                                Section::make('Availability')
-                                    ->columns(4)
-                                    ->schema([
-                                        TextEntry::make('availability_from')
+                                Group::make([
+                                    Section::make('Availability')
+                                        ->columnSpan(4)
+                                        ->columns(2)
+                                        ->schema([
+                                            TextEntry::make('availability_from')
+                                                ->columnSpan(1)
+                                                ->date()
+                                                ->label('Availability from'),
+                                            TextEntry::make('availability_to')
+                                                ->columnSpan(1)
+                                                ->date()
+                                                ->label('Availability to'),
 
-                                            ->date()
-                                            ->columnSpan(2)
-                                            ->inlineLabel('Availability from'),
-                                        TextEntry::make('availability_to')
-                                            ->date()
-                                            ->columnSpan(2)
-                                            ->inlineLabel('Availability to'),
+                                        ]),
+                                    Section::make('Remarks & Attachments')
+                                        ->columnSpan(4)
+                                        ->schema([
+                                            TextEntry::make('remarks')
+                                                ->columnSpan(2)
+                                                ->formatStateUsing(fn ($record) => new HtmlString($record->remarks))
+                                                ->label('Remarks'),
+                                        ]),
+                                ])->columnSpan(4),
 
-                                    ]),
-                                Section::make('Remarks')
-                                    ->columnSpan(4)
-                                    ->schema([
-                                        TextEntry::make('remarks')
-                                            ->inlineLabel('Updated at'),
-                                    ]),
                             ]),
-                        // Section::make('Time Details')
-                        //     ->columnSpan(1)
-                        //     ->columns(2)
-                        //     ->schema([
-                        //         TextEntry::make('created_at')
-                        //             ->inlineLabel('Created at'),
-                        //         TextEntry::make('updated_at')
-                        //             ->inlineLabel('Updated at'),
-                        //         TextEntry::make('availability_from')
-                        //             ->inlineLabel('Availability from'),
-                        //         TextEntry::make('availability_to')
-                        //             ->inlineLabel('Availabilisdsty to'),
-
-                        //     ]),
 
                     ]),
                 ViewRequestHistoryAction::make(),
-            ]);
+            ]
+            );
+
     }
 
     public static function getRelations(): array
     {
         return [
+
         ];
     }
 

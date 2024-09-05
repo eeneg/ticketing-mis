@@ -30,7 +30,7 @@ trait AmmendRecentActionTrait
                 $record->action?->status !== RequestStatus::PUBLISHED &&
                 $record->action?->user->is(Auth::user());
         });
-        $this->hidden(fn (Request $record) => $record->action->status == RequestStatus::RESOLVED);
+        $this->hidden(fn (Request $record) => $record->action?->status == RequestStatus::RESOLVED);
 
         $this->color('primary');
 
