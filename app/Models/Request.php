@@ -63,7 +63,8 @@ class Request extends Model
     public function assignees(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'assignees')
-            ->using(Assignee::class);
+            ->using(Assignee::class)
+            ->withPivot(['response', 'responded_at', 'assigner_id']);
     }
 
     public function action(): HasOne

@@ -121,6 +121,7 @@ class UserResource extends Resource
                             'name' => $record->name,
                             'email' => $record->email,
                             'password' => $record->password,
+                            'is_active' => 'TRUE',
                             'email_verified_at' => now(),
                         ]);
                     }),

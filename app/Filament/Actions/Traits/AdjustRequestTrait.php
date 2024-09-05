@@ -4,6 +4,7 @@ namespace App\Filament\Actions\Traits;
 
 use App\Enums\RequestDifficulty;
 use App\Enums\RequestStatus;
+use App\Enums\UserAssignmentResponse;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
@@ -25,6 +26,9 @@ trait AdjustRequestTrait
             RequestStatus::REJECTED,
             RequestStatus::COMPLETED,
             RequestStatus::DECLINED,
+        ]) || in_array($record->currentUserAssignee->response, [
+            UserAssignmentResponse::REJECTED,
+            UserAssignmentResponse::COMPLETED,
         ]));
 
         $this->action(function ($record, $data, $action) {

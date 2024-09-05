@@ -8,7 +8,6 @@ use App\Models\Category;
 use App\Models\Office;
 use App\Models\Request;
 use App\Models\Subcategory;
-use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -18,19 +17,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->create([
-            'email' => 'admin',
-            'password' => 1,
-            'role' => 'admin',
-            'name' => 'Admin',
-        ]);
 
-        // $office_name = Office::factory(count: 15)->create();
-
-        // $user = User::factory(count: 20)->make()->each(function ($user) use ($office_name) {
-        //     $user->office_id = $office_name->random()->id;
-        //     $user->save();
-        // });
+        \App\Models\User::factory(15)->create();
         // $categories = Category::factory(count: 9)->make()->each(function ($category) use ($office_name) {
         //     $category->office_id = $office_name->random()->id;
         //     $category->save();

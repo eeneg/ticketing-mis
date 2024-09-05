@@ -5,7 +5,6 @@ namespace App\Filament\Actions\Traits;
 use App\Enums\RequestStatus;
 use App\Models\Request;
 use App\Models\User;
-use Carbon\Carbon;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
@@ -45,6 +44,7 @@ trait AssignRequestTrait
         ]);
 
         $this->action(function ($data, $record, self $action) {
+            $from = implode(' and ', $record?->assignees()->pluck('name')->toArray());
             $record->assignees()->detach();
 
             $record->assignees()->attach(
@@ -64,53 +64,26 @@ trait AssignRequestTrait
                     ];
                 })->toArray()
             );
-            // List of old assignees
-            $listofAssignees = $data['user_ids'] ?? [];
-            $assigneeNames = User::whereIn('id', $listofAssignees)->pluck('name')->toArray();
-            $assigneesString = implode(', ', $assigneeNames);
-            // List of new assignees
-            $oldAssignees = $record['user_ids'] ?? [];
-            $oldNames = User::whereIn('id', $oldAssignees)->pluck('name')->toArray();
-            $oldFinal = implode(', ', $oldNames);
-            $remarks = '';
-            // check there are assigned support
-            $remarks = empty($userIds)
-                ? str('Assigned to: '.$assigneesString)->toHtmlString()
-                : str('Assigned from: '.$oldFinal.'<br>'.' to: '.$assigneesString)->toHtmlString();
 
             $record->action()->create([
                 'request_id' => $record->id,
                 'user_id' => Auth::id(),
                 'status' => RequestStatus::ASSIGNED,
-                'remarks' => $remarks,
+                'remarks' => 'Assign '.($from ? ' from '.$from : '').' to '.implode(' and ', User::whereIn('id', $data['assignees'])->pluck('name')->toArray()),
                 'time' => now(),
             ]);
-            $availability_from = Carbon::parse($record['availability_from'])->format('j\t\h \o\f F \a\t h:i:s A');
-            $availability_to = Carbon::parse($record['availability_to'])->format('j\t\h \o\f F \a\t h:i:s A');
-            $assigned = empty($userIds)
-                ? str('assigned')->toHtmlString()
-                : str('reassigned')->toHtmlString();
 
-            foreach ($listofAssignees as $Assignees) {
-                Notification::make()
-                    ->title('A new request has been '.$assigned.' to you')
-                    ->body(str("<b>{$record->office->acronym}</b>".' - '."<i>$record->subject</i>".' ( '.$record->category->name.' )'.'<br>'.'Available from:'.$availability_from.'<br>'.'Available to: '.' '.$availability_to)->toHtmlString())
-                    ->icon('heroicon-c-arrow-path')
-                    ->iconColor(RequestStatus::ASSIGNED->getColor())
-                    ->sendtoDatabase(User::find($Assignees));
-            }
             Notification::make()
-                ->title('Your request ('."<b>$record->subject</b>".') has been '.$assigned.'.')
+                ->title(str("Your request <b>{$record->subject}</b> has been assigned")->toHtmlString())
                 ->icon(RequestStatus::ASSIGNED->getIcon())
                 ->iconColor(RequestStatus::ASSIGNED->getColor())
-                ->body($assigned.' to: '.$assigneesString)
+                ->body('Assign '.($from ? ' from '.$from : '').' to '.implode(' and ', User::whereIn('id', $data['assignees'])->pluck('name')->toArray()))
                 ->sendToDatabase($record->requestor);
-            //
+
             Notification::make()
                 ->title('Request has been reassigned')
                 ->success()
                 ->send();
-            $action->sendSuccessNotification();
 
         });
     }

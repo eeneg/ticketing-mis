@@ -24,6 +24,7 @@ trait RejectAssignmentTrait
         $this->close();
 
         $this->action(function ($record) {
+
             if ($record->currentUserAssignee->responded_at?->addMinutes(15)->lt(now())) {
                 Notification::make()
                     ->title('No activity for 15 minutes')
