@@ -15,7 +15,7 @@ class AdminRequestOverview extends BaseWidget
     {
         return [
             Stat::make('Unassigned Request', Request::doesntHave('assignees')->count())
-                ->description('Requests that has no assignee')
+                ->description('Requests that has no assignees')
                 ->descriptionIcon(RequestStatus::STARTED->getIcon(), IconPosition::Before),
             Stat::make('Active Request', Assignee::where('response', 'accepted')->count())
                 ->descriptionIcon(RequestStatus::ACCEPTED->getIcon(), IconPosition::Before)

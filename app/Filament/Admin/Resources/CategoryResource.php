@@ -83,6 +83,9 @@ class CategoryResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('tags.name')
+                    ->badge()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('office.name')
                     ->searchable(),
             ])

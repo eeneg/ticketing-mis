@@ -1,9 +1,5 @@
 <?php
 
-use App\Enums\RequestStatus;
-use App\Enums\UserAssignmentResponse;
-use App\Models\Request;
-use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/test', function () {
 
     return \App\Models\User::query()
-        ->where('role','support')
+        ->where('role', 'support')
         ->with('office')
         ->get();
 });

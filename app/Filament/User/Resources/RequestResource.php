@@ -21,6 +21,10 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
+use Filament\Infolists\Components\Grid;
+use Filament\Infolists\Components\Group;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -29,6 +33,7 @@ use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\HtmlString;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class RequestResource extends Resource
@@ -240,6 +245,7 @@ class RequestResource extends Resource
                     ->sortable()
                     ->tooltip(fn (Request $record) => $record->subject),
                 Tables\Columns\TextColumn::make('office.acronym')
+                    ->sortable()
                     ->limit(12)
                     ->tooltip(fn (Request $record) => $record->office->acronym),
                 Tables\Columns\TextColumn::make('category.name')
@@ -250,13 +256,14 @@ class RequestResource extends Resource
                     ->label('Status')
                     ->badge(),
                 Tables\Columns\TextColumn::make('action.created_at')
+                    ->sortable()
                     ->formatStateUsing(function ($state) {
                         return $state;
                     })
                     ->since()
                     ->tooltip(fn ($state) => $state->format('Y-m-d H:i:s'))
                     ->label('Published')
-                    ->tooltip(fn (Request $record) => $record->action->published_at?->format('Y-m-d H:i:s')),
+                    ->tooltip(fn (Request $record) => $record->action?->published_at?->format('Y-m-d H:i:s')),
                 Tables\Columns\TextColumn::make('subject')
                     ->searchable()
                     ->limit(24)
@@ -272,7 +279,75 @@ class RequestResource extends Resource
                 Tables\Actions\EditAction::make()
                     ->visible(fn (Request $record) => is_null($status = $record->action?->status) || $status === RequestStatus::RETRACTED),
                 Tables\Actions\ViewAction::make()
-                    ->modalWidth('6xl'),
+                    ->modalWidth('5xl')
+                    ->infolist([
+                        Grid::make(12)
+                            ->schema([
+                                Group::make([
+                                    Section::make('Personal Details')
+                                        ->columnSpan(8)
+                                        ->columns(3)
+                                        ->schema([
+                                            TextEntry::make('requestor.name')
+                                                ->label('Name'),
+                                            TextEntry::make('requestor.number')
+                                                ->prefix('+63 0')
+                                                ->label('Phone Number'),
+                                            TextEntry::make('requestor.email')
+                                                ->label('Email'),
+                                        ]),
+                                    Section::make('Office Details')
+                                        ->columnSpan(8)
+                                        ->columns(3)
+                                        ->schema([
+                                            TextEntry::make('office.acronym')
+                                                ->label('Office'),
+                                            TextEntry::make('office.room')
+                                                ->label('Room Number'),
+                                            TextEntry::make('office.address')
+                                                ->label('Office address :'),
+
+                                        ]),
+                                    Section::make('Request Details')
+                                        ->columnSpan(8)
+                                        ->columns(2)
+                                        ->schema([
+                                            TextEntry::make('category.name')
+                                                ->label('Category'),
+                                            TextEntry::make('subcategory.name')
+                                                ->label('Subcategory'),
+                                        ]),
+
+                                ])->columnSpan(8),
+
+                                Group::make([
+                                    Section::make('Availability')
+                                        ->columnSpan(4)
+                                        ->columns(2)
+                                        ->schema([
+                                            TextEntry::make('availability_from')
+                                                ->columnSpan(1)
+                                                ->date()
+                                                ->label('Availability from'),
+                                            TextEntry::make('availability_to')
+                                                ->columnSpan(1)
+                                                ->date()
+                                                ->label('Availability to'),
+
+                                        ]),
+                                    Section::make('Remarks & Attachments')
+                                        ->columnSpan(4)
+                                        ->schema([
+                                            TextEntry::make('remarks')
+                                                ->columnSpan(2)
+                                                ->formatStateUsing(fn ($record) => new HtmlString($record->remarks))
+                                                ->label('Remarks'),
+                                        ]),
+                                ])->columnSpan(4),
+
+                            ]),
+
+                    ]),
                 ActionGroup::make([
                     DenyCompletedAction::make(),
                     PublishRequestAction::make(),
@@ -283,7 +358,7 @@ class RequestResource extends Resource
                     ExtensionRequestAction::make(),
                     ViewRequestHistoryAction::make(),
                     Action::make('comply')
-                        ->visible(fn (Request $record) => $record->action->status == RequestStatus::SUSPENDED )
+                        ->visible(fn (Request $record) => $record->action?->status == RequestStatus::SUSPENDED)
                         ->icon(RequestStatus::COMPLIED->getIcon())
                         ->label('Comply')
                         ->color('warning')

@@ -3,7 +3,6 @@
 namespace App\Filament\Actions\Traits;
 
 use App\Enums\RequestStatus;
-use App\Enums\UserAssignmentResponse;
 use App\Models\Request;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
@@ -21,7 +20,7 @@ trait StartedRequestTrait
 
         $this->icon(RequestStatus::STARTED->getIcon());
 
-        $this->visible(fn ($record)=>$record->currentUserAssignee->response === RequestStatus::ACCEPTED);
+        $this->visible(fn ($record) => $record->currentUserAssignee->response === RequestStatus::ACCEPTED);
 
         $this->hidden(fn (Request $record) => $record->action?->status === RequestStatus::STARTED || $record->action?->status === RequestStatus::RESOLVED || $record->action?->status === RequestStatus::COMPLETED);
 

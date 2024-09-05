@@ -39,7 +39,12 @@ trait RejectAssignmentTrait
                 'response' => UserAssignmentResponse::REJECTED,
                 'responded_at' => $record->currentUserAssignee->responded->at ?? now(),
             ]);
-
+            $record->action()->create([
+                'request_id' => $record->id,
+                'user_id' => Auth::id(),
+                'status' => RequestStatus::REJECTED,
+                'time' => now(),
+            ]);
             Notification::make()
                 ->title('Rejected Successfully!')
                 ->danger()

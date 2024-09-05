@@ -6,7 +6,6 @@ use App\Enums\RequestPriority;
 use App\Enums\RequestStatus;
 use App\Models\Request;
 use App\Models\User;
-use Carbon\Carbon;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
@@ -40,40 +39,44 @@ trait ApproveRequestTrait
             Select::make('assignees')
                 ->label('Assignees')
                 ->placeholder('Select a support to assign this request to.')
-                ->options(function($record) {
-                      return
-                            User::query()
-                             ->where('role','support')
-                             ->where('office_id',$record->office->id)
-                             ->pluck('name','id');
+                ->options(function ($record) {
+                    return
+                          User::query()
+                              ->where('role', 'support')
+                              ->where('office_id', $record->office->id)
+                              ->pluck('name', 'id');
                 })
                 ->multiple(),
         ]);
 
         $this->action(function ($data, $record, self $action) {
+            $status = empty($data['assignees'])
+                    ? RequestStatus::APPROVED->value
+                    : RequestStatus::ASSIGNED->value;
             $record->action()->create([
                 'request_id' => $record->id,
                 'user_id' => Auth::id(),
-                'status' => RequestStatus::APPROVED,
+                'status' => $status,
                 'remarks' => $data['remarks'],
                 'time' => now(),
             ]);
 
             $record->assignees()->attach(
-                collect($data['assignees'])->mapWithKeys(function ($id) use ($record){
+                collect($data['assignees'])->mapWithKeys(function ($id) use ($record) {
                     Notification::make()
                         ->title('New Request Assigned')
                         ->icon('heroicon-o-check-circle')
                         ->iconColor(RequestStatus::APPROVED->getColor())
                         ->body($record->office->acronym.' - '.$record->subject.'( '.$record->category->name)
                         ->sendToDatabase(User::find($id));
+
                     return [
                         $id => [
                             'assigner_id' => Auth::id(),
                             'created_at' => now(),
-                        ]
+                        ],
                     ];
-                    })->toArray()
+                })->toArray()
             );
 
             $assigneeNames = User::whereIn('id', $data['assignees'])->pluck('name')->toArray();

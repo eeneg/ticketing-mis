@@ -15,7 +15,7 @@
                     <h3 class="flex items-center mb-1 text-base">
                         <span>
                             <span class='text-custom-500' @style(["--c-500:var(--{$action->status->getColor()}-500)"])>
-                                @if (in_array($action->status, [RequestStatus::PUBLISHED, RequestStatus::SCHEDULED, RequestStatus::ASSIGNED]))
+                                @if (in_array($action->status, [RequestStatus::PUBLISHED, RequestStatus::SCHEDULED, RequestStatus::ASSIGNED, RequestStatus::DECLINED]))
                                     {{
                                         $request->actions->filter(fn ($act) => $act->status === $action->status)->reverse()->first()->is($action)
                                             ? $action->status->getLabel()
@@ -26,7 +26,7 @@
                                 @endif
                             </span>
 
-                            @if ($action->remarks && $action->status->minor() && $action->status !== RequestStatus::ASSIGNED && $action->status !== RequestStatus::COMPLIED)
+                            @if ($action->remarks && $action->status->minor() && $action->status !== RequestStatus::ASSIGNED && $action->status !== RequestStatus::COMPLIED && $action->status !== RequestStatus::DECLINED)
                                 <span class="text-xs align-text-bottom">
                                     {{ $action->remarks }}
                                 </span>
