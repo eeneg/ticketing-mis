@@ -3,7 +3,7 @@
 namespace App\Filament\Actions;
 
 use App\Filament\Actions\Traits\RejectAssignmentTrait;
-use Filament\Forms\Components\Actions\Action;
+use Filament\Infolists\Components\Actions\Action;
 
 class RejectAssignmentAction extends Action
 {

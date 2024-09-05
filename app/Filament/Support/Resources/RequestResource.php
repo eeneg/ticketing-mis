@@ -2,6 +2,7 @@
 
 namespace App\Filament\Support\Resources;
 
+use App\Enums\RequestDifficulty;
 use App\Filament\Actions\AcceptAssignmentAction;
 use App\Filament\Actions\RejectAssignmentAction;
 use App\Filament\Actions\Tables\AdjustRequestAction;
@@ -12,15 +13,16 @@ use App\Filament\Actions\Tables\UpdateRequestAction;
 use App\Filament\Actions\Tables\ViewRequestHistoryAction;
 use App\Filament\Support\Resources\RequestResource\Pages;
 use App\Models\Request;
-use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Actions;
+use Filament\Infolists\Components\Actions\Action;
 use Filament\Infolists\Components\Grid as ComponentsGrid;
 use Filament\Infolists\Components\Group;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\ActionGroup;
@@ -69,191 +71,132 @@ class RequestResource extends Resource
             ->actions([
                 UpdateRequestAction::make(),
                 Tables\Actions\ViewAction::make()
-                    ->modalWidth('5xl')
+                    ->modalCancelAction(false)
                     ->infolist([
                         ComponentsGrid::make(12)
-                            ->schema([
-                                Group::make([
-                                    Section::make('Personal Details')
-                                        ->columnSpan(8)
-                                        ->columns(3)
-                                        ->schema([
-                                            TextEntry::make('requestor.name')
-                                                ->label('Name'),
-                                            TextEntry::make('requestor.number')
-                                                ->prefix('+63 0')
-                                                ->label('Phone Number'),
-                                            TextEntry::make('requestor.email')
-                                                ->label('Email'),
-                                        ]),
-                                    Section::make('Office Details')
-                                        ->columnSpan(8)
-                                        ->columns(3)
-                                        ->schema([
-                                            TextEntry::make('office.acronym')
-                                                ->label('Office'),
-                                            TextEntry::make('office.room')
-                                                ->label('Room Number'),
-                                            TextEntry::make('office.address')
-                                                ->label('Office address :'),
+                        ->schema([
+                            Group::make([
+                                Section::make('Personal Details')
+                                    ->columnSpan(8)
+                                    ->columns(3)
+                                    ->schema([
+                                        TextEntry::make('requestor.name')
+                                            ->label('Name'),
+                                        TextEntry::make('requestor.number')
+                                            ->prefix('+63 0')
+                                            ->label('Phone Number'),
+                                        TextEntry::make('requestor.email')
+                                            ->label('Email'),
+                                    ]),
+                                Section::make('Office Details')
+                                    ->columnSpan(8)
+                                    ->columns(3)
+                                    ->schema([
+                                        TextEntry::make('office.acronym')
+                                            ->label('Office'),
+                                        TextEntry::make('office.room')
+                                            ->label('Room Number'),
+                                        TextEntry::make('office.address')
+                                            ->label('Office address :'),
 
-                                        ]),
+                                    ]),
 
-                                ])->columnSpan(8),
+                            ])->columnSpan(8),
 
-                                Group::make([
-                                    Section::make('Availability')
-                                        ->columnSpan(4)
-                                        ->columns(2)
-                                        ->schema([
-                                            TextEntry::make('availability_from')
-                                                ->columnSpan(1)
-                                                ->date()
-                                                ->label('Availability from'),
-                                            TextEntry::make('availability_to')
-                                                ->columnSpan(1)
-                                                ->date()
-                                                ->label('Availability to'),
-                                        ]),
-                                    Section::make('Remarks')
-                                        ->columnSpan(4)
-                                        ->schema([
-                                            TextEntry::make('remarks')
-                                                ->columnSpan(2)
-                                                ->formatStateUsing(fn ($record) => new HtmlString($record->remarks))
-                                                ->label(false)
-                                                ->inLinelabel(false),
-                                        ]),
-                                ])->columnSpan(4),
-                                Group::make([
-                                    Section::make('Request Details')
-                                        ->columnSpan(5)
-                                        ->columns(2)
-                                        ->schema([
-                                            TextEntry::make('category.name')
-                                                ->label('Category'),
-                                            TextEntry::make('subcategory.name')
-                                                ->label('Subcategory'),
-                                        ]),
-                                ])->columnSpan(5),
-                                Group::make([
+                            Group::make([
+                                Section::make('Availability')
+                                    ->columnSpan(4)
+                                    ->columns(2)
+                                    ->schema([
+                                        TextEntry::make('availability_from')
+                                            ->columnSpan(1)
+                                            ->date()
+                                            ->label('Availability from'),
+                                        TextEntry::make('availability_to')
+                                            ->columnSpan(1)
+                                            ->date()
+                                            ->label('Availability to'),
+                                    ]),
+                                Section::make('Assignee Details')
+                                    ->columns(2)->columnSpan(4)
+                                    ->schema([
+                                        TextEntry::make('target_date')
+                                            ->placeholder('N/A')
+                                            ->label('Target date'),
+                                        TextEntry::make('target_time')
+                                            ->placeholder('N/A')
+                                            ->label('Target time'),
+                                    ]),
 
-                                    Section::make('Assignee Details')
-                                        ->columns(2)
-                                        ->columnSpan(6)
-                                        ->schema([
-                                            TextEntry::make('priority')
-                                                ->placeholder('N/A')
-                                                ->label('Priority'),
-                                            TextEntry::make('difficulty')
-                                                ->placeholder('N/A')
-                                                ->label('Difficulty'),
-                                        ]),
+                            ])->columnSpan(4),
+                            Group::make([Section::make('Request Remarks')
+                                ->columnSpan(4)
+                                ->schema([
+                                    TextEntry::make('remarks')
+                                        ->columnSpan(2)
+                                        ->formatStateUsing(fn ($record) => new HtmlString($record->remarks))
+                                        ->label(false)
+                                        ->inLinelabel(false),
+                                ]),
 
-                                ])->columnSpan(3),
-                                Group::make([
+                            ])->columnSpan(4),
+                            Group::make([
 
-                                    Section::make('Assignee Details')
-                                        ->columns(2)->columnSpan(4)
-                                        ->schema([
-                                            TextEntry::make('target_date')
-                                                ->placeholder('N/A')
-                                                ->label('Target date'),
-                                            TextEntry::make('target_time')
-                                                ->placeholder('N/A')
-                                                ->label('Target time'),
-                                        ]),
-                                ])->columnSpan(4),
-                                Group::make([
+                                Section::make('Request Details')
+                                    ->columnSpan(5)
+                                    ->columns(2)
+                                    ->schema([
+                                        TextEntry::make('category.name')
+                                            ->label('Category'),
+                                        TextEntry::make('subcategory.name')
+                                            ->label('Subcategory'),
+                                    ]),
+                            ])->columnSpan(5),
+                            Group::make([
+                                Section::make('Assignee Details')
+                                    ->columns(2)
+                                    ->columnSpan(6)
+                                    ->schema([
+                                        TextEntry::make('priority')
+                                            ->placeholder('N/A')
+                                            ->label('Priority'),
+                                        TextEntry::make('difficulty')
+                                            ->placeholder('N/A')
+                                            ->label('Difficulty'),
+                                    ]),
 
-                                    Section::make('Attachments')
-                                        ->columns(2)->columnSpan(4)
-                                        ->schema([
-                                            TextEntry::make('attachment.name')
-                                                ->label(false)
-                                                ->inLinelabel(false),
-                                        ]),
-                                ])->columnSpan(12),
-                            ]),
-                    ]),
-                // Tables\Actions\ViewAction::make()
-                //     ->modalCancelAction(false)
-                //     ->form([
-                //         Grid::make()
-                //             ->columns(2)
-                //             ->schema([
-                //                 Select::make('name')
-                //                     ->relationship('requestor', 'name')
-                //                     ->label('Requestor Name'),
-                //                 Select::make('number')
-                //                     ->relationship('requestor', 'number')
-                //                     ->label('Number'),
-                //             ]),
-                //         Grid::make()
-                //             ->columns(3)
-                //             ->schema([
-                //                 Select::make('office')
-                //                     ->relationship('office', 'name')
-                //                     ->label('Office Name'),
-                //                 Select::make('address')
-                //                     ->relationship('office', 'address')
-                //                     ->label('Address'),
-                //                 Select::make('room')
-                //                     ->label('Room #')
-                //                     ->relationship('office', 'room'),
-                //             ]),
-                //         Grid::make()
-                //             ->columns(2)
-                //             ->schema([
-                //                 Select::make('cat')
-                //                     ->relationship('category', 'name')
-                //                     ->label('Category'),
-                //                 Select::make('sub-cat')
-                //                     ->relationship('subcategory', 'name')
-                //                     ->label('SubCategory'),
-                //             ]),
-                //         Grid::make()
-                //             ->schema([
-                //                 TextInput::make('remarks')
-                //                     ->label('Remarks'),
-                //             ]),
-                //         Grid::make()
-                //             ->columns(2)
-                //             ->schema([
-                //                 TextInput::make('priority')
-                //                     ->placeholder('N/A'),
-                //                 TextInput::make('difficulty')
-                //                     ->placeholder('N/A'),
-                //             ]),
+                            ])->columnSpan(3),
 
-                //         Grid::make()
-                //             ->columns(2)
-                //             ->schema([
-                //                 TextInput::make('target_date')
-                //                     ->placeholder('N/A'),
-                //                 TextInput::make('target_time')
-                //                     ->placeholder('N/A'),
+                            Group::make([
 
-                //             ]),
+                                Section::make('Attachments')
+                                    ->columns(2)->columnSpan(4)
+                                    ->schema([
+                                        TextEntry::make('attachment.name')
+                                            ->label(false)
+                                            ->inLinelabel(false),
+                                    ]),
+                            ])->columnSpan(8),
+                            Group::make([
 
-                //         Grid::make()
-                //             ->columns(2)
-                //             ->schema([
-                //                 TextInput::make('availability_from'),
-                //                 TextInput::make('availability_to'),
-                //             ]),
+                                Section::make('Assignees')
+                                    ->columnSpan(4)
+                                    ->schema([
+                                        TextEntry::make('')
+                                            ->label(false)
+                                            ->placeholder(fn ($record)=>  implode(', ' , $record->assignees->pluck('name')->toArray()))
+                                            ->inLinelabel(false),
+                                    ]),
+                            ])->columnSpan(4),
+                            Group::make([
+                                Actions::make([
+                                    AcceptAssignmentAction::make(),
+                                    RejectAssignmentAction::make(),
+                                ])
+                            ])
 
-                //         Grid::make()
-                //             ->columns(1)
-                //             ->schema([
-                //                 Actions::make([
-                //                     AcceptAssignmentAction::make(),
-                //                     RejectAssignmentAction::make(),
-                //                 ])
-                //                     ->alignCenter(),
-                //             ]),
-
-                //     ]),
+                        ])
+                        ]),
 
                 ActionGroup::make([
                     AmmendRecentActionAction::make(),

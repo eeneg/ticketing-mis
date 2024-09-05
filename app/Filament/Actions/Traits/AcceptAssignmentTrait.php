@@ -43,6 +43,13 @@ trait AcceptAssignmentTrait
                 'response' => UserAssignmentResponse::ACCEPTED,
                 'responded_at' => $record->currentUserAssignee->responded->at ?? now(),
             ]);
+
+            $record->action()->create([
+                'request_id' => $record->id,
+                'user_id' => Auth::id(),
+                'status' => RequestStatus::ACCEPTED,
+                'time' => now(),
+            ]);
             Notification::make()
                 ->title('Accepted Successfully!')
                 ->success()
