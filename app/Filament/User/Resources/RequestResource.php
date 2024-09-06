@@ -327,50 +327,56 @@ class RequestResource extends Resource
                                                 ->label('Availability to'),
 
                                         ]),
-                                    Section::make('Remarks')
+                                    Section::make('Assignees')
                                         ->columnSpan(4)
                                         ->schema([
-                                            TextEntry::make('remarks')
-                                                ->columnSpan(2)
-                                                ->formatStateUsing(fn ($record) => new HtmlString($record->remarks))
-                                                ->label(false),
+                                            TextEntry::make('')
+                                                ->label(false)
+                                                ->placeholder(fn ($record) => implode(', ', $record->assignees->pluck('name')->toArray()))
+                                                ->inLinelabel(false),
                                         ]),
 
                                 ])->columnSpan(4),
                                 Section::make('Request Details')
-                                    ->columnSpan(8)
                                     ->columns(2)
                                     ->schema([
                                         TextEntry::make('category.name')
                                             ->label('Category'),
                                         TextEntry::make('subcategory.name')
                                             ->label('Subcategory'),
-                                    ])->columnSpan(function ($record) {
-                                        $resolved = in_array(RequestStatus::RESOLVED, $record->actions->pluck('status')->toArray());
-                                        if ($resolved == true) {
-                                            return 4;
+                                    ])->columnSpan(4),
 
-                                        } else {
-                                            return 8;
-
-                                        }
-
-                                    }),
                                 Group::make([
 
-                                        Section::make('Assignees')
-                                            ->columnSpan(4)
-                                            ->schema([
-                                                TextEntry::make('')
+                                    Section::make('Attachments')
+                                        ->columns(2)
+                                        ->schema(function ($record) {
+                                            return [
+                                                TextEntry::make('attachment.attachable_id')
+                                                    ->formatStateUsing(function ($record) {
+                                                        $attachments = json_decode($record->attachment->paths, true);
+
+                                                        $html = collect($attachments)->map(function ($filename, $path) {
+                                                            $fileName = basename($path);
+                                                            $fileUrl = Storage::url($path);
+
+                                                            return "<a href='{$fileUrl}' download='{$fileName}'>{$filename}</a>";
+                                                        })->implode('<br>');
+
+                                                        return $html;
+                                                    })
+                                                    ->openUrlInNewTab()
                                                     ->label(false)
-                                                    ->placeholder(fn ($record) => implode(', ', $record->assignees->pluck('name')->toArray()))
-                                                    ->inLinelabel(false),
-                                            ]),
-                                    ])->columnSpan(4),
-                                Section::make('Request Rating')
-                                    ->columnSpan(4)
-                                    ->visible(fn ($record) => in_array(RequestStatus::RESOLVED, $record->actions->pluck('status')->toArray()))
-                                    ->schema([
+                                                    ->inLineLabel(false)
+                                                    ->html(),
+                                            ];
+                                        }),
+                                ])->columnSpan(4),
+                                Group::make([
+                                    Section::make('Request Rating')
+                                        ->columnSpan(4)
+                                        ->visible(fn ($record) => in_array(RequestStatus::RESOLVED, $record->actions->pluck('status')->toArray()))
+                                        ->schema([
                                             TextEntry::make('remarks')
                                                 ->formatStateUsing(function ($record) {
                                                     $resolvedActions = $record->action()
@@ -384,8 +390,17 @@ class RequestResource extends Resource
 
                                                 ->label(false),
                                         ]),
-                            ]),
 
+                                ])->columnSpan(4),
+                                Section::make('Remarks')
+                                    ->columnSpan(12)
+                                    ->schema([
+                                        TextEntry::make('remarks')
+                                            ->columnSpan(2)
+                                            ->formatStateUsing(fn ($record) => new HtmlString($record->remarks))
+                                            ->label(false),
+                                    ]),
+                            ]),
                     ]),
                 ActionGroup::make([
                     DenyCompletedAction::make(),
