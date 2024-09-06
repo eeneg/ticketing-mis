@@ -7,6 +7,7 @@ use App\Enums\UserRole;
 use App\Filament\Admin\Resources\UserResource\Pages;
 use App\Models\User;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -115,7 +116,20 @@ class UserResource extends Resource
                     ->icon(RequestStatus::APPROVED->getIcon())
                     ->color(RequestStatus::APPROVED->getColor())
                     ->visible(fn ($record) => $record->email_verified_at === null)
-                    ->action(function ($record) {
+                    ->form([
+                        Select::make('office_id')
+                            ->relationship('office', 'name')
+                            ->default(fn ($record) => $record->office?->name)
+                            ->native(false)
+                            ->markAsRequired()
+                            ->rule('required')
+                            ->searchable()
+                            ->preload(),
+                        Select::make('role')
+                            ->options(UserRole::class)
+                            ->default(fn ($record) => $record->role),
+                    ])
+                    ->action(function ($data, $record) {
                         $record->update([
                             'id' => $record->id,
                             'name' => $record->name,
@@ -123,6 +137,8 @@ class UserResource extends Resource
                             'password' => $record->password,
                             'is_active' => 'TRUE',
                             'email_verified_at' => now(),
+                            'role' => $data['role'],
+                            'office_id' => $data['office_id'],
                         ]);
                     }),
                 Tables\Actions\EditAction::make(),

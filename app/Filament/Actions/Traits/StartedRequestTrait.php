@@ -20,9 +20,15 @@ trait StartedRequestTrait
 
         $this->icon(RequestStatus::STARTED->getIcon());
 
-        $this->visible(fn ($record) => $record->assignees()->wherePivot('response', 'accepted')->count() === $record->assignees->count() || $record->action->status === RequestStatus::COMPLIED);
+        $this->visible(fn ($record) => $record->assignees()->wherePivot('response', 'accepted')->count() === $record->assignees->count() && $record->action?->status === RequestStatus::VERIFIED || $record->action?->status === RequestStatus::DENIED);
 
-        $this->hidden(fn ($record) => $record->action?->status === RequestStatus::COMPLETED);
+        $this->hidden(fn ($record) => in_array($record->action?->status, [
+            RequestStatus::STARTED,
+            RequestStatus::COMPLIED,
+            RequestStatus::SUSPENDED,
+            RequestStatus::RESOLVED,
+            RequestStatus::RESOLVED,
+        ]));
 
         $this->requiresConfirmation();
 

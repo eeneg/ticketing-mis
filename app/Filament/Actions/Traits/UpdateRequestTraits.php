@@ -25,7 +25,7 @@ trait UpdateRequestTraits
 
         $this->color('info');
 
-        $this->visible(fn ($record) => $record->action->status === RequestStatus::STARTED);
+        $this->visible(fn ($record) => $record->action?->status === RequestStatus::STARTED);
 
         $this->button();
 
@@ -88,14 +88,13 @@ trait UpdateRequestTraits
                 ),
         ]);
 
-        $this->action(function (array $data, $record) {
+        $this->action(function ($data, $record) {
             $update = $record->action()->create([
                 'user_id' => Auth::id(),
                 'actions.request_id' => $record->id,
                 'status' => $data['status'],
-                'time' => now(),
                 'remarks' => $data['remarks'],
-
+                'time' => now(),
             ]);
             if (($attachments = collect(current($data['attachments'])))->isNotEmpty()) {
                 $files = $attachments

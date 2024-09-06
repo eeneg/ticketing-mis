@@ -18,6 +18,8 @@ class Action extends Model
         'request_id',
         'user_id',
         'status',
+        'response',
+        'responded_at',
         'remarks',
         'time',
     ];

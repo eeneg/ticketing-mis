@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\RequestStatus;
+use App\Enums\UserAssignmentResponse;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
@@ -71,24 +72,21 @@ class Request extends Model
     {
         return $this->hasOne(Action::class)
             ->ofMany(['id' => 'max'], function ($query) {
-                $query->whereIn('status', [
+                $query->whereIn('status' , [
                     RequestStatus::APPROVED,
                     RequestStatus::DECLINED,
                     RequestStatus::PUBLISHED,
-                    RequestStatus::COMPLETED,
                     RequestStatus::CANCELLED,
                     RequestStatus::STARTED,
                     RequestStatus::SUSPENDED,
-                    RequestStatus::ASSIGNED,
                     RequestStatus::RETRACTED,
                     RequestStatus::COMPLIED,
+                    RequestStatus::COMPLETED,
                     RequestStatus::RESOLVED,
                     RequestStatus::VERIFIED,
                     RequestStatus::DENIED,
-                    RequestStatus::REJECTED,
-                    RequestStatus::EXTENDED,
-                    RequestStatus::ACCEPTED,
                 ]);
+
             });
     }
 

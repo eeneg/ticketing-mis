@@ -7,6 +7,7 @@ use App\Filament\Actions\AcceptAssignmentAction;
 use App\Filament\Actions\RejectAssignmentAction;
 use App\Filament\Actions\Tables\AdjustRequestAction;
 use App\Filament\Actions\Tables\AmmendRecentActionAction;
+use App\Filament\Actions\Tables\DenyCompletedAction;
 use App\Filament\Actions\Tables\ScheduleRequestAction;
 use App\Filament\Actions\Tables\StartedRequestAction;
 use App\Filament\Actions\Tables\UpdateRequestAction;
@@ -19,11 +20,14 @@ use Filament\Infolists\Components\Grid as ComponentsGrid;
 use Filament\Infolists\Components\Group;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 
@@ -174,13 +178,13 @@ class RequestResource extends Resource
                                             return [
                                                 TextEntry::make('attachment.attachable_id')
                                                     ->formatStateUsing(function ($record) {
-                                                        $attachments = json_decode($record->attachment->paths, true);
+                                                        $attachments = json_decode($record->attachment->files, true);
 
-                                                        $html = collect($attachments)->map(function ($filename, $path) {
+                                                            $html = collect($attachments)->map(function ($path) {
                                                             $fileName = basename($path);
                                                             $fileUrl = Storage::url($path);
 
-                                                            return "<a href='{$fileUrl}' download='{$fileName}'>{$filename}</a>";
+                                                            return "<a href='{$fileUrl}' download='{$fileName}'>{$fileName}</a>";
                                                         })->implode('<br>');
 
                                                         return $html;
@@ -208,8 +212,8 @@ class RequestResource extends Resource
                                         ->columnSpan(4)
                                         ->schema([
                                             TextEntry::make('remarks')
+                                                ->markdown()
                                                 ->columnSpan(2)
-                                                ->formatStateUsing(fn ($record) => new HtmlString($record->remarks))
                                                 ->label(false)
                                                 ->inLinelabel(false),
                                         ]),
@@ -247,13 +251,56 @@ class RequestResource extends Resource
                                     Actions::make([
                                         AcceptAssignmentAction::make(),
                                         RejectAssignmentAction::make(),
-                                    ]),
+                                    ])->hidden(fn ($record) => in_array(RequestStatus::STARTED, $record->actions->pluck('status')->toArray())),
                                 ]),
 
                             ]),
                     ]),
 
                 ActionGroup::make([
+                    Action::make('accept')
+                        ->visible(fn ($record) => $record->action?->status === RequestStatus::COMPLIED)
+                        ->color(RequestStatus::ACCEPTED->getColor())
+                        ->icon(RequestStatus::ACCEPTED->getIcon())
+                        ->action( function($record){
+                            $record->action()->create([
+                                'request_id' => $record->id,
+                                'user_id' => Auth::id(),
+                                'status' => RequestStatus::VERIFIED,
+                                'time' => now(),
+                            ]);
+
+                            Notification::make()
+                                ->title('Accepted Successfully!')
+                                ->success()
+                                ->send();
+
+                            Notification::make()
+                                ->title('Request Accepted')
+                                ->body(str("Complied documents have been <b>ACCEPTED</b> by ".auth()->user()->name.'.')->toHtmlString())
+                                ->icon(RequestStatus::ACCEPTED->getIcon())
+                                ->iconColor(RequestStatus::ACCEPTED->getColor())
+                                ->sendToDatabase($record->requestor);
+                        }),
+                    Action::make('denied')
+                        ->visible(fn ($record) => $record->action?->status === RequestStatus::COMPLIED)
+                        ->color(RequestStatus::REJECTED->getColor())
+                        ->icon(RequestStatus::REJECTED->getIcon())
+                        ->action( function($record){
+                            $record->action()->create([
+                                'request_id' => $record->id,
+                                'user_id' => Auth::id(),
+                                'status' => RequestStatus::DENIED,
+                                'time' => now(),
+                            ]);
+                            Notification::make()
+                                ->title('Completion denied')
+                                ->icon(RequestStatus::DENIED->getIcon())
+                                ->iconColor(RequestStatus::DENIED->getColor())
+                                ->body($record->category->name.' ( '.$record->subcategory->name.' ) '.'</br>'.auth()->user()->name.' has denied the completion of this request')
+                                ->sendToDatabase($record->assignees);
+                        }),
+
                     AmmendRecentActionAction::make(),
                     StartedRequestAction::make(),
                     ViewRequestHistoryAction::make(),

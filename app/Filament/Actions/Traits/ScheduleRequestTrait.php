@@ -24,7 +24,7 @@ trait ScheduleRequestTrait
 
         $this->modalWidth(MaxWidth::Large);
 
-        $this->hidden(fn ($record) => in_array($record->action->status, [
+        $this->hidden(fn ($record) => in_array($record->action?->status, [
             RequestStatus::RESOLVED,
             UserAssignmentResponse::REJECTED,
             RequestStatus::COMPLETED,
@@ -32,7 +32,7 @@ trait ScheduleRequestTrait
         ]) || in_array($record->currentUserAssignee->response, [
             UserAssignmentResponse::REJECTED,
             UserAssignmentResponse::COMPLETED,
-        ]));
+        ]) || in_array(RequestStatus::STARTED, $record->actions->pluck('status')->toArray()));
 
         $this->form([
             DatePicker::make('target_date')

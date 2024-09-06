@@ -29,10 +29,10 @@ class Notifications extends Command
      */
     public function handle()
     {
-        $time = now()->addHour();
+        $time = now('H:i:00')->addHour();
 
         \App\Models\Request::query()
-            ->whereDate('target_date', $time)
+            ->whereDate('target_date', now())
             ->whereTime('target_time', $time)
             ->whereHas('assignees', function ($querry) {
                 $querry->where('response', UserAssignmentResponse::ACCEPTED);

@@ -72,7 +72,7 @@ trait AssignRequestTrait
             ]);
 
             Notification::make()
-                ->title(str("Your request <b>{$record->subject}</b> has been ".($record['assignees'] ? 'reassigned' : 'assigned'))->toHtmlString())
+                ->title(str("Your request <b>{$record->subject}</b> has been assigned")->toHtmlString())
                 ->icon(RequestStatus::ASSIGNED->getIcon())
                 ->iconColor(RequestStatus::ASSIGNED->getColor())
                 ->body('Assigned '.($from ? ' from '.$from : '').' to '.implode(' and ', User::whereIn('id', $data['assignees'])->pluck('name')->toArray()))

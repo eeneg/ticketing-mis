@@ -24,11 +24,8 @@ enum RequestStatus: string implements HasColor, HasDescription, HasIcon, HasLabe
     case ADJUSTED = 'adjusted';
     case SCHEDULED = 'scheduled';
     case COMPLIED = 'complied';
-    case EXTENDED = 'extended';
     case VERIFIED = 'verified';
     case DENIED = 'denied';
-    case AMMENDED = 'ammended';
-    case SURVEYED = 'surveyed';
 
     public function getColor(): ?string
     {
@@ -43,16 +40,12 @@ enum RequestStatus: string implements HasColor, HasDescription, HasIcon, HasLabe
             self::RETRACTED => 'warning',
             self::ACCEPTED => 'success',
             self::REJECTED => 'danger',
-            self::ASSIGNED,
-            self::ADJUSTED,
+            self::ASSIGNED  ,
+            self::ADJUSTED ,
             self::RESOLVED => 'info',
             self::SCHEDULED => 'info',
             self::COMPLIED => 'warning',
-            self::EXTENDED => 'success',
-            self::VERIFIED => 'success',
             self::DENIED => 'danger',
-            self::AMMENDED => 'info',
-            self::SURVEYED => 'success',
             default => 'gray'
         };
     }
@@ -70,12 +63,8 @@ enum RequestStatus: string implements HasColor, HasDescription, HasIcon, HasLabe
             self::RETRACTED => 'The request has been retracted by the requestor and is waiting to be republished.',
             self::RESOLVED => 'The request has been completed fully and will no longer receive updates',
             self::COMPLIED => 'The user submitted the lacking documents',
-            self::EXTENDED => 'The user requires the request to be extended due to further issues',
-            self::VERIFIED => 'The user has accepted the completion of the request',
             self::DENIED => 'The user has rejected the completion of the request',
             self::APPROVED => 'The request has been accepted and is being processed',
-            self::AMMENDED => 'The request remarks have been updated by the user',
-            self::SURVEYED => 'The use has submitted a survey and is completed through',
             default => null
         };
     }
@@ -98,11 +87,7 @@ enum RequestStatus: string implements HasColor, HasDescription, HasIcon, HasLabe
             self::ADJUSTED => 'gmdi-scale-o',
             self::SCHEDULED => 'gmdi-event-o',
             self::COMPLIED => 'gmdi-task-r',
-            self::EXTENDED => 'gmdi-cable-tt',
-            self::VERIFIED => 'gmdi-verified-user-o',
             self::DENIED => 'gmdi-do-not-disturb-on-total-silence',
-            self::AMMENDED => 'gmdi-filter-tilt-shift-o',
-            self::SURVEYED => 'gmdi-book-r',
             default => 'gmdi-circle-o',
         };
     }
@@ -156,10 +141,7 @@ enum RequestStatus: string implements HasColor, HasDescription, HasIcon, HasLabe
             self::PUBLISHED,
             self::RETRACTED,
             self::RESOLVED,
-            self::EXTENDED,
-            self::VERIFIED,
             self::DENIED,
-            self::SURVEYED,
         ]);
     }
 
