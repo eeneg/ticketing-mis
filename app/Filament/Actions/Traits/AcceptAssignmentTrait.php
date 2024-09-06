@@ -47,9 +47,11 @@ trait AcceptAssignmentTrait
             $record->action()->create([
                 'request_id' => $record->id,
                 'user_id' => Auth::id(),
+                'response' => RequestStatus::ACCEPTED,
                 'status' => RequestStatus::ACCEPTED,
                 'time' => now(),
             ]);
+
             Notification::make()
                 ->title('Accepted Successfully!')
                 ->success()

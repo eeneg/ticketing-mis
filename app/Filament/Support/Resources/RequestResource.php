@@ -2,7 +2,7 @@
 
 namespace App\Filament\Support\Resources;
 
-use App\Enums\RequestDifficulty;
+use App\Enums\RequestStatus;
 use App\Filament\Actions\AcceptAssignmentAction;
 use App\Filament\Actions\RejectAssignmentAction;
 use App\Filament\Actions\Tables\AdjustRequestAction;
@@ -13,16 +13,12 @@ use App\Filament\Actions\Tables\UpdateRequestAction;
 use App\Filament\Actions\Tables\ViewRequestHistoryAction;
 use App\Filament\Support\Resources\RequestResource\Pages;
 use App\Models\Request;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Infolists\Components\Actions;
-use Filament\Infolists\Components\Actions\Action;
 use Filament\Infolists\Components\Grid as ComponentsGrid;
 use Filament\Infolists\Components\Group;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
-use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\ActionGroup;
@@ -72,131 +68,163 @@ class RequestResource extends Resource
                 UpdateRequestAction::make(),
                 Tables\Actions\ViewAction::make()
                     ->modalCancelAction(false)
+                    ->modalWidth('7xl')
                     ->infolist([
                         ComponentsGrid::make(12)
-                        ->schema([
-                            Group::make([
-                                Section::make('Personal Details')
-                                    ->columnSpan(8)
-                                    ->columns(3)
-                                    ->schema([
-                                        TextEntry::make('requestor.name')
-                                            ->label('Name'),
-                                        TextEntry::make('requestor.number')
-                                            ->prefix('+63 0')
-                                            ->label('Phone Number'),
-                                        TextEntry::make('requestor.email')
-                                            ->label('Email'),
-                                    ]),
-                                Section::make('Office Details')
-                                    ->columnSpan(8)
-                                    ->columns(3)
-                                    ->schema([
-                                        TextEntry::make('office.acronym')
-                                            ->label('Office'),
-                                        TextEntry::make('office.room')
-                                            ->label('Room Number'),
-                                        TextEntry::make('office.address')
-                                            ->label('Office address :'),
+                            ->schema([
+                                Group::make([
+                                    Section::make('Personal Details')
+                                        ->columnSpan(8)
+                                        ->columns(3)
+                                        ->schema([
+                                            TextEntry::make('requestor.name')
+                                                ->label('Name'),
+                                            TextEntry::make('requestor.number')
+                                                ->prefix('+63 0')
+                                                ->label('Phone Number'),
+                                            TextEntry::make('requestor.email')
+                                                ->label('Email'),
+                                        ]),
+                                    Section::make('Office Details')
+                                        ->columnSpan(8)
+                                        ->columns(3)
+                                        ->schema([
+                                            TextEntry::make('office.acronym')
+                                                ->label('Office'),
+                                            TextEntry::make('office.room')
+                                                ->label('Room Number'),
+                                            TextEntry::make('office.address')
+                                                ->label('Office address :'),
 
-                                    ]),
+                                        ]),
 
-                            ])->columnSpan(8),
+                                ])->columnSpan(8),
 
-                            Group::make([
-                                Section::make('Availability')
+                                Group::make([
+                                    Section::make('Availability')
+                                        ->columnSpan(4)
+                                        ->columns(2)
+                                        ->schema([
+                                            TextEntry::make('availability_from')
+                                                ->columnSpan(1)
+                                                ->date()
+                                                ->label('Availability from'),
+                                            TextEntry::make('availability_to')
+                                                ->columnSpan(1)
+                                                ->date()
+                                                ->label('Availability to'),
+                                        ]),
+                                    Section::make('Remarks')
+                                        ->columnSpan(4)
+                                        ->schema([
+                                            TextEntry::make('remarks')
+                                                ->columnSpan(2)
+                                                ->formatStateUsing(fn ($record) => new HtmlString($record->remarks))
+                                                ->label(false)
+                                                ->inLinelabel(false),
+                                        ]),
+
+                                ])->columnSpan(4),
+                                Group::make([
+
+                                    Section::make('Request Details')
+                                        ->columnSpan(5)
+                                        ->columns(2)
+                                        ->schema([
+                                            TextEntry::make('category.name')
+                                                ->label('Category'),
+                                            TextEntry::make('subcategory.name')
+                                                ->label('Subcategory'),
+                                        ]),
+                                ])->columnSpan(5),
+                                Group::make([
+
+                                    Section::make('Schedule')
+                                        ->columns(2)->columnSpan(4)
+                                        ->schema([
+                                            TextEntry::make('target_date')
+                                                ->placeholder('N/A')
+                                                ->label('Target date'),
+                                            TextEntry::make('target_time')
+                                                ->placeholder('N/A')
+                                                ->label('Target time'),
+                                        ]),
+                                ])->columnSpan(4),
+
+                                Group::make([
+                                    Section::make('Priority')
+                                        ->columns(2)
+                                        ->columnSpan(6)
+                                        ->schema([
+                                            TextEntry::make('priority')
+                                                ->placeholder('N/A')
+                                                ->label('Priority'),
+                                            TextEntry::make('difficulty')
+                                                ->placeholder('N/A')
+                                                ->label('Difficulty'),
+                                        ]),
+
+                                ])->columnSpan(3),
+
+                                Group::make([
+
+                                    Section::make('Attachments')
+                                        ->columns(2)->columnSpan(4)
+                                        ->schema([
+                                            TextEntry::make('attachment.name')
+                                                ->label(false)
+                                                ->inLinelabel(false),
+                                        ]),
+                                ])->columnSpan(function ($record) {
+                                    $resolved = in_array(RequestStatus::RESOLVED, $record->actions->pluck('status')->toArray());
+                                    if ($resolved == true) {
+                                        return 4;
+
+                                    } else {
+                                        return 8;
+
+                                    }
+
+                                }),
+                                Group::make([
+
+                                    Section::make('Assignees')
+                                        ->columnSpan(4)
+                                        ->schema([
+                                            TextEntry::make('')
+                                                ->label(false)
+                                                ->placeholder(fn ($record) => implode(', ', $record->assignees->pluck('name')->toArray()))
+                                                ->inLinelabel(false),
+                                        ]),
+                                ])->columnSpan(4),
+
+                                Section::make('Request Rating')
                                     ->columnSpan(4)
-                                    ->columns(2)
+                                    ->visible(fn ($record) => in_array(RequestStatus::RESOLVED, $record->actions->pluck('status')->toArray()))
                                     ->schema([
-                                        TextEntry::make('availability_from')
-                                            ->columnSpan(1)
-                                            ->date()
-                                            ->label('Availability from'),
-                                        TextEntry::make('availability_to')
-                                            ->columnSpan(1)
-                                            ->date()
-                                            ->label('Availability to'),
-                                    ]),
-                                Section::make('Assignee Details')
-                                    ->columns(2)->columnSpan(4)
-                                    ->schema([
-                                        TextEntry::make('target_date')
-                                            ->placeholder('N/A')
-                                            ->label('Target date'),
-                                        TextEntry::make('target_time')
-                                            ->placeholder('N/A')
-                                            ->label('Target time'),
+                                        TextEntry::make('remarks')
+                                            ->formatStateUsing(function ($record) {
+                                                $resolvedActions = $record->action()
+                                                    ->where('status', RequestStatus::RESOLVED)
+                                                    ->pluck('remarks');
+
+                                                $remarks = $resolvedActions->implode('</br>');
+
+                                                return new HtmlString($remarks ?: 'No survey found   .');
+                                            })
+
+                                            ->label(false),
                                     ]),
 
-                            ])->columnSpan(4),
-                            Group::make([Section::make('Request Remarks')
-                                ->columnSpan(4)
-                                ->schema([
-                                    TextEntry::make('remarks')
-                                        ->columnSpan(2)
-                                        ->formatStateUsing(fn ($record) => new HtmlString($record->remarks))
-                                        ->label(false)
-                                        ->inLinelabel(false),
+                                Group::make([
+                                    Actions::make([
+                                        AcceptAssignmentAction::make(),
+                                        RejectAssignmentAction::make(),
+                                    ]),
                                 ]),
 
-                            ])->columnSpan(4),
-                            Group::make([
-
-                                Section::make('Request Details')
-                                    ->columnSpan(5)
-                                    ->columns(2)
-                                    ->schema([
-                                        TextEntry::make('category.name')
-                                            ->label('Category'),
-                                        TextEntry::make('subcategory.name')
-                                            ->label('Subcategory'),
-                                    ]),
-                            ])->columnSpan(5),
-                            Group::make([
-                                Section::make('Assignee Details')
-                                    ->columns(2)
-                                    ->columnSpan(6)
-                                    ->schema([
-                                        TextEntry::make('priority')
-                                            ->placeholder('N/A')
-                                            ->label('Priority'),
-                                        TextEntry::make('difficulty')
-                                            ->placeholder('N/A')
-                                            ->label('Difficulty'),
-                                    ]),
-
-                            ])->columnSpan(3),
-
-                            Group::make([
-
-                                Section::make('Attachments')
-                                    ->columns(2)->columnSpan(4)
-                                    ->schema([
-                                        TextEntry::make('attachment.name')
-                                            ->label(false)
-                                            ->inLinelabel(false),
-                                    ]),
-                            ])->columnSpan(8),
-                            Group::make([
-
-                                Section::make('Assignees')
-                                    ->columnSpan(4)
-                                    ->schema([
-                                        TextEntry::make('')
-                                            ->label(false)
-                                            ->placeholder(fn ($record)=>  implode(', ' , $record->assignees->pluck('name')->toArray()))
-                                            ->inLinelabel(false),
-                                    ]),
-                            ])->columnSpan(4),
-                            Group::make([
-                                Actions::make([
-                                    AcceptAssignmentAction::make(),
-                                    RejectAssignmentAction::make(),
-                                ])
-                            ])
-
-                        ])
-                        ]),
+                            ]),
+                    ]),
 
                 ActionGroup::make([
                     AmmendRecentActionAction::make(),

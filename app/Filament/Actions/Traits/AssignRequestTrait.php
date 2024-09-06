@@ -46,7 +46,6 @@ trait AssignRequestTrait
         $this->action(function ($data, $record, self $action) {
             $from = implode(' and ', $record?->assignees()->pluck('name')->toArray());
             $record->assignees()->detach();
-
             $record->assignees()->attach(
                 collect($data['assignees'])->mapWithKeys(function ($id) use ($record, $data) {
                     Notification::make()
@@ -64,12 +63,11 @@ trait AssignRequestTrait
                     ];
                 })->toArray()
             );
-
             $record->action()->create([
                 'request_id' => $record->id,
                 'user_id' => Auth::id(),
                 'status' => RequestStatus::ASSIGNED,
-                'remarks' => 'Assign '.($from ? ' from '.$from : '').' to '.implode(' and ', User::whereIn('id', $data['assignees'])->pluck('name')->toArray()),
+                'remarks' => 'Assigned '.($from ? ' from '.$from : '').' to '.implode(' and ', User::whereIn('id', $data['assignees'])->pluck('name')->toArray()),
                 'time' => now(),
             ]);
 

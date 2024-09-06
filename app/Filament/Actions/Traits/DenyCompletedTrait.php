@@ -35,7 +35,7 @@ trait DenyCompletedTrait
                 ->title('Completion denied')
                 ->icon(RequestStatus::DENIED->getIcon())
                 ->iconColor(RequestStatus::DENIED->getColor())
-                ->body($record->category->name.' ( '.$record->subcategory->name.' ) '.'</br>'.auth()->user()->name.' has denied the completed of this request')
+                ->body($record->category->name.' ( '.$record->subcategory->name.' ) '.'</br>'.auth()->user()->name.' has denied the completion of this request')
                 ->sendToDatabase($record->assignees);
             $this->successNotificationTitle('Denied request completion');
         });

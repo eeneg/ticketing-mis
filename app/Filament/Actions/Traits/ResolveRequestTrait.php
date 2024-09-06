@@ -7,7 +7,7 @@ use App\Enums\RequestStatus;
 use App\Enums\RequestTimeliness;
 use App\Models\Request;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 
@@ -29,13 +29,13 @@ trait ResolveRequestTrait
 
         $this->requiresConfirmation();
         $this->form([
-            Select::make('Quality')
+            Select::make('quality')
                 ->required()
                 ->options(RequestQuality::options()),
-            Select::make('Timeliness')
+            Select::make('timeliness')
                 ->required()
                 ->options(RequestTimeliness::options()),
-            TextInput::make('Remarks')
+            Textarea::make('remarks')
                 ->placeholder('Provide further description of your experience regarding this request transaction'),
         ]);
         $this->modalDescription('This survey reflects how well the request has been managed by the support and how smooth the process was');
@@ -43,6 +43,7 @@ trait ResolveRequestTrait
             $record->action()->create([
                 'request_id' => $record->id,
                 'user_id' => Auth::id(),
+                'remarks' => str('<i>Quality: </i>'.'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.$data['quality'].' - '.RequestQuality::from($data['quality'])->getDescription().' ( '.'<b>'.RequestQuality::from($data['quality'])->getRating().'</b>'.' )'.'</br>'.'<i>Timeliness: </i>'.'&nbsp;&nbsp;'.$data['timeliness'].' - '.RequestTimeliness::from($data['timeliness'])->getDescription().'</br>'.'<i>Comments:</i> '.'&nbsp;&nbsp;'.$data['remarks'])->toHtmlString(),
                 'status' => RequestStatus::RESOLVED,
                 'time' => now(),
             ]);

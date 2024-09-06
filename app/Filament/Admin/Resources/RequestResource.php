@@ -2,6 +2,7 @@
 
 namespace App\Filament\Admin\Resources;
 
+use App\Enums\RequestStatus;
 use App\Filament\Actions\Tables\ViewRequestHistoryAction;
 use App\Filament\Admin\Resources\RequestResource\Pages;
 use App\Models\Request;
@@ -54,7 +55,7 @@ class RequestResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()
-                    ->modalWidth('5xl')
+                    ->modalWidth('7xl')
                     ->infolist([
                         ComponentsGrid::make(12)
                             ->schema([
@@ -83,15 +84,6 @@ class RequestResource extends Resource
                                                 ->label('Office address :'),
 
                                         ]),
-                                    Section::make('Request Details')
-                                        ->columnSpan(8)
-                                        ->columns(2)
-                                        ->schema([
-                                            TextEntry::make('category.name')
-                                                ->label('Category'),
-                                            TextEntry::make('subcategory.name')
-                                                ->label('Subcategory'),
-                                        ]),
 
                                 ])->columnSpan(8),
 
@@ -110,16 +102,63 @@ class RequestResource extends Resource
                                                 ->label('Availability to'),
 
                                         ]),
-                                    Section::make('Remarks & Attachments')
+                                    Section::make('Remarks')
                                         ->columnSpan(4)
                                         ->schema([
                                             TextEntry::make('remarks')
                                                 ->columnSpan(2)
                                                 ->formatStateUsing(fn ($record) => new HtmlString($record->remarks))
-                                                ->label('Remarks'),
+                                                ->label(false),
+                                        ]),
+                                ])->columnSpan(4),
+                                Section::make('Request Details')
+                                    ->columnSpan(function ($record) {
+                                        $resolved = in_array(RequestStatus::RESOLVED, $record->actions->pluck('status')->toArray());
+                                        if ($resolved == true) {
+                                            return 4;
+
+                                        } else {
+                                            return 8;
+
+                                        }
+
+                                    })
+                                    ->columns(2)
+                                    ->schema([
+                                        TextEntry::make('category.name')
+                                            ->label('Category'),
+                                        TextEntry::make('subcategory.name')
+                                            ->label('Subcategory'),
+                                    ]),
+                                Group::make([
+
+                                    Section::make('Assignees')
+                                        ->columnSpan(4)
+                                        ->schema([
+                                            TextEntry::make('')
+                                                ->label(false)
+                                                ->placeholder(fn ($record) => implode(', ', $record->assignees->pluck('name')->toArray()))
+                                                ->inLinelabel(false),
                                         ]),
                                 ])->columnSpan(4),
 
+                                Section::make('Request Rating')
+                                    ->columnSpan(4)
+                                    ->visible(fn ($record) => in_array(RequestStatus::RESOLVED, $record->actions->pluck('status')->toArray()))
+                                    ->schema([
+                                        TextEntry::make('remarks')
+                                            ->formatStateUsing(function ($record) {
+                                                $resolvedActions = $record->action()
+                                                    ->where('status', RequestStatus::RESOLVED)
+                                                    ->pluck('remarks');
+
+                                                $remarks = $resolvedActions->implode('</br>');
+
+                                                return new HtmlString($remarks ?: 'No survey found   .');
+                                            })
+
+                                            ->label(false),
+                                    ]),
                             ]),
 
                     ]),
