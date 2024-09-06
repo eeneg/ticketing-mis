@@ -21,7 +21,7 @@ trait AdjustRequestTrait
 
         $this->icon('heroicon-s-adjustments-vertical');
 
-        $this->hidden(fn ($record) => in_array($record->action->status, [
+        $this->hidden(fn ($record) => in_array($record->action?->status, [
             RequestStatus::RESOLVED,
             RequestStatus::REJECTED,
             RequestStatus::COMPLETED,

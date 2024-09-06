@@ -354,13 +354,13 @@ class RequestResource extends Resource
                                             return [
                                                 TextEntry::make('attachment.attachable_id')
                                                     ->formatStateUsing(function ($record) {
-                                                        $attachments = json_decode($record->attachment->paths, true);
+                                                         $attachments = json_decode($record->attachment->files, true);
 
-                                                        $html = collect($attachments)->map(function ($filename, $path) {
+                                                            $html = collect($attachments)->map(function ($path) {
                                                             $fileName = basename($path);
                                                             $fileUrl = Storage::url($path);
 
-                                                            return "<a href='{$fileUrl}' download='{$fileName}'>{$filename}</a>";
+                                                            return "<a href='{$fileUrl}' download='{$fileName}'>{$fileName}</a>";
                                                         })->implode('<br>');
 
                                                         return $html;
@@ -378,16 +378,7 @@ class RequestResource extends Resource
                                         ->visible(fn ($record) => in_array(RequestStatus::RESOLVED, $record->actions->pluck('status')->toArray()))
                                         ->schema([
                                             TextEntry::make('remarks')
-                                                ->formatStateUsing(function ($record) {
-                                                    $resolvedActions = $record->action()
-                                                        ->where('status', RequestStatus::RESOLVED)
-                                                        ->pluck('remarks');
-
-                                                    $remarks = $resolvedActions->implode('</br>');
-
-                                                    return new HtmlString($remarks ?: 'No survey found   .');
-                                                })
-
+                                                ->markdown()
                                                 ->label(false),
                                         ]),
 
@@ -487,7 +478,6 @@ class RequestResource extends Resource
 
                                 Process::run(['rm', '-rf', Storage::path('public/attachments/tmp/'.$record->id)]);
                             }
-                            // $assigneeId = $record->assignees->pluck('user_id')->toArray();
                             $assigneeId = $data['user_ids'] ?? [];
                             foreach ($assigneeId as $Assignee) {
                                 Notification::make()

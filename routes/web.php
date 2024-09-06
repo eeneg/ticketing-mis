@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,8 +16,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/test', function () {
 
-    return \App\Models\User::query()
-        ->where('role', 'support')
-        ->with('office')
-        ->get();
+    // return response()->file();
+    return function (Request $record) {
+        dd($record->attachment);
+    };
 });

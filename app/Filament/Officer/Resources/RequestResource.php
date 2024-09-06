@@ -293,7 +293,7 @@ class RequestResource extends Resource
                                             return [
                                                 TextEntry::make('attachment.attachable_id')
                                                     ->formatStateUsing(function ($record) {
-                                                        $attachments = json_decode($record->attachment->paths, true);
+                                                        $attachments = json_decode($record->attachment->files, true);
 
                                                         $html = collect($attachments)->map(function ($filename, $path) {
                                                             $fileName = basename($path);
@@ -317,16 +317,7 @@ class RequestResource extends Resource
                                         ->visible(fn ($record) => in_array(RequestStatus::RESOLVED, $record->actions->pluck('status')->toArray()))
                                         ->schema([
                                             TextEntry::make('remarks')
-                                                ->formatStateUsing(function ($record) {
-                                                    $resolvedActions = $record->action()
-                                                        ->where('status', RequestStatus::RESOLVED)
-                                                        ->pluck('remarks');
-
-                                                    $remarks = $resolvedActions->implode('</br>');
-
-                                                    return new HtmlString($remarks ?: 'No survey found   .');
-                                                })
-
+                                                ->markdown()
                                                 ->label(false),
                                         ]),
 
