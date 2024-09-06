@@ -22,6 +22,8 @@ trait StartedRequestTrait
 
         $this->visible(fn ($record) => $record->assignees()->wherePivot('response', 'accepted')->count() === $record->assignees->count() || $record->action->status === RequestStatus::COMPLIED);
 
+        $this->hidden(fn ($record) => $record->action?->status === RequestStatus::COMPLETED);
+
         $this->requiresConfirmation();
 
         $this->action(function ($data, Request $record, self $action) {

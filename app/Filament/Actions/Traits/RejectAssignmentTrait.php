@@ -43,6 +43,7 @@ trait RejectAssignmentTrait
             $record->action()->create([
                 'request_id' => $record->id,
                 'user_id' => Auth::id(),
+                'response' => RequestStatus::REJECTED,
                 'status' => RequestStatus::REJECTED,
                 'time' => now(),
             ]);

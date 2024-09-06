@@ -65,4 +65,6 @@ class ListRequests extends ListRecords
                 })),
         ];
     }
+
+    public ?string $activeTab = '1';
 }

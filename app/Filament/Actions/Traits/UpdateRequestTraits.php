@@ -3,7 +3,6 @@
 namespace App\Filament\Actions\Traits;
 
 use App\Enums\RequestStatus;
-use App\Enums\UserAssignmentResponse;
 use App\Models\Request;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
@@ -97,10 +96,6 @@ trait UpdateRequestTraits
                 'time' => now(),
                 'remarks' => $data['remarks'],
 
-            ]);
-            $record->currentUserAssignee()->update([
-                'response' => UserAssignmentResponse::COMPLETED,
-                'responded_at' => now(),
             ]);
             if (($attachments = collect(current($data['attachments'])))->isNotEmpty()) {
                 $files = $attachments

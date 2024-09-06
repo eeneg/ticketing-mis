@@ -2,6 +2,7 @@
 
 namespace App\Filament\Support\Resources\RequestResource\Pages;
 
+use App\Enums\RequestStatus;
 use App\Enums\UserAssignmentResponse;
 use App\Filament\Support\Resources\RequestResource;
 use App\Filament\Widgets\SupportRequestOverview;
@@ -44,7 +45,9 @@ class ListRequests extends ListRecords
                 ->modifyQueryUsing(fn (Builder $query) => $query->whereHas('currentUserAssignee', fn (Builder $query) => $query->where('response', UserAssignmentResponse::REJECTED))),
             Tab::make('completed')
                 ->label('Completed')
-                ->modifyQueryUsing(fn (Builder $query) => $query->whereHas('currentUserAssignee', fn (Builder $query) => $query->where('response', UserAssignmentResponse::COMPLETED))),
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereHas('action', function (Builder $query) {
+                    $query->where('status', RequestStatus::RESOLVED);
+                })),
         ];
     }
 

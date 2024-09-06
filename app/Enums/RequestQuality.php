@@ -13,6 +13,17 @@ enum RequestQuality: string
     public function getDescription(): ?string
     {
         return match ($this) {
+            self::ONE => 'Very Poor',
+            self::TWO => 'Poor',
+            self::THREE => 'Average',
+            self::FOUR => 'Good',
+            self::FIVE => 'Excellent',
+        };
+    }
+
+    public function getRating(): ?string
+    {
+        return match ($this) {
             self::ONE => '★',
             self::TWO => '★★',
             self::THREE => '★★★',
