@@ -24,6 +24,7 @@ use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
@@ -172,6 +173,7 @@ class RequestResource extends Resource
                                     ->searchable(),
                             ]),
                     ]),
+
             ]);
     }
 
@@ -264,36 +266,6 @@ class RequestResource extends Resource
                                                 ->label('Availability to'),
 
                                         ]),
-                                    Section::make('Remarks')
-                                        ->columnSpan(4)
-                                        ->schema([
-                                            TextEntry::make('remarks')
-                                                ->columnSpan(2)
-                                                ->formatStateUsing(fn ($record) => new HtmlString($record->remarks))
-                                                ->label(false),
-                                        ]),
-                                ])->columnSpan(4),
-                                Section::make('Request Details')
-                                    ->columnSpan(function ($record) {
-                                        $resolved = in_array(RequestStatus::RESOLVED, $record->actions->pluck('status')->toArray());
-                                        if ($resolved == true) {
-                                            return 4;
-
-                                        } else {
-                                            return 8;
-
-                                        }
-
-                                    })
-                                    ->columns(2)
-                                    ->schema([
-                                        TextEntry::make('category.name')
-                                            ->label('Category'),
-                                        TextEntry::make('subcategory.name')
-                                            ->label('Subcategory'),
-                                    ]),
-                                Group::make([
-
                                     Section::make('Assignees')
                                         ->columnSpan(4)
                                         ->schema([
@@ -302,26 +274,75 @@ class RequestResource extends Resource
                                                 ->placeholder(fn ($record) => implode(', ', $record->assignees->pluck('name')->toArray()))
                                                 ->inLinelabel(false),
                                         ]),
-                                ])->columnSpan(4),
 
-                                Section::make('Request Rating')
-                                    ->columnSpan(4)
-                                    ->visible(fn ($record) => in_array(RequestStatus::RESOLVED, $record->actions->pluck('status')->toArray()))
+                                ])->columnSpan(4),
+                                Section::make('Request Details')
+                                    ->columns(2)
+                                    ->schema([
+                                        TextEntry::make('category.name')
+                                            ->label('Category'),
+                                        TextEntry::make('subcategory.name')
+                                            ->label('Subcategory'),
+                                    ])->columnSpan(4),
+
+                                Group::make([
+
+                                    Section::make('Attachments')
+                                        ->columns(2)
+                                        ->schema(function ($record) {
+                                            return [
+                                                TextEntry::make('attachment.attachable_id')
+                                                    ->formatStateUsing(function ($record) {
+                                                        $attachments = json_decode($record->attachment->paths, true);
+
+                                                        $html = collect($attachments)->map(function ($filename, $path) {
+                                                            $fileName = basename($path);
+                                                            $fileUrl = Storage::url($path);
+
+                                                            return "<a href='{$fileUrl}' download='{$fileName}'>{$filename}</a>";
+                                                        })->implode('<br>');
+
+                                                        return $html;
+                                                    })
+                                                    ->openUrlInNewTab()
+                                                    ->label(false)
+                                                    ->inLineLabel(false)
+                                                    ->html(),
+                                            ];
+                                        }),
+                                ])->columnSpan(4),
+                                Group::make([
+                                    Section::make('Request Rating')
+                                        ->columnSpan(4)
+                                        ->visible(fn ($record) => in_array(RequestStatus::RESOLVED, $record->actions->pluck('status')->toArray()))
+                                        ->schema([
+                                            TextEntry::make('remarks')
+                                                ->formatStateUsing(function ($record) {
+                                                    $resolvedActions = $record->action()
+                                                        ->where('status', RequestStatus::RESOLVED)
+                                                        ->pluck('remarks');
+
+                                                    $remarks = $resolvedActions->implode('</br>');
+
+                                                    return new HtmlString($remarks ?: 'No survey found   .');
+                                                })
+
+                                                ->label(false),
+                                        ]),
+
+                                ])->columnSpan(4),
+                                Section::make('Remarks')
+                                    ->columnSpan(12)
                                     ->schema([
                                         TextEntry::make('remarks')
-                                            ->formatStateUsing(function ($record) {
-                                                $resolvedActions = $record->action()
-                                                    ->where('status', RequestStatus::RESOLVED)
-                                                    ->pluck('remarks');
-
-                                                $remarks = $resolvedActions->implode('</br>');
-
-                                                return new HtmlString($remarks ?: 'No survey found   .');
-                                            })
-
+                                            ->columnSpan(2)
+                                            ->formatStateUsing(fn ($record) => new HtmlString($record->remarks))
                                             ->label(false),
                                     ]),
                             ]),
+                        Group::make([
+
+                        ])->columnSpan(4),
 
                     ]),
                 ActionGroup::make([

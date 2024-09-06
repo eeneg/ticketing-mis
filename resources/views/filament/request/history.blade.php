@@ -50,7 +50,6 @@
                                 </svg>
                                 Remarks
                             </span>
-
                             <div class="prose max-w-none !border-none text-base text-gray-950 dark:prose-invert focus-visible:outline-none dark:text-white sm:text-sm sm:leading-6">
                                 {{ str($action->remarks)->toHtmlString() }}
                             </div>
