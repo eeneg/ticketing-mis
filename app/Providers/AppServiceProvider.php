@@ -13,6 +13,7 @@ use Filament\Support\Enums\VerticalAlignment;
 use Filament\Support\Facades\FilamentAsset;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Sanctum\Sanctum;
@@ -47,5 +48,8 @@ class AppServiceProvider extends ServiceProvider
 
         Notifications::alignment(Alignment::Start);
 
+        if (config('app.env') === 'prod') {
+            URL::forceScheme('https');
+        }
     }
 }
