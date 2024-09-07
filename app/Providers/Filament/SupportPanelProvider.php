@@ -27,7 +27,6 @@ class SupportPanelProvider extends PanelProvider
             ->id('support')
             ->databaseNotifications()
             ->path('support')
-            ->spa()
             ->colors([
                 'primary' => Color::Amber,
             ])

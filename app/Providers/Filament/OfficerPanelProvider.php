@@ -25,7 +25,6 @@ class OfficerPanelProvider extends PanelProvider
         return $panel
             ->id('officer')
             ->path('officer')
-            ->spa()
             ->databaseNotifications()
             ->colors([
                 'primary' => Color::Amber,

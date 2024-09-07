@@ -32,7 +32,6 @@ class UserPanelProvider extends PanelProvider
             ->profile()
             ->id('user')
             ->path('')
-            ->spa()
             ->login(LoginPage::class)
             ->colors([
                 'primary' => Color::Blue,
