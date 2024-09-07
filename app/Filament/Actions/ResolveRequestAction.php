@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Actions\Tables;
+namespace App\Filament\Actions;
 
 use App\Filament\Actions\Traits\ResolveRequestTrait;
 use Filament\Actions\Action;
